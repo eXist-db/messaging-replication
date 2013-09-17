@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://exist-db.org/ns/expath-pkg">
+    <jar>activemq-all-5.8.0.jar</jar>
+    <jar>exist-messaging-replication-1.0.jar</jar>
+    <java>
+        <namespace>http://exist-db.org/xquery/messaging</namespace>
+        <class>org.exist.messaging.xquery.MessagingModule</class>
+    </java>
+</package>
