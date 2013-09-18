@@ -3,11 +3,8 @@
 
     <description>Build descriptor for the messaging-replication extension of eXist-db</description>
 
-    <property file="build.properties"/>
     <property file="local.build.properties"/>
-
-    <property name="project.version" value="0.1"/>
-    <property name="project.name" value="stanford-ner"/>
+    <property file="build.properties"/>
 
     <property name="build.dir" value="build"/>
     <property name="build.libs" value="${build.dir}/lib"/>
@@ -111,7 +108,7 @@
         </zip>       
     </target>
     
-    <target name="install" description="Install jar files into ${exist.dir}">
+    <target name="install" description="Install jar files into ${exist.dir}/lib/extensions">
         <copy file="${build.dir}/exist-${project.name}-${project.version}.jar" todir="${exist.dir}/lib/extensions"/>
         
         <copy todir="${exist.dir}/lib/extensions">
