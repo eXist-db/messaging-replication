@@ -109,9 +109,9 @@
     </target>
     
     <target name="install" description="Install jar files into ${exist.dir}/lib/extensions">
-        <copy file="${build.dir}/exist-${project.name}-${project.version}.jar" todir="${exist.dir}/lib/extensions"/>
+        <copy file="${build.dir}/exist-${project.name}-${project.version}.jar" todir="${exist.dir}/lib/user"/>
         
-        <copy todir="${exist.dir}/lib/extensions">
+        <copy todir="${exist.dir}/lib/user">
             <fileset dir="${java.libs}" includes="*.jar"/>
         </copy>
     </target>

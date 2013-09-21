@@ -1,4 +1,5 @@
-$Id$
+eXist-db Messaging and Document replication extension
+=====================================================
 
 This document provides a short introduction on the document replication function
 of eXist-db.
@@ -18,19 +19,30 @@ Fortunately the steps are not too complex.
 Preparation
 ===========
 
-ActimeMQ
+Ant
+---
+- Download a recent 1.x version of the Ant build tool from http://ant.apache.org/bindownload.cgi
+- Extract archive to disk
+
+ActiveMQ
 --------
-- Download recent version from ActiveMQ from http://activemq.apache.org/download.html ; 
+- Download a recent version from ActiveMQ from http://activemq.apache.org/download.html ; 
   Note that the TGZ file has additional unix (linux, MacOsX) support, the ZIP file
   is for Windows. The contents of the archives actually differ.
-- Extract content to disk, refered as ACTIVEMQ_HOME
-- Copy the activemq-all-X.Y.Z.jar file to EXIST_HOME/lib/user
+- Extract content to disk, referred as ACTIVEMQ_HOME
 
 eXistdb
 -------
-- Build replication extension (modify extensions/local.build.properties) or copy the
-  pre-built version of exist-replication.jar to lib/extensions
+- Install eXist-db version 2.1 or later: 
+    Either download the installer from http://exist-db.org
+    Or compile the software as described on GitHub: https://github.com/eXist-db/exist 
 
+Messaging and Replication extension
+-----------------------------------
+- Run "ant setup" and "ant download" in the cloned project;
+  This will download the required activemq-all-X.Y.Z.jar library
+- Build the project by running "ant"
+- Install the jars into EXIST_HOME by running "ant install"
 
 
 Get Started
