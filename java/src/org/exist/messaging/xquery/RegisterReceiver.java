@@ -26,24 +26,20 @@ import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- *
  * @author wessels
  */
 
 
-public class SendMessage extends BasicFunction {
+public class RegisterReceiver extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
-            new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-            "Send JMS message",
+            new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+            "Register function to receive JMS messages.",
             new SequenceType[]{
-                new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
-                new FunctionParameterSequenceType("properties", Type.MAP,Cardinality.ZERO_OR_ONE, "Application-defined property values"),
-                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.ONE, "JMS configuration")
-                
-           
+                new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.ZERO_OR_ONE, "Function called when a JMS message is received"),
+                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),
             },
             new FunctionReturnSequenceType(Type.NODE, Cardinality.ZERO_OR_ONE, "Confirmation message, if present")
         ),
@@ -51,15 +47,15 @@ public class SendMessage extends BasicFunction {
         
     };
 
-    public SendMessage(XQueryContext context, FunctionSignature signature) {
+    public RegisterReceiver(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
-    
-        throw new XPathException("Not implemented yet");
-    
+        
+            throw new XPathException("Not implemented yet");
+
     }
     
 }

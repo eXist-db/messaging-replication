@@ -35,13 +35,17 @@ import org.exist.xquery.XPathException;
 public class MessagingModule extends AbstractInternalModule {
 
     public final static String NAMESPACE_URI = "http://exist-db.org/xquery/messaging";
-    public final static String PREFIX = "messaging";
+    public final static String PREFIX = "jms";
     public final static String INCLUSION_DATE = "2012-06-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.1";
     
     public final static FunctionDef[] functions = { //new FunctionDef(JFreeCharting.signatures[0], JFreeCharting.class),
       new FunctionDef(SendMessage.signatures[0], SendMessage.class),
-      new FunctionDef(ReceiveMessage.signatures[0], ReceiveMessage.class),
+      new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
+      new FunctionDef(DeleteReceiver.signatures[0], DeleteReceiver.class),
+      new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
+      new FunctionDef(StartReceiver.signatures[0], StartReceiver.class),
+      new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),
     };
     
     public final static QName EXCEPTION_QNAME =

@@ -31,27 +31,24 @@ import org.exist.xquery.value.*;
  */
 
 
-public class SendMessage extends BasicFunction {
+public class StartReceiver extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
-            new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-            "Send JMS message",
+            new QName("start", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+            "Start receiver",
             new SequenceType[]{
-                new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
-                new FunctionParameterSequenceType("properties", Type.MAP,Cardinality.ZERO_OR_ONE, "Application-defined property values"),
-                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.ONE, "JMS configuration")
-                
+                  new FunctionParameterSequenceType("id", Type.STRING, Cardinality.EXACTLY_ONE, "Receiver ID"),            
            
             },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ZERO_OR_ONE, "Confirmation message, if present")
+            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ONE, "XML fragment with receiver information")
         ),
 
         
     };
 
-    public SendMessage(XQueryContext context, FunctionSignature signature) {
+    public StartReceiver(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
