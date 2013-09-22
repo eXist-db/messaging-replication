@@ -53,9 +53,9 @@ public class JmsMessageReceiver implements MessageReceiver {
         jmc.validateContent();
 
         // Retrieve relevant values
-        String initialContextFactory = jmc.getInitalContextProperty(Context.INITIAL_CONTEXT_FACTORY);
+        String initialContextFactory = jmc.getInitialContextFactory();
 
-        String providerURL = jmc.getInitalContextProperty(Context.PROVIDER_URL);
+        String providerURL = jmc.getProviderURL();
 
         String connectionFactory = jmc.getConnectionFactory();
 

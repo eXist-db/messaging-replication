@@ -25,49 +25,54 @@ import javax.naming.Context;
 import org.exist.xquery.XPathException;
 
 
-
 /**
- *
- * @author wessels
+ * Wrapper for managing JMS configuration items.
+ * 
+ * @author Dannes Wessels
  */
 public class JmsMessagingConfiguration extends MessagingConfiguration {
-
+    
+    public static final String CONNECTION_FACTORY = "ConnectionFactory";
+    public static final String DESTINATION = "Destination";
+    public static final String CONFIG_ERROR_MSG = "Missing configuration item '%s'";
+    
     public String getConnectionFactory() {
-        String baseName = getRootName();
-        return getRawConfigurationItem(baseName + "." + "ConnectionFactory");
+        return getProperty(CONNECTION_FACTORY);
     }
 
     public String getDestination() {
-        String baseName = getRootName();
-        return getRawConfigurationItem(baseName + "." + "Destination");
+        return getProperty(DESTINATION);
     }
     
-    public String getInitalContextProperty(String key){
-        String baseName = getRootName();
-        return getRawConfigurationItem(baseName + ".InitialContext." + key);
+    
+    public String getInitialContextFactory(){
+        return getProperty(Context.INITIAL_CONTEXT_FACTORY);
     }
     
-    @Override
+    public String getProviderURL(){
+        return getProperty(Context.PROVIDER_URL);
+    }
+
     public void validateContent() throws XPathException {
         
-        String initialContextFactory = getInitalContextProperty(Context.INITIAL_CONTEXT_FACTORY);
+        String initialContextFactory = getInitialContextFactory();
         if(initialContextFactory==null){
-            throw new XPathException("Missing configuration item '" + Context.INITIAL_CONTEXT_FACTORY+"'");
+            throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.INITIAL_CONTEXT_FACTORY));
         }
         
-        String providerURL = getInitalContextProperty(Context.PROVIDER_URL);
+        String providerURL = getProviderURL();
         if(providerURL==null){
-            throw new XPathException("Missing configuration item '" + Context.PROVIDER_URL +"'");
+            throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.PROVIDER_URL));
         }
         
         String connectionFactory = getConnectionFactory();
         if(connectionFactory==null){
-            throw new XPathException("Missing configuration item 'ConnectionFactory'");
+            throw new XPathException(String.format(CONFIG_ERROR_MSG, CONNECTION_FACTORY));
         }
         
         String destination = getDestination();
         if(destination==null){
-            throw new XPathException("Missing configuration item 'Destination'");
+            throw new XPathException(String.format(CONFIG_ERROR_MSG, DESTINATION));
         }
         
     }

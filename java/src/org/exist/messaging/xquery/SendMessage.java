@@ -22,7 +22,12 @@
 package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
+import org.exist.memtree.NodeImpl;
+import org.exist.messaging.JmsMessageSender;
+import org.exist.messaging.configuration.JmsMessagingConfiguration;
+import org.exist.messaging.configuration.MessagingMetadata;
 import org.exist.xquery.*;
+import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
@@ -40,7 +45,7 @@ public class SendMessage extends BasicFunction {
             "Send JMS message",
             new SequenceType[]{
                 new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
-                new FunctionParameterSequenceType("properties", Type.MAP,Cardinality.ZERO_OR_ONE, "Application-defined property values"),
+                new FunctionParameterSequenceType("properties", Type.MAP,Cardinality.ONE_OR_MORE, "Application-defined property values"),
                 new FunctionParameterSequenceType("config", Type.MAP, Cardinality.ONE, "JMS configuration")
                 
            
@@ -57,9 +62,28 @@ public class SendMessage extends BasicFunction {
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
-    
-        throw new XPathException("Not implemented yet");
-    
+
+        // Get content
+        Item content = args[0].itemAt(0);
+
+        // Get application properties
+        AbstractMapType arg1 = (AbstractMapType) args[1].itemAt(0);
+        MessagingMetadata meta = new MessagingMetadata();
+        meta.loadConfiguration(arg1);
+
+        // Get JMS configuration
+        AbstractMapType arg2 = (AbstractMapType) args[2].itemAt(0);
+
+        JmsMessagingConfiguration config = new JmsMessagingConfiguration();
+        config.loadConfiguration(arg2);
+
+
+        JmsMessageSender sender = new JmsMessageSender(context);
+        NodeImpl result = sender.send(config, meta, content);
+
+
+        return result;
+
     }
     
 }

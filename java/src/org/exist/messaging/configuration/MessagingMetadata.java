@@ -27,9 +27,7 @@ package org.exist.messaging.configuration;
  */
 
 
-public class MessagingMetadata extends NodeParser {
+public class MessagingMetadata extends MessagingConfiguration {
     
-    public void add(String key, String value){
-        getRawValueMap().put(key, value);         
-    }
+
 }
