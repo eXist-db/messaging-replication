@@ -21,18 +21,24 @@
  */
 package org.exist.messaging.xquery;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.exist.dom.QName;
+import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.xquery.*;
+import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
- * @author wessels
+ *  Implementation of the register() function.
+ * 
+ * @author Dannes Wessels
  */
-
-
 public class RegisterReceiver extends BasicFunction {
     
- public final static FunctionSignature signatures[] = {
+    private static List<Receiver> receivers = new ArrayList<Receiver>();
+    
+    public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
             new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
@@ -43,8 +49,7 @@ public class RegisterReceiver extends BasicFunction {
             },
             new FunctionReturnSequenceType(Type.NODE, Cardinality.ZERO_OR_ONE, "Confirmation message, if present")
         ),
-
-        
+      
     };
 
     public RegisterReceiver(XQueryContext context, FunctionSignature signature) {
@@ -54,7 +59,21 @@ public class RegisterReceiver extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         
-            throw new XPathException("Not implemented yet");
+        // Get function
+        FunctionReference reference = (FunctionReference) args[0].itemAt(0);
+              
+        // Get JMS configuration
+        AbstractMapType arg1 = (AbstractMapType) args[1].itemAt(0);
+        JmsConfiguration config = new JmsConfiguration();
+        config.loadConfiguration(arg1);
+        
+        Receiver receiver = new Receiver(reference, config, context.copyContext());
+        receivers.add(receiver);
+        
+        receiver.start();
+
+        
+        return Sequence.EMPTY_SEQUENCE;
 
     }
     

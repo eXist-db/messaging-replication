@@ -31,14 +31,14 @@ import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
- *
- * @author wessels
+ *  Implementation of the send() function.
+ * 
+ * @author Dannes Wessels
  */
-
 
 public class SendMessage extends BasicFunction {
     
- public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
             new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
@@ -50,7 +50,6 @@ public class SendMessage extends BasicFunction {
             },
             new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Confirmation message")
         ),
-
         
     };
 
@@ -80,7 +79,5 @@ public class SendMessage extends BasicFunction {
 
         // Return results
         return result;
-
-    }
-    
+    }    
 }
