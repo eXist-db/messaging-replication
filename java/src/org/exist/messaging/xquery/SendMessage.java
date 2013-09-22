@@ -46,11 +46,9 @@ public class SendMessage extends BasicFunction {
             new SequenceType[]{
                 new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
                 new FunctionParameterSequenceType("properties", Type.MAP,Cardinality.ONE_OR_MORE, "Application-defined property values"),
-                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.ONE, "JMS configuration")
-                
-           
+                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.ONE, "JMS configuration")      
             },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ZERO_OR_ONE, "Confirmation message, if present")
+            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Confirmation message")
         ),
 
         
@@ -73,15 +71,14 @@ public class SendMessage extends BasicFunction {
 
         // Get JMS configuration
         AbstractMapType arg2 = (AbstractMapType) args[2].itemAt(0);
-
         JmsConfiguration config = new JmsConfiguration();
         config.loadConfiguration(arg2);
 
-
+        // Send message
         JmsMessageSender sender = new JmsMessageSender(context);
         NodeImpl result = sender.send(config, meta, content);
 
-
+        // Return results
         return result;
 
     }

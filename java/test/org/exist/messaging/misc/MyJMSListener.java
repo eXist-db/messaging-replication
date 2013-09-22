@@ -3,12 +3,15 @@ package org.exist.messaging.misc;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Enumeration;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
+
 import org.apache.log4j.Logger;
+
 import org.exist.xquery.XPathException;
 import org.exist.xquery.value.BooleanValue;
 import org.exist.xquery.value.DecimalValue;
@@ -17,8 +20,9 @@ import org.exist.xquery.value.FloatValue;
 import org.exist.xquery.value.IntegerValue;
 
 /**
- *
- * @author wessels
+ *  Simple JMS listener that echos incoming data to the logger.
+ * 
+ * @author Dannes Wessels
  */
 public class MyJMSListener implements MessageListener {
 
@@ -69,14 +73,13 @@ public class MyJMSListener implements MessageListener {
             }
             LOG.info(String.format("content='%s' type='%s'", content, msg.getJMSType()));
 
+            // Log properties
             Enumeration props = msg.getPropertyNames();
             while (props.hasMoreElements()) {
                 String elt = (String) props.nextElement();
                 String value = msg.getStringProperty(elt);
                 LOG.info(String.format("'%s'='%s'", elt, value));
             }
-
-            
 
         } catch (JMSException ex) {
             LOG.error(ex);
