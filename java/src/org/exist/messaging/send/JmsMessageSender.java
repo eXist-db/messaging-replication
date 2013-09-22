@@ -20,11 +20,12 @@
  *
  *  $Id$
  */
-package org.exist.messaging;
+package org.exist.messaging.send;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Properties;
 import javax.jms.*;
 import javax.naming.Context;
@@ -36,8 +37,8 @@ import org.exist.dom.NodeProxy;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
-import org.exist.messaging.configuration.JmsMessagingConfiguration;
-import org.exist.messaging.configuration.MessagingMetadata;
+import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.messaging.configuration.JmsMessageProperties;
 import org.exist.storage.serializers.Serializer;
 import org.exist.validation.internal.node.NodeInputStream;
 import org.exist.xquery.XPathException;
@@ -58,14 +59,14 @@ public class JmsMessageSender implements MessageSender {
     }
 
     @Override
-    public NodeImpl send(JmsMessagingConfiguration config, MessagingMetadata metadata, Item content) throws XPathException {
+    public NodeImpl send(JmsConfiguration config, JmsMessageProperties metadata, Item content) throws XPathException {
 
         // JMS specific checks
         config.validateContent();
 
         // Retrieve relevant values
-        String initialContextFactory = config.getInitalContextProperty(Context.INITIAL_CONTEXT_FACTORY);
-        String providerURL = config.getInitalContextProperty(Context.PROVIDER_URL);
+        String initialContextFactory = config.getInitialContextFactory();
+        String providerURL = config.getProviderURL();
         String connectionFactory = config.getConnectionFactory();
         String destination = config.getDestination();
 
@@ -93,11 +94,10 @@ public class JmsMessageSender implements MessageSender {
 
             // Create message
             Message message = createMessage(session, content, metadata, xqcontext);
-            
+
             // Write properties
-            Map<String, String> kvs = metadata.getValueMap();
-            for (String key : kvs.keySet()) {
-                message.setStringProperty(key, kvs.get(key));
+            for (String key : metadata.stringPropertyNames()) {
+                message.setStringProperty(key, metadata.getProperty(key));
             }
 
 
@@ -115,15 +115,14 @@ public class JmsMessageSender implements MessageSender {
             throw new XPathException(ex);
         }
     }
-    
-    
-    private Message createMessage(Session session, Item item, MessagingMetadata mdd, XQueryContext xqcontext) throws JMSException, XPathException {
-        
+
+    private Message createMessage(Session session, Item item, JmsMessageProperties mdd, XQueryContext xqcontext) throws JMSException, XPathException {
+
 
         Message message = null;
-        
-        mdd.add("exist.datatype", Type.getTypeName(item.getType()));
-        
+
+        mdd.setProperty("exist.datatype", Type.getTypeName(item.getType()));
+
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
 
@@ -131,16 +130,16 @@ public class JmsMessageSender implements MessageSender {
                 NodeProxy np = (NodeProxy) item;
                 String uri = np.getDocument().getBaseURI();
                 LOG.debug("Document detected, adding URL " + uri);
-                mdd.add("exist.document-uri", uri);
+                mdd.setProperty("exist.document-uri", uri);
             }
 
             // Node provided
             Serializer serializer = xqcontext.getBroker().newSerializer();
 
             NodeValue node = (NodeValue) item;
-            InputStream is = new NodeInputStream(serializer, node); 
-            
-            ByteArrayOutputStream baos=new ByteArrayOutputStream();
+            InputStream is = new NodeInputStream(serializer, node);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
                 IOUtils.copy(is, baos);
             } catch (IOException ex) {
@@ -149,31 +148,31 @@ public class JmsMessageSender implements MessageSender {
             }
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(baos);
-            
+
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
-            
-            message=bytesMessage;
-            
+
+            message = bytesMessage;
+
 
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
             LOG.debug("Streaming base64 binary");
-            
+
             if (item instanceof Base64BinaryDocument) {
                 Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
-                String uri =  b64doc.getUrl();
+                String uri = b64doc.getUrl();
                 LOG.debug("Base64BinaryDocument detected, adding URL " + uri);
-                mdd.add("exist.document-uri", uri);
+                mdd.setProperty("exist.document-uri", uri);
             }
 
             BinaryValue binary = (BinaryValue) item;
-            
-            ByteArrayOutputStream baos=new ByteArrayOutputStream();
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             InputStream is = binary.getInputStream();
-            
+
             //TODO consider using BinaryValue.getInputStream()
             //byte[] data = (byte[]) binary.toJavaObject(byte[].class);
-            
+
             try {
                 IOUtils.copy(is, baos);
             } catch (IOException ex) {
@@ -182,20 +181,49 @@ public class JmsMessageSender implements MessageSender {
             }
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(baos);
-            
+
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
-            
-            message=bytesMessage;
-        } else if (item.getType() == Type.STRING){
+
+            message = bytesMessage;
+
+        } else if (item.getType() == Type.STRING) {
             TextMessage textMessage = session.createTextMessage();
             textMessage.setText(item.getStringValue());
-            message=textMessage;
+            message = textMessage;
+
 
         } else {
             ObjectMessage objectMessage = session.createObjectMessage();
+
+            switch (item.getType()) {
+                case Type.INTEGER:
+                    BigInteger value1 = item.toJavaObject(BigInteger.class);
+                    objectMessage.setObject(value1);
+                    break;
+                case Type.DOUBLE:
+                    Double value2 = item.toJavaObject(Double.class);
+                    objectMessage.setObject(value2);
+                    break;
+                case Type.FLOAT:
+                    Float value3 = item.toJavaObject(Float.class);
+                    objectMessage.setObject(value3);
+                    break;
+                case Type.DECIMAL:
+                    BigDecimal value5 = item.toJavaObject(BigDecimal.class);
+                    objectMessage.setObject(value5);
+                    break;
+                case Type.BOOLEAN:
+                    Boolean value6 = item.toJavaObject(Boolean.class);
+                    objectMessage.setObject(value6);
+                    break;    
+                default:
+                    throw new XPathException(
+                            String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
+            }
+
             //objectMessage.setObject(item.toJavaObject(Object.class)); TODO hmmmm
-            message=objectMessage;
+            message = objectMessage;
         }
 
         return message;
@@ -203,7 +231,7 @@ public class JmsMessageSender implements MessageSender {
 
     /**
      * Create messaging results report
-     * 
+     *
      * TODO shared code
      */
     private NodeImpl createReport(Message message, XQueryContext xqcontext) {
@@ -212,7 +240,7 @@ public class JmsMessageSender implements MessageSender {
 
         // start root element
         int nodeNr = builder.startElement("", "JMS", "JMS", null);
-        
+
         try {
             String txt = message.getJMSMessageID();
             if (txt != null) {
@@ -223,7 +251,7 @@ public class JmsMessageSender implements MessageSender {
         } catch (JMSException ex) {
             LOG.error(ex);
         }
-        
+
         try {
             String txt = message.getJMSCorrelationID();
             if (txt != null) {

@@ -21,20 +21,46 @@
  */
 package org.exist.messaging.configuration;
 
+import java.util.Properties;
 import org.exist.xquery.XPathException;
-
-
+import org.exist.xquery.functions.map.AbstractMapType;
+import org.exist.xquery.value.Item;
+import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceIterator;
+import org.exist.xquery.value.StringValue;
 
 /**
- *
- * @author wessels
+ *  Wrapper for properties object.
+ * 
+ * @author Dannes Wessels
  */
-
-
-public class MessagingConfiguration extends NodeParser {
+public class MessagingConfiguration extends Properties {
     
+   /**
+     * Load data from XQuery map-type.
+     *
+     * @param map The XQuery map
+     * @return The converted map
+     * @throws XPathException Something bad happened.
+     */
+    public void loadConfiguration(AbstractMapType map) throws XPathException {
 
-    protected void validateContent() throws XPathException {
-        throw new XPathException("not implemented");
+        // Get all keys
+        Sequence keys = map.keys();
+
+        // Iterate over all keys
+        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
+
+            // Get next item
+            Item item = i.nextItem();
+
+            // Parse data only if the key is a String
+            if (item instanceof StringValue) {
+                StringValue key = (StringValue) item;
+                Sequence values = map.get(key);
+                this.setProperty(key.getStringValue(), values.getStringValue());
+            }
+
+        }
     }
 }

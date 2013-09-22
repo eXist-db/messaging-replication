@@ -20,7 +20,7 @@
  *
  *  $Id$
  */
-package org.exist.messaging;
+package org.exist.messaging.receive;
 
 import java.util.Properties;
 import javax.jms.*;
@@ -28,7 +28,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import org.apache.log4j.Logger;
 import org.exist.memtree.NodeImpl;
-import org.exist.messaging.configuration.JmsMessagingConfiguration;
+import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
@@ -47,15 +47,15 @@ public class JmsMessageReceiver implements MessageReceiver {
     }
 
     @Override
-    public NodeImpl receive(JmsMessagingConfiguration jmc, FunctionReference ref) throws XPathException {
+    public NodeImpl receive(JmsConfiguration jmc, FunctionReference ref) throws XPathException {
 
         // JMS specific checks
         jmc.validateContent();
 
         // Retrieve relevant values
-        String initialContextFactory = jmc.getInitalContextProperty(Context.INITIAL_CONTEXT_FACTORY);
+        String initialContextFactory = jmc.getInitialContextFactory();
 
-        String providerURL = jmc.getInitalContextProperty(Context.PROVIDER_URL);
+        String providerURL = jmc.getProviderURL();
 
         String connectionFactory = jmc.getConnectionFactory();
 

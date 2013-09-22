@@ -19,18 +19,19 @@
  *
  *  $Id$
  */
-package org.exist.messaging;
+package org.exist.messaging.send;
 
 import org.exist.memtree.NodeImpl;
-import org.exist.messaging.configuration.JmsMessagingConfiguration;
+import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.messaging.configuration.JmsMessageProperties;
 import org.exist.xquery.XPathException;
-import org.exist.xquery.value.FunctionReference;
+import org.exist.xquery.value.Item;
 
 /**
  *
  * @author Dannes Wessels
  */
-public interface MessageReceiver {
+public interface MessageSender {
 
-    public NodeImpl receive(JmsMessagingConfiguration jmc, FunctionReference ref) throws XPathException ;
+    public NodeImpl send(JmsConfiguration jmc, JmsMessageProperties mmd, Item content) throws XPathException ;
 }

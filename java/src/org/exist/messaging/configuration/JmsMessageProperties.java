@@ -22,14 +22,10 @@
 package org.exist.messaging.configuration;
 
 /**
- *
- * @author wessels
+ *  Class for containing JMS Message properties (application specific)
+ * 
+ * @author Dannes Wessels
  */
-
-
-public class MessagingMetadata extends NodeParser {
-    
-    public void add(String key, String value){
-        getRawValueMap().put(key, value);         
-    }
+public class JmsMessageProperties extends MessagingConfiguration {
+    // Intentionally left empty
 }

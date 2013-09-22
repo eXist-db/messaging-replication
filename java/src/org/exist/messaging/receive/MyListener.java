@@ -19,7 +19,7 @@
  *
  *  $Id$
  */
-package org.exist.messaging;
+package org.exist.messaging.receive;
 
 import java.util.Enumeration;
 import javax.jms.*;
