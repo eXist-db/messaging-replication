@@ -213,6 +213,10 @@ public class JmsMessageSender implements MessageSender {
                     BigDecimal value5 = item.toJavaObject(BigDecimal.class);
                     objectMessage.setObject(value5);
                     break;
+                case Type.BOOLEAN:
+                    Boolean value6 = item.toJavaObject(Boolean.class);
+                    objectMessage.setObject(value6);
+                    break;    
                 default:
                     throw new XPathException(
                             String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
