@@ -23,9 +23,9 @@ package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
 import org.exist.memtree.NodeImpl;
-import org.exist.messaging.JmsMessageSender;
-import org.exist.messaging.configuration.JmsMessagingConfiguration;
-import org.exist.messaging.configuration.MessagingMetadata;
+import org.exist.messaging.send.JmsMessageSender;
+import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.messaging.configuration.JmsMessageProperties;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
@@ -68,13 +68,13 @@ public class SendMessage extends BasicFunction {
 
         // Get application properties
         AbstractMapType arg1 = (AbstractMapType) args[1].itemAt(0);
-        MessagingMetadata meta = new MessagingMetadata();
+        JmsMessageProperties meta = new JmsMessageProperties();
         meta.loadConfiguration(arg1);
 
         // Get JMS configuration
         AbstractMapType arg2 = (AbstractMapType) args[2].itemAt(0);
 
-        JmsMessagingConfiguration config = new JmsMessagingConfiguration();
+        JmsConfiguration config = new JmsConfiguration();
         config.loadConfiguration(arg2);
 
 
