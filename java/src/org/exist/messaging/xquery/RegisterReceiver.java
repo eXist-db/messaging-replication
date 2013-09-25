@@ -67,7 +67,7 @@ public class RegisterReceiver extends BasicFunction {
         JmsConfiguration config = new JmsConfiguration();
         config.loadConfiguration(arg1);
         
-        Receiver receiver = new Receiver(reference, config, context.copyContext());
+        Receiver receiver = new Receiver(reference, config, context); // .copyContext()
         receivers.add(receiver);
         
         receiver.start();

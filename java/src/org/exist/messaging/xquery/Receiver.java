@@ -1,3 +1,24 @@
+/*
+ *  eXist Open Source Native XML Database
+ *  Copyright (C) 2013 The eXist Project
+ *  http://exist-db.org
+ *
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2
+ *  of the License, or (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
+ *
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this library; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ *  $Id$
+ */
 package org.exist.messaging.xquery;
 
 import java.io.ByteArrayInputStream;
@@ -5,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Properties;
+
 import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -16,13 +38,16 @@ import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+
 import javax.naming.Context;
 import javax.naming.InitialContext;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.log4j.Logger;
+
 import org.exist.Namespaces;
-import org.exist.dom.NodeProxy;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
 import org.exist.messaging.configuration.JmsConfiguration;
@@ -32,29 +57,27 @@ import org.exist.validation.ValidationReport;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.map.MapType;
-import org.exist.xquery.value.AtomicValue;
-import org.exist.xquery.value.Base64BinaryValueType;
+import org.exist.xquery.value.Base64BinaryDocument;
 import org.exist.xquery.value.BinaryValue;
-import org.exist.xquery.value.BinaryValueFromInputStream;
 import org.exist.xquery.value.BooleanValue;
 import org.exist.xquery.value.DecimalValue;
 import org.exist.xquery.value.DoubleValue;
 import org.exist.xquery.value.FloatValue;
 import org.exist.xquery.value.FunctionReference;
 import org.exist.xquery.value.IntegerValue;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.NodeValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 /**
- *
- * @author wessels
+ * JMS messages receiver.
+ * 
+ * Starts a JMS listener to receive messages from the broker
+ * 
+ * @author Dannes Wessels (dannes@exist-db.org)
  */
 public class Receiver {
 
@@ -85,18 +108,17 @@ public class Receiver {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory());
             props.setProperty(Context.PROVIDER_URL, config.getProviderURL());
-            Context context = new InitialContext(props);
+            Context initialContext = new InitialContext(props);
 
             // Setup connection
-            ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup(config.getConnectionFactory());
+            ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(config.getConnectionFactory());
             Connection connection = connectionFactory.createConnection();
 
             // Setup session
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Setup destination
-            Destination destination = (Destination) context.lookup(config.getDestination());
-            LOG.info("Destination=" + destination);
+            Destination destination = (Destination) initialContext.lookup(config.getDestination());
 
             // Setup consumer
             MessageConsumer messageConsumer = session.createConsumer(destination);
@@ -132,31 +154,44 @@ public class Receiver {
         @Override
         public void onMessage(Message msg) {
             
+            // Log incoming message
             try {
+                LOG.info(String.format("Received message: ID=%s JavaType=", msg.getJMSMessageID(), msg.getClass().getSimpleName()));
+            } catch (JMSException ex) {
+                LOG.error(ex.getMessage());
+            }
+            
+            // Placeholder for broker
+            DBBroker dummyBroker=null;
+            
+            try {
+                /*
+                 * Work around to to have a broker available for the
+                 * execution of #evalFunction. In the onMessage() method this
+                 * broker is not being used at all.
+                 */
                 BrokerPool bp = BrokerPool.getInstance();
-                DBBroker broker1=bp.getBroker();
-                DBBroker broker2=bp.getBroker();
-                broker2.release();
-                broker1.release();
-                bp.release(broker2);
-                 bp.release(broker1);
-                
-                LOG.info(String.format("msgId='%s'", msg.getJMSMessageID()));
-                
-                // Copy property values into Maptype
+                dummyBroker=bp.getBroker();
+                   
+                // Copy message and jms configuration details into Maptypes
                 MapType msgProperties = getMessageProperties(msg, xqueryContext);
                 MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
-                // Show content
+                // This sequence shall contain the actual conten that will be passed
+                // to the callback function
                 Sequence content = null;
                 
+                // Switch based on incoming
                 if (msg instanceof TextMessage) {
-                    LOG.info("TextMessage");
+                    
+                    // xs:string values are passed as regular Text messages
                     content = new StringValue(((TextMessage) msg).getText());
 
                 } else if (msg instanceof ObjectMessage) {
+                    
+                    // the supported other types are wrapped into a corresponding
+                    // Java object inside the ObjectMessage
                     Object obj = ((ObjectMessage) msg).getObject();
-                    LOG.info(obj.getClass().getCanonicalName());
 
                     if (obj instanceof BigInteger) {
                         content = new IntegerValue((BigInteger) obj);
@@ -174,19 +209,24 @@ public class Receiver {
                         content = new FloatValue((Float) obj);
 
                     } else {
-                        LOG.error(String.format("Unable to convert %s", obj.toString()));
+                        String txt=String.format("Unable to convert the object %s", obj.toString());
+                        LOG.error(txt);
+                        throw new XPathException(txt);
                     }
                 
                 } else if(msg instanceof BytesMessage){
                     
+                    // XML nodes and base64 (binary) data are sent as an array of bytes
                     BytesMessage bm = (BytesMessage) msg;
+                    
+                    // Read data into byte buffer
                     byte[] data = new byte[(int) bm.getBodyLength()];
-
                     bm.readBytes(data);
                     
                     // if XML(fragment)
                     if ("xml".equalsIgnoreCase(bm.getStringProperty("exist.data.type"))) {
-
+                        
+                        // XML fragment
                         ByteArrayInputStream bais = new ByteArrayInputStream(data);
 
                         final ValidationReport report = new ValidationReport();
@@ -209,27 +249,24 @@ public class Receiver {
                             content = (DocumentImpl) adapter.getDocument();
                         } else {
                             String txt = "Received document is not valid: " + report.toString();
+                            LOG.debug(txt);
                             throw new XPathException(txt);
                         }
-                        
-                        
 
                     } else {
+                        // Binary data
                         ByteArrayInputStream bais = new ByteArrayInputStream(data);                        
-                        BinaryValue bv = BinaryValueFromInputStream.getInstance(xqueryContext, new Base64BinaryValueType(), bais);
-                        
+                        BinaryValue bv = Base64BinaryDocument.getInstance(xqueryContext, bais);
                         content=bv;
                     }
                     
                     
-
                 } else {
-                    LOG.info(msg.getClass().getCanonicalName());
-                    //content = msg.toString();
+                    // Unsupported JMS message type
+                    String txt = "Unsupported JMS Message type " + msg.getClass().getCanonicalName();
+                    LOG.error(txt);
+                    throw new XPathException(txt);
                 }
-                LOG.info(String.format("content='%s' type='%s'", content, msg.getJMSType()));
-                
-                
                 
                 // Setup parameters callback function
                 Sequence params[] = new Sequence[3];
@@ -238,10 +275,15 @@ public class Receiver {
                 params[2] = jmsProperties;
                 
                 // Execute callback function
-                functionReference.evalFunction(null, null, params);
+                Sequence result = functionReference.evalFunction(null, null, params);
+                
+                // Done
+                if(LOG.isDebugEnabled()){
+                    LOG.debug(String.format("Function returned%s", result.getStringValue()));
+                }
 
             } catch (JMSException ex) {
-                LOG.error(ex);
+                LOG.error(ex.getMessage(), ex);
                 ex.printStackTrace();
 
             } catch (XPathException ex) {
@@ -249,8 +291,14 @@ public class Receiver {
                 ex.printStackTrace();
 
             } catch (Throwable ex) {
-                LOG.error(ex);
+                LOG.error(ex.getMessage(), ex);
                 ex.printStackTrace();
+                
+            } finally {
+                // Cleanup resources
+                if(dummyBroker!=null){
+                    dummyBroker.release();
+                }  
             }
 
         }
