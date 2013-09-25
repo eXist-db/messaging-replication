@@ -1,9 +1,11 @@
 package org.exist.messaging.xquery;
 
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Properties;
+import javax.jms.BytesMessage;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
@@ -16,12 +18,22 @@ import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.apache.log4j.Logger;
+import org.exist.Namespaces;
+import org.exist.dom.NodeProxy;
+import org.exist.memtree.DocumentImpl;
+import org.exist.memtree.SAXAdapter;
 import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.validation.ValidationReport;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.functions.map.MapType;
 import org.exist.xquery.value.AtomicValue;
+import org.exist.xquery.value.Base64BinaryValueType;
+import org.exist.xquery.value.BinaryValue;
+import org.exist.xquery.value.BinaryValueFromInputStream;
 import org.exist.xquery.value.BooleanValue;
 import org.exist.xquery.value.DecimalValue;
 import org.exist.xquery.value.DoubleValue;
@@ -29,9 +41,14 @@ import org.exist.xquery.value.FloatValue;
 import org.exist.xquery.value.FunctionReference;
 import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Item;
+import org.exist.xquery.value.NodeValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 /**
  *
@@ -40,8 +57,8 @@ import org.exist.xquery.value.ValueSequence;
 public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
-    // Setup listener
-    MyJMSListener myListener = new MyJMSListener();
+    
+    private MyJMSListener myListener = new MyJMSListener();
     private FunctionReference ref;
     private JmsConfiguration config;
     private XQueryContext context;
@@ -52,9 +69,13 @@ public class Receiver {
         this.context = context;
     }
 
+    /**
+     * Start listener
+     */
     void start() {
 
         try {
+            // Setup listener
             myListener.setFunctionReference(ref);
             myListener.setXQueryContext(context);
 
@@ -94,16 +115,27 @@ public class Receiver {
 
         private FunctionReference functionReference;
         private XQueryContext xqueryContext;
+        
+        public MyJMSListener(){
+            // NOP
+        }
 
-//        public MyJMSListener() {
-//        }
+        public MyJMSListener(FunctionReference functionReference, XQueryContext xqueryContext) {
+            this.functionReference=functionReference;
+            this.xqueryContext=xqueryContext;
+        }
+        
         @Override
         public void onMessage(Message msg) {
             try {
                 LOG.info(String.format("msgId='%s'", msg.getJMSMessageID()));
+                
+                // Copy property values into Maptype
+                MapType msgProperties = getMessageProperties(msg, xqueryContext);
+                MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
                 // Show content
-                AtomicValue content = null;
+                Sequence content = null;
                 
                 if (msg instanceof TextMessage) {
                     LOG.info("TextMessage");
@@ -131,6 +163,53 @@ public class Receiver {
                     } else {
                         LOG.error(String.format("Unable to convert %s", obj.toString()));
                     }
+                
+                } else if(msg instanceof BytesMessage){
+                    
+                    BytesMessage bm = (BytesMessage) msg;
+                    byte[] data = new byte[(int) bm.getBodyLength()];
+
+                    bm.readBytes(data);
+                    
+                    // if XML(fragment)
+                    if ("xml".equalsIgnoreCase(bm.getStringProperty("exist.data.type"))) {
+
+                        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+
+                        final ValidationReport report = new ValidationReport();
+                        final SAXAdapter adapter = new SAXAdapter(xqueryContext);
+
+                        final SAXParserFactory factory = SAXParserFactory.newInstance();
+                        factory.setNamespaceAware(true);
+                        final InputSource src = new InputSource(bais);
+
+                        final SAXParser parser = factory.newSAXParser();
+                        XMLReader xr = parser.getXMLReader();
+
+                        xr.setErrorHandler(report);
+                        xr.setContentHandler(adapter);
+                        xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
+                        xr.parse(src);
+
+                        if (report.isValid()){
+                            //content=new NodeProxy(doc.);
+                            content = (DocumentImpl) adapter.getDocument();
+                        } else {
+                            String txt = "Received document is not valid: " + report.toString();
+                            throw new XPathException(txt);
+                        }
+                        
+                        
+
+                    } else {
+                        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                        
+                        BinaryValue bv = BinaryValueFromInputStream.getInstance(xqueryContext, new Base64BinaryValueType(), bais);
+                        
+                        content=bv;
+                    }
+                    
+                    
 
                 } else {
                     LOG.info(msg.getClass().getCanonicalName());
@@ -138,9 +217,7 @@ public class Receiver {
                 }
                 LOG.info(String.format("content='%s' type='%s'", content, msg.getJMSType()));
                 
-                // Copy property values into Maptype
-                MapType msgProperties = getMessageProperties(msg, xqueryContext);
-                MapType jmsProperties = getJmsProperties(msg, xqueryContext);
+                
                 
                 // Setup parameters callback function
                 Sequence params[] = new Sequence[3];

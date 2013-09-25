@@ -125,12 +125,13 @@ public class JmsMessageSender implements MessageSender {
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
+            
+            mdd.setProperty("exist.data.type", "xml");
 
             if (item instanceof NodeProxy) {
                 NodeProxy np = (NodeProxy) item;
-                String uri = np.getDocument().getBaseURI();
-                LOG.debug("Document detected, adding URL " + uri);
-                mdd.setProperty("exist.document-uri", uri);
+                mdd.setProperty("exist.document.uri", np.getDocument().getBaseURI());
+                mdd.setProperty("exist.document.mimetype", np.getDocument().getMetadata().getMimeType());
             }
 
             // Node provided
@@ -139,9 +140,11 @@ public class JmsMessageSender implements MessageSender {
             NodeValue node = (NodeValue) item;
             InputStream is = new NodeInputStream(serializer, node);
 
+            //mdd.setProperty("exist.data.type", "none");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
-                IOUtils.copy(is, baos);
+                baos.write(is);
+                
             } catch (IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
@@ -152,18 +155,23 @@ public class JmsMessageSender implements MessageSender {
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
 
+            // Swap
             message = bytesMessage;
 
 
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
+            
             LOG.debug("Streaming base64 binary");
 
             if (item instanceof Base64BinaryDocument) {
                 Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
                 String uri = b64doc.getUrl();
                 LOG.debug("Base64BinaryDocument detected, adding URL " + uri);
-                mdd.setProperty("exist.document-uri", uri);
+                mdd.setProperty("exist.document.uri", uri);
+                
             }
+            
+            mdd.setProperty("exist.data.type", "binary");
 
             BinaryValue binary = (BinaryValue) item;
 
@@ -174,7 +182,8 @@ public class JmsMessageSender implements MessageSender {
             //byte[] data = (byte[]) binary.toJavaObject(byte[].class);
 
             try {
-                IOUtils.copy(is, baos);
+                baos.write(is);
+
             } catch (IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
@@ -185,6 +194,7 @@ public class JmsMessageSender implements MessageSender {
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
 
+            // Swap
             message = bytesMessage;
 
         } else if (item.getType() == Type.STRING) {
