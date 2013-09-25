@@ -26,6 +26,8 @@ import org.exist.dom.NodeProxy;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
 import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.storage.BrokerPool;
+import org.exist.storage.DBBroker;
 import org.exist.validation.ValidationReport;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
@@ -118,16 +120,27 @@ public class Receiver {
         
         public MyJMSListener(){
             // NOP
+            
         }
 
         public MyJMSListener(FunctionReference functionReference, XQueryContext xqueryContext) {
+            super();
             this.functionReference=functionReference;
             this.xqueryContext=xqueryContext;
         }
         
         @Override
         public void onMessage(Message msg) {
+            
             try {
+                BrokerPool bp = BrokerPool.getInstance();
+                DBBroker broker1=bp.getBroker();
+                DBBroker broker2=bp.getBroker();
+                broker2.release();
+                broker1.release();
+                bp.release(broker2);
+                 bp.release(broker1);
+                
                 LOG.info(String.format("msgId='%s'", msg.getJMSMessageID()));
                 
                 // Copy property values into Maptype
@@ -202,8 +215,7 @@ public class Receiver {
                         
 
                     } else {
-                        ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                        
+                        ByteArrayInputStream bais = new ByteArrayInputStream(data);                        
                         BinaryValue bv = BinaryValueFromInputStream.getInstance(xqueryContext, new Base64BinaryValueType(), bais);
                         
                         content=bv;
