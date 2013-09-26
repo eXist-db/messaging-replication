@@ -31,9 +31,8 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
+
 import javax.xml.parsers.ParserConfigurationException;
-
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -62,8 +61,6 @@ import org.exist.xquery.value.ValueSequence;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
 
 /**
@@ -169,7 +166,7 @@ public class ReceiverJMSListener implements MessageListener {
 
             // Done
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Function returned%s", result.getStringValue()));
+                LOG.debug(String.format("Function returned %s", result.getStringValue()));
             }
 
         } catch (JMSException ex) {
@@ -289,7 +286,6 @@ public class ReceiverJMSListener implements MessageListener {
             xr.parse(src);
             
             if (report.isValid()) {
-                //content=new NodeProxy(doc.);
                 content = (DocumentImpl) adapter.getDocument();
             } else {
                 String txt = "Received document is not valid: " + report.toString();

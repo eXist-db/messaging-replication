@@ -34,11 +34,10 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.log4j.Logger;
 
 import org.exist.dom.NodeProxy;
-import org.exist.memtree.DocumentImpl;
-import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.configuration.JmsMessageProperties;
+import org.exist.messaging.shared.Reporter;
 import org.exist.storage.serializers.Serializer;
 import org.exist.validation.internal.node.NodeInputStream;
 import org.exist.xquery.XPathException;
@@ -52,6 +51,14 @@ import org.exist.xquery.value.*;
 public class Sender  {
 
     private final static Logger LOG = Logger.getLogger(Sender.class);
+    
+    public static final String EXIST_XPATH_DATATYPE = "exist.xpath.datatype";
+    public static final String EXIST_DATA_TYPE = "exist.data.type";
+    public static final String EXIST_DOCUMENT_URI = "exist.document.uri";
+    public static final String EXIST_DOCUMENT_MIMETYPE = "exist.document.mimetype";
+    public static final String DATA_TYPE_XML = "xml";
+    public static final String DATA_TYPE_BINARY = "binary";
+    
     private XQueryContext xqcontext;
 
     public Sender(XQueryContext context) {
@@ -108,30 +115,29 @@ public class Sender  {
             // TODO keep connection open for re-use, efficiency
             connection.close();
 
-            return createReport(message, xqcontext);
+            return Reporter.createReport(message);
 
         } catch (Throwable ex) {
             LOG.error(ex);
-            throw new XPathException(ex);
+            throw new XPathException(ex.getMessage());
         }
     }
 
     private Message createMessage(Session session, Item item, JmsMessageProperties mdd, XQueryContext xqcontext) throws JMSException, XPathException {
 
-
         Message message = null;
 
-        mdd.setProperty("exist.datatype", Type.getTypeName(item.getType()));
+        mdd.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
             
-            mdd.setProperty("exist.data.type", "xml");
+            mdd.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
 
             if (item instanceof NodeProxy) {
                 NodeProxy np = (NodeProxy) item;
-                mdd.setProperty("exist.document.uri", np.getDocument().getBaseURI());
-                mdd.setProperty("exist.document.mimetype", np.getDocument().getMetadata().getMimeType());
+                mdd.setProperty(EXIST_DOCUMENT_URI, np.getDocument().getBaseURI());
+                mdd.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDocument().getMetadata().getMimeType());
             }
 
             // Node provided
@@ -140,7 +146,6 @@ public class Sender  {
             NodeValue node = (NodeValue) item;
             InputStream is = new NodeInputStream(serializer, node);
 
-            //mdd.setProperty("exist.data.type", "none");
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
                 baos.write(is);
@@ -166,12 +171,13 @@ public class Sender  {
             if (item instanceof Base64BinaryDocument) {
                 Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
                 String uri = b64doc.getUrl();
+
                 LOG.debug("Base64BinaryDocument detected, adding URL " + uri);
-                mdd.setProperty("exist.document.uri", uri);
+                mdd.setProperty(EXIST_DOCUMENT_URI, uri);
                 
             }
             
-            mdd.setProperty("exist.data.type", "binary");
+            mdd.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
 
             BinaryValue binary = (BinaryValue) item;
 
@@ -239,57 +245,4 @@ public class Sender  {
         return message;
     }
 
-    /**
-     * Create messaging results report
-     *
-     * TODO shared code
-     */
-    private NodeImpl createReport(Message message, XQueryContext xqcontext) {
-
-        MemTreeBuilder builder = xqcontext.getDocumentBuilder();
-
-        // start root element
-        int nodeNr = builder.startElement("", "JMS", "JMS", null);
-
-        try {
-            String txt = message.getJMSMessageID();
-            if (txt != null) {
-                builder.startElement("", "MessageID", "MessageID", null);
-                builder.characters(message.getJMSMessageID());
-                builder.endElement();
-            }
-        } catch (JMSException ex) {
-            LOG.error(ex);
-        }
-
-        try {
-            String txt = message.getJMSCorrelationID();
-            if (txt != null) {
-                builder.startElement("", "CorrelationID", "CorrelationID", null);
-                builder.characters(message.getJMSCorrelationID());
-                builder.endElement();
-            }
-        } catch (JMSException ex) {
-            LOG.error(ex);
-        }
-
-        try {
-            String txt = message.getJMSType();
-            if (txt != null) {
-                builder.startElement("", "Type", "Type", null);
-                builder.characters(message.getJMSType());
-                builder.endElement();
-            }
-        } catch (JMSException ex) {
-            LOG.error(ex);
-        }
-
-        // finish root element
-        builder.endElement();
-
-        // return result
-        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
-
-
-    }
 }
