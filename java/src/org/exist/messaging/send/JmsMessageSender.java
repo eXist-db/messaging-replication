@@ -1,4 +1,3 @@
-
 /*
  *  eXist Open Source Native XML Database
  *  Copyright (C) 2012 The eXist Project
@@ -62,7 +61,7 @@ public class JmsMessageSender implements MessageSender {
     public NodeImpl send(JmsConfiguration config, JmsMessageProperties metadata, Item content) throws XPathException {
 
         // JMS specific checks
-        config.validateContent();
+        config.validate();
 
         // Retrieve relevant values
         String initialContextFactory = config.getInitialContextFactory();
