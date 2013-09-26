@@ -21,7 +21,7 @@ package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
 import org.exist.memtree.NodeImpl;
-import org.exist.messaging.send.JmsMessageSender;
+import org.exist.messaging.send.Sender;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.configuration.JmsMessageProperties;
 import org.exist.xquery.*;
@@ -72,7 +72,7 @@ public class SendMessage extends BasicFunction {
         config.loadConfiguration(arg2);
 
         // Send message
-        JmsMessageSender sender = new JmsMessageSender(context);
+        Sender sender = new Sender(context);
         NodeImpl result = sender.send(config, meta, content);
 
         // Return results

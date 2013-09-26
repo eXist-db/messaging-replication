@@ -19,6 +19,7 @@
  */
 package org.exist.messaging.xquery;
 
+import org.exist.messaging.receive.Receiver;
 import java.util.ArrayList;
 import java.util.List;
 import org.exist.dom.QName;
