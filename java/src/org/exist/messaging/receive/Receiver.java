@@ -20,10 +20,12 @@
 package org.exist.messaging.receive;
 
 import java.util.Properties;
+import java.util.logging.Level;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 
@@ -40,19 +42,27 @@ import org.exist.xquery.value.FunctionReference;
 
 /**
  * JMS messages receiver.
- * 
+ *
  * Starts a JMS listener to receive messages from the broker
- * 
+ *
  * @author Dannes Wessels (dannes@exist-db.org)
  */
 public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
-    
     private ReceiverJMSListener myListener = new ReceiverJMSListener();
     private FunctionReference ref;
     private JmsConfiguration config;
     private XQueryContext context;
+    
+    
+   
+    private Context initialContext = null;
+    private ConnectionFactory connectionFactory = null;
+    private Session session=null;
+    private Destination destination=null;
+    private MessageConsumer messageConsumer=null;
+     private Connection connection = null;
 
     public Receiver(FunctionReference ref, JmsConfiguration config, XQueryContext context) {
         this.ref = ref;
@@ -60,12 +70,30 @@ public class Receiver {
         this.context = context;
     }
 
-    /**
-     * Start listener
-     */
     public void start() throws XPathException {
-        
-         // JMS specific checks
+
+        if (connection == null) {
+            throw new XPathException("JMS connection must be initialized first");
+        }
+
+
+        try {
+            // Start listener
+            connection.start();
+
+            LOG.info(String.format("JMS connection is started. ClientId=%s", connection.getClientID()));
+        } catch (JMSException ex) {
+            LOG.error(ex);
+            throw new XPathException(ex.getMessage());
+        }
+    }
+
+    /**
+     * Initialize
+     */
+    public void initialize() throws XPathException {
+
+        // JMS specific checks
         config.validate();
 
         try {
@@ -77,26 +105,24 @@ public class Receiver {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory());
             props.setProperty(Context.PROVIDER_URL, config.getProviderURL());
-            Context initialContext = new InitialContext(props);
+            initialContext = new InitialContext(props);
 
             // Setup connection
-            ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(config.getConnectionFactory());
-            Connection connection = connectionFactory.createConnection();
+            connectionFactory = (ConnectionFactory) initialContext.lookup(config.getConnectionFactory());
+            connection = connectionFactory.createConnection();
 
             // Setup session
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Setup destination
-            Destination destination = (Destination) initialContext.lookup(config.getDestination());
+            destination = (Destination) initialContext.lookup(config.getDestination());
 
             // Setup consumer
-            MessageConsumer messageConsumer = session.createConsumer(destination);
+            messageConsumer = session.createConsumer(destination);
             messageConsumer.setMessageListener(myListener);
 
-            // Start listener
-            connection.start();
 
-            LOG.info(String.format("Receiver is ready. ClientId=%s", connection.getClientID()));
+            LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));
 
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
@@ -104,5 +130,40 @@ public class Receiver {
 
     }
 
-    
+    public void stop() throws XPathException {
+
+
+        if (connection == null) {
+            throw new XPathException("JMS connection must be initialized first");
+        }
+
+        try {
+            // Start listener
+            connection.stop();
+
+            LOG.info(String.format("JMS connection is stopped. ClientId=%s", connection.getClientID()));
+            
+        } catch (JMSException ex) {
+            LOG.error(ex);
+            throw new XPathException(ex.getMessage());
+        }
+    }
+
+    public void close() throws XPathException {
+
+        if (connection == null) {
+            throw new XPathException("JMS connection must be initialized first");
+        }
+
+        try {
+            // Start listener
+            connection.close();
+
+            LOG.info(String.format("JMS connection is closed. ClientId=%s", connection.getClientID()));
+            
+        } catch (JMSException ex) {
+            LOG.error(ex);
+            throw new XPathException(ex.getMessage());
+        }
+    }
 }

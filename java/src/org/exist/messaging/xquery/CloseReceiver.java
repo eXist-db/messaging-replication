@@ -20,6 +20,8 @@
 package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
+import org.exist.messaging.receive.Receiver;
+import org.exist.messaging.receive.ReceiversManager;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
@@ -29,12 +31,12 @@ import org.exist.xquery.value.*;
  */
 
 
-public class DeleteReceiver extends BasicFunction {
+public class CloseReceiver extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
-            new QName("stop", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+            new QName("close", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
             "Delete receiver",
             new SequenceType[]{
                   new FunctionParameterSequenceType("id", Type.STRING, Cardinality.EXACTLY_ONE, "Receiver ID"),            
@@ -46,14 +48,23 @@ public class DeleteReceiver extends BasicFunction {
         
     };
 
-    public DeleteReceiver(XQueryContext context, FunctionSignature signature) {
+    public CloseReceiver(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
     
-        throw new XPathException("Not implemented yet");
+        ReceiversManager manager = ReceiversManager.getInstance();
+        
+        String id = args[0].getStringValue();
+        
+        Receiver receiver = manager.get(id);
+        receiver.close();
+        
+        manager.remove(id);
+        
+        return Sequence.EMPTY_SEQUENCE;
     
     }
     

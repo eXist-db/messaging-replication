@@ -20,10 +20,9 @@
 package org.exist.messaging.xquery;
 
 import org.exist.messaging.receive.Receiver;
-import java.util.ArrayList;
-import java.util.List;
 import org.exist.dom.QName;
 import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.messaging.receive.ReceiversManager;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
@@ -35,7 +34,7 @@ import org.exist.xquery.value.*;
  */
 public class RegisterReceiver extends BasicFunction {
     
-    private static List<Receiver> receivers = new ArrayList<Receiver>();
+    
     
     public final static FunctionSignature signatures[] = {
 
@@ -58,6 +57,8 @@ public class RegisterReceiver extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         
+        ReceiversManager manager = ReceiversManager.getInstance();
+        
         // Get function
         FunctionReference reference = (FunctionReference) args[0].itemAt(0);
               
@@ -67,12 +68,12 @@ public class RegisterReceiver extends BasicFunction {
         config.loadConfiguration(arg1);
         
         Receiver receiver = new Receiver(reference, config, context); // .copyContext()
-        receivers.add(receiver);
-        
+        String id = manager.add(receiver);
+         receiver.initialize();
         receiver.start();
 
         
-        return Sequence.EMPTY_SEQUENCE;
+        return new StringValue(id);
 
     }
     

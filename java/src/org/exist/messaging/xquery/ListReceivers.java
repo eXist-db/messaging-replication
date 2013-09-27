@@ -20,6 +20,8 @@
 package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
+import org.exist.messaging.receive.Receiver;
+import org.exist.messaging.receive.ReceiversManager;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
@@ -53,7 +55,15 @@ public class ListReceivers extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
     
-        throw new XPathException("Not implemented yet");
+        ReceiversManager manager = ReceiversManager.getInstance();
+        
+        ValueSequence sequence = new ValueSequence();
+        
+        for(String id : manager.getIds()){
+            sequence.add( new StringValue(id) );
+        }
+        
+        return sequence;
     
     }
     

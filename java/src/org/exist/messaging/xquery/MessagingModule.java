@@ -40,7 +40,7 @@ public class MessagingModule extends AbstractInternalModule {
     public final static FunctionDef[] functions = { //new FunctionDef(JFreeCharting.signatures[0], JFreeCharting.class),
       new FunctionDef(SendMessage.signatures[0], SendMessage.class),
       new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
-      new FunctionDef(DeleteReceiver.signatures[0], DeleteReceiver.class),
+      new FunctionDef(CloseReceiver.signatures[0], CloseReceiver.class),
       new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
       new FunctionDef(StartReceiver.signatures[0], StartReceiver.class),
       new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),
