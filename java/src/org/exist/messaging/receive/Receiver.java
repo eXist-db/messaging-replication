@@ -20,7 +20,6 @@
 package org.exist.messaging.receive;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,7 +31,6 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
-
 import org.apache.log4j.Logger;
 
 import org.exist.messaging.configuration.JmsConfiguration;
@@ -41,7 +39,7 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReference;
 
 /**
- * JMS messages receiver.
+ * JMS messages receiver, represents a JMS connection.
  *
  * Starts a JMS listener to receive messages from the broker
  *

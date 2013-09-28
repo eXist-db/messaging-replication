@@ -26,11 +26,10 @@ import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- *
- * @author wessels
+ *  Implementation of the jms:stop() function. Stops a receiver.
+ * 
+ * @author Dannes Wessels
  */
-
-
 public class StopReceiver extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {

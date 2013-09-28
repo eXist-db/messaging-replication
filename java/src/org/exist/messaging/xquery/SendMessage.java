@@ -29,7 +29,7 @@ import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
- *  Implementation of the send() function.
+ *  Implementation of the jms:send() function.
  * 
  * @author Dannes Wessels
  */

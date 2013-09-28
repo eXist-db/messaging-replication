@@ -21,7 +21,9 @@ package org.exist.messaging.shared;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+
 import org.apache.log4j.Logger;
+
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;

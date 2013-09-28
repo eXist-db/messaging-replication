@@ -20,17 +20,15 @@
 package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
-import org.exist.messaging.receive.Receiver;
 import org.exist.messaging.receive.ReceiversManager;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- *
- * @author wessels
+ *  Implementation of the jms:list() function. Provides information about the receivers.
+ * 
+ * @author Dannes Wessels
  */
-
-
 public class ListReceivers extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {

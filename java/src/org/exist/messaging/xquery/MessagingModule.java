@@ -27,8 +27,9 @@ import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
 
 /**
+ * JMS module
  *
- * @author wessels
+ * @author Dannes Wessels
  */
 public class MessagingModule extends AbstractInternalModule {
 
@@ -36,26 +37,20 @@ public class MessagingModule extends AbstractInternalModule {
     public final static String PREFIX = "jms";
     public final static String INCLUSION_DATE = "2012-06-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.1";
-    
-    public final static FunctionDef[] functions = { //new FunctionDef(JFreeCharting.signatures[0], JFreeCharting.class),
-      new FunctionDef(SendMessage.signatures[0], SendMessage.class),
-      new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
-      new FunctionDef(CloseReceiver.signatures[0], CloseReceiver.class),
-      new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
-      new FunctionDef(StartReceiver.signatures[0], StartReceiver.class),
-      new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),
-    };
-    
+    public final static FunctionDef[] functions = {
+        new FunctionDef(SendMessage.signatures[0], SendMessage.class),
+        new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
+        new FunctionDef(CloseReceiver.signatures[0], CloseReceiver.class),
+        new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
+        new FunctionDef(StartReceiver.signatures[0], StartReceiver.class),
+        new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),};
     public final static QName EXCEPTION_QNAME =
             new QName("exception", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX);
-    
     public final static QName EXCEPTION_MESSAGE_QNAME =
             new QName("exception-message", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX);
 
     public MessagingModule(Map<String, List<? extends Object>> parameters) throws XPathException {
         super(functions, parameters);
-//        declareVariable(EXCEPTION_QNAME, null);
-//        declareVariable(EXCEPTION_MESSAGE_QNAME, null);
     }
 
     @Override
@@ -70,7 +65,7 @@ public class MessagingModule extends AbstractInternalModule {
 
     @Override
     public String getDescription() {
-        return "A module for sending messages";
+        return "A module for sending JMS messages";
     }
 
     @Override

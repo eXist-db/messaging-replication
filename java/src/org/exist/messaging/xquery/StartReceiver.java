@@ -26,11 +26,10 @@ import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- *
- * @author wessels
+ *  Implementation of the jms:start() function. Starts a receiver.
+ * 
+ * @author Dannes Wessels
  */
-
-
 public class StartReceiver extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {

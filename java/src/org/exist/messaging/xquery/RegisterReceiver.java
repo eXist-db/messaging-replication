@@ -28,7 +28,7 @@ import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
- *  Implementation of the register() function.
+ *  Implementation of the jms:register() function.
  * 
  * @author Dannes Wessels
  */

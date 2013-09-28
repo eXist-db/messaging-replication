@@ -26,11 +26,10 @@ import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- *
- * @author wessels
+ * Implementation of the jms:close() function. Releases all resources to the system.
+ * 
+ * @author Dannes Wessels
  */
-
-
 public class CloseReceiver extends BasicFunction {
     
  public final static FunctionSignature signatures[] = {
