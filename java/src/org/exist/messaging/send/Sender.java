@@ -44,6 +44,8 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
+import static org.exist.messaging.shared.Constants.*;
+
 /**
  *
  * @author Dannes Wessels
@@ -52,12 +54,7 @@ public class Sender  {
 
     private final static Logger LOG = Logger.getLogger(Sender.class);
     
-    public static final String EXIST_XPATH_DATATYPE = "exist.xpath.datatype";
-    public static final String EXIST_DATA_TYPE = "exist.data.type";
-    public static final String EXIST_DOCUMENT_URI = "exist.document.uri";
-    public static final String EXIST_DOCUMENT_MIMETYPE = "exist.document.mimetype";
-    public static final String DATA_TYPE_XML = "xml";
-    public static final String DATA_TYPE_BINARY = "binary";
+
     
     private XQueryContext xqcontext;
 

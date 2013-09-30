@@ -28,6 +28,8 @@ import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 
+import static org.exist.messaging.shared.Constants.*;
+
 /**
  *  Helper class ; content might be moved
  * 
@@ -36,6 +38,7 @@ import org.exist.memtree.NodeImpl;
 public class Reporter {
     
     private final static Logger LOG = Logger.getLogger(Reporter.class);
+
 
     /**
      * Create messaging results report
@@ -48,12 +51,12 @@ public class Reporter {
         builder.startDocument();
 
         // start root element
-        int nodeNr = builder.startElement("", "JMS", "JMS", null);
+        int nodeNr = builder.startElement("", JMS, JMS, null);
 
         try {
             String txt = message.getJMSMessageID();
             if (txt != null) {
-                builder.startElement("", "MessageID", "MessageID", null);
+                builder.startElement("", MESSAGE_ID, MESSAGE_ID, null);
                 builder.characters(message.getJMSMessageID());
                 builder.endElement();
             }
@@ -64,7 +67,7 @@ public class Reporter {
         try {
             String txt = message.getJMSCorrelationID();
             if (txt != null) {
-                builder.startElement("", "CorrelationID", "CorrelationID", null);
+                builder.startElement("", CORRELATION_ID, CORRELATION_ID, null);
                 builder.characters(message.getJMSCorrelationID());
                 builder.endElement();
             }
@@ -75,7 +78,7 @@ public class Reporter {
         try {
             String txt = message.getJMSType();
             if (txt != null) {
-                builder.startElement("", "Type", "Type", null);
+                builder.startElement("", JMS_TYPE, JMS_TYPE, null);
                 builder.characters(message.getJMSType());
                 builder.endElement();
             }

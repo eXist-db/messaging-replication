@@ -58,6 +58,7 @@ import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
+import static org.exist.messaging.shared.Constants.*;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -71,6 +72,8 @@ import org.xml.sax.XMLReader;
 public class ReceiverJMSListener implements MessageListener {
     
     private final static Logger LOG = Logger.getLogger(ReceiverJMSListener.class);
+    
+
 
     private FunctionReference functionReference;
     private XQueryContext xqueryContext;
@@ -137,7 +140,7 @@ public class ReceiverJMSListener implements MessageListener {
                 bm.readBytes(data);
 
                 // if XML(fragment)
-                if ("xml".equalsIgnoreCase(bm.getStringProperty("exist.data.type"))) {
+                if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
                     content = processXML(data);
 
                 } else {
@@ -215,12 +218,12 @@ public class ReceiverJMSListener implements MessageListener {
         // Copy property values into Maptype
         MapType map = new MapType(xqueryContext);
 
-        add(map, "JMSMessageID", msg.getJMSMessageID());
-        add(map, "JMSCorrelationID", msg.getJMSCorrelationID());
-        add(map, "JMSType", msg.getJMSType());
-        add(map, "JMSPriority", "" + msg.getJMSPriority());
-        add(map, "JMSExpiration", "" + msg.getJMSExpiration());
-        add(map, "JMSTimestamp", "" + msg.getJMSTimestamp());
+        add(map, JMS_MESSAGE_ID, msg.getJMSMessageID());
+        add(map, JMS_CORRELATION_ID, msg.getJMSCorrelationID());
+        add(map, JMS_TYPE, msg.getJMSType());
+        add(map, JMS_PRIORITY, "" + msg.getJMSPriority());
+        add(map, JMS_EXPIRATION, "" + msg.getJMSExpiration());
+        add(map, JMS_TIMESTAMP, "" + msg.getJMSTimestamp());
 
         return map;
     }
