@@ -56,7 +56,7 @@ public class Reporter {
         try {
             String txt = message.getJMSMessageID();
             if (txt != null) {
-                builder.startElement("", MESSAGE_ID, MESSAGE_ID, null);
+                builder.startElement("", JMS_MESSAGE_ID, JMS_MESSAGE_ID, null);
                 builder.characters(message.getJMSMessageID());
                 builder.endElement();
             }
@@ -67,7 +67,7 @@ public class Reporter {
         try {
             String txt = message.getJMSCorrelationID();
             if (txt != null) {
-                builder.startElement("", CORRELATION_ID, CORRELATION_ID, null);
+                builder.startElement("", JMS_CORRELATION_ID, JMS_CORRELATION_ID, null);
                 builder.characters(message.getJMSCorrelationID());
                 builder.endElement();
             }
