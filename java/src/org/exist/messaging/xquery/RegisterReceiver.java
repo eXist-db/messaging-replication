@@ -58,21 +58,24 @@ public class RegisterReceiver extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         
         ReceiversManager manager = ReceiversManager.getInstance();
-        
+
         // Get function
         FunctionReference reference = (FunctionReference) args[0].itemAt(0);
-              
+
         // Get JMS configuration
         AbstractMapType arg1 = (AbstractMapType) args[1].itemAt(0);
         JmsConfiguration config = new JmsConfiguration();
         config.loadConfiguration(arg1);
-        
+
+        // Create receiver
         Receiver receiver = new Receiver(reference, config, context); // .copyContext()
-        String id = manager.add(receiver);
-         receiver.initialize();
+        
+        // Register, initialize and start receiver
+        String id = manager.register(receiver);
+        receiver.initialize();
         receiver.start();
 
-        
+        // Return identification
         return new StringValue(id);
 
     }

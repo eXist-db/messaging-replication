@@ -1,7 +1,7 @@
 package org.exist.messaging.shared;
 
 /**
- * SHarted constants
+ * Shared constants
  *
  * @author wessels
  */

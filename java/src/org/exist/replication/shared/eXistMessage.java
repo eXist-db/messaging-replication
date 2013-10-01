@@ -56,7 +56,7 @@ public class eXistMessage {
     
     private ResourceOperation resourceOperation;
     private ResourceType resourceType;
-    private DocumentType documentType;
+    private ContentType contentType;
     
     private String path;
     private String destination;
@@ -81,7 +81,7 @@ public class eXistMessage {
     /**
      * Types of exist-db resources
      */
-    public enum DocumentType {
+    public enum ContentType {
         XML, BINARY
     }
 
@@ -147,12 +147,12 @@ public class eXistMessage {
         return metaData;
     }
     
-    public DocumentType getDocumentType() {
-        return documentType;
+    public ContentType getDocumentType() {
+        return contentType;
     }
     
-    public void setDocumentType(DocumentType documentType) {
-        this.documentType = documentType;
+    public void setDocumentType(ContentType documentType) {
+        this.contentType = documentType;
     }
     
     /**

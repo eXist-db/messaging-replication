@@ -37,12 +37,10 @@ public class ListReceivers extends BasicFunction {
             new QName("list", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
             "Retrieve information about all rregistered receivers.",
             new SequenceType[]{
-                              
-           
+                          // no params              
             },
             new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fragment with receiver information")
         ),
-
         
     };
 

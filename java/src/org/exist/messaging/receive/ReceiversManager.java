@@ -31,7 +31,6 @@ import java.util.UUID;
  */
 public class ReceiversManager {
 
-    //private static List<Receiver> receivers = new ArrayList<Receiver>();
     private Map<String, Receiver> receivers = new HashMap<String, Receiver>();
     private static ReceiversManager instance;
 
@@ -48,7 +47,15 @@ public class ReceiversManager {
         return instance;
     }
 
-    public String add(Receiver receiver) {
+    /**
+     * Register receiver, a new unique kID is assigned..
+     *
+     * @param receiver The receiver class
+     * @return The identification assigned to the receiver.
+     *
+     * @throws IllegalArgumentException When the argument has value NULL.
+     */
+    public String register(Receiver receiver) {
 
         if (receiver == null) {
             throw new IllegalArgumentException("Receiver should not be null");
@@ -59,23 +66,44 @@ public class ReceiversManager {
         return id;
     }
 
+    /**
+     * Remove receiver by id.
+     *
+     * @param id Identification of receiver
+     */
     public void remove(String id) {
         receivers.remove(id);
     }
 
+    /**
+     * Retrieve receiver by id.
+     *
+     * @param id Identification of receiver
+     */
     public Receiver get(String id) {
         return receivers.get(id);
     }
 
+    /**
+     * Get receiver identifiers.
+     *
+     * @return Receiver IDs.
+     */
     public Set<String> getIds() {
         return receivers.keySet();
     }
 
+    /**
+     * Get detailed information about receivers
+     *
+     * @TODO not implemented yet
+     *
+     * @return
+     */
     public String list() {
 
         for (String key : receivers.keySet()) {
             Receiver receiver = receivers.get(key);
-
         }
         return null;
     }

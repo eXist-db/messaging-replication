@@ -49,25 +49,37 @@ public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
     private ReceiverJMSListener myListener = new ReceiverJMSListener();
+    
     private FunctionReference ref;
     private JmsConfiguration config;
     private XQueryContext context;
-    
-    
    
     private Context initialContext = null;
     private ConnectionFactory connectionFactory = null;
     private Session session=null;
     private Destination destination=null;
     private MessageConsumer messageConsumer=null;
-     private Connection connection = null;
+    private Connection connection = null;
 
+    /**
+     *  Constructor
+     * @param ref   Reference to XQUery
+     * @param config    Configuration parameters JMS
+     * @param context   Xquery context
+     */
     public Receiver(FunctionReference ref, JmsConfiguration config, XQueryContext context) {
         this.ref = ref;
         this.config = config;
         this.context = context;
     }
 
+    /**
+     * Start JMS connection
+     * 
+     * @see Connection#start() 
+     * 
+     * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
+     */
     public void start() throws XPathException {
 
         if (connection == null) {
@@ -80,6 +92,7 @@ public class Receiver {
             connection.start();
 
             LOG.info(String.format("JMS connection is started. ClientId=%s", connection.getClientID()));
+            
         } catch (JMSException ex) {
             LOG.error(ex);
             throw new XPathException(ex.getMessage());
@@ -87,7 +100,9 @@ public class Receiver {
     }
 
     /**
-     * Initialize
+     * Initialize JMS connection
+     * 
+     * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
      */
     public void initialize() throws XPathException {
 
@@ -128,8 +143,14 @@ public class Receiver {
 
     }
 
+    /**
+     * Stop JMS connection
+     * 
+     * @see Connection#stop() 
+     * 
+     * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
+     */
     public void stop() throws XPathException {
-
 
         if (connection == null) {
             throw new XPathException("JMS connection must be initialized first");
@@ -147,7 +168,16 @@ public class Receiver {
         }
     }
 
+    /**
+     * CLose JMS connection
+     * 
+     * @see Connection#close() 
+     * 
+     * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
+     */
     public void close() throws XPathException {
+        
+        
 
         if (connection == null) {
             throw new XPathException("JMS connection must be initialized first");
