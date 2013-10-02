@@ -90,7 +90,7 @@ public class Sender  {
             Destination dest = (Destination) context.lookup(destination);
 
             // Create session
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
             // Create message producer
             MessageProducer producer = session.createProducer(dest);

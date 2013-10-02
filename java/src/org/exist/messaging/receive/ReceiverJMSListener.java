@@ -93,7 +93,11 @@ public class ReceiverJMSListener implements MessageListener {
 
         // Log incoming message
         try {
-            LOG.info(String.format("Received message: ID=%s JavaType=", msg.getJMSMessageID(), msg.getClass().getSimpleName()));
+            if(LOG.isDebugEnabled()){
+                LOG.debug(String.format("Received message: ID=%s JavaType=%s", msg.getJMSMessageID(), msg.getClass().getSimpleName()));        
+            } else {
+                LOG.info(String.format("Received message: ID=%s", msg.getJMSMessageID()));
+            }
         } catch (JMSException ex) {
             LOG.error(ex.getMessage());
         }
@@ -139,8 +143,9 @@ public class ReceiverJMSListener implements MessageListener {
                 byte[] data = new byte[(int) bm.getBodyLength()];
                 bm.readBytes(data);
 
-                // if XML(fragment)
+                // Serialize data
                 if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
+                    // XML(fragment)
                     content = processXML(data);
 
                 } else {
@@ -171,18 +176,18 @@ public class ReceiverJMSListener implements MessageListener {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Function returned %s", result.getStringValue()));
             }
+           
+            // Acknowledge processing
+            msg.acknowledge();
 
         } catch (JMSException ex) {
             LOG.error(ex.getMessage(), ex);
-            ex.printStackTrace();
 
         } catch (XPathException ex) {
             LOG.error(ex);
-            ex.printStackTrace();
 
         } catch (Throwable ex) {
             LOG.error(ex.getMessage(), ex);
-            ex.printStackTrace();
 
         } finally {
             // Cleanup resources
@@ -295,6 +300,7 @@ public class ReceiverJMSListener implements MessageListener {
                 LOG.debug(txt);
                 throw new XPathException(txt);
             }
+            
         } catch (SAXException ex) {
             throw new XPathException(ex.getMessage());
             
@@ -304,6 +310,7 @@ public class ReceiverJMSListener implements MessageListener {
         } catch (IOException ex) {
             throw new XPathException(ex.getMessage());
         }
+        
         return content;
     }
 }
