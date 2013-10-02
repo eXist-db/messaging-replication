@@ -59,9 +59,12 @@ public class CloseReceiver extends BasicFunction {
         String id = args[0].getStringValue();
         
         Receiver receiver = manager.get(id);
-        receiver.close();
         
-        manager.remove(id);
+        try {
+            receiver.close();
+        } finally {      
+            manager.remove(id);
+        }
         
         return Sequence.EMPTY_SEQUENCE;
     
