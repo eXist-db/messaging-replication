@@ -19,7 +19,10 @@
  */
 package org.exist.messaging.receive;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -32,6 +35,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.apache.log4j.Logger;
+import org.exist.dom.QName;
+import org.exist.memtree.DocumentImpl;
+import org.exist.memtree.MemTreeBuilder;
+import org.exist.memtree.NodeImpl;
 
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.xquery.XPathException;
@@ -48,6 +55,13 @@ import org.exist.xquery.value.FunctionReference;
 public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
+    
+    private List<String> errors = new ArrayList<String>();
+    
+    private enum STATE { READY,  INITIALIZED, STARTED, STOPPED, CLOSED};
+    
+    private STATE state = STATE.READY;
+    
     private ReceiverJMSListener myListener = new ReceiverJMSListener();
     private FunctionReference ref;
     private JmsConfiguration config;
@@ -89,13 +103,17 @@ public class Receiver {
 
 
         try {
+            
             // Start listener
             connection.start();
 
             LOG.info(String.format("JMS connection is started. ClientId=%s", connection.getClientID()));
+            
+            state = STATE.STARTED;
 
         } catch (JMSException ex) {
             LOG.error(ex);
+            errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
     }
@@ -137,9 +155,12 @@ public class Receiver {
 
 
             LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));
+            
+            state = STATE.INITIALIZED;
 
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
+            errors.add(t.getMessage());
         }
 
     }
@@ -164,9 +185,12 @@ public class Receiver {
             connection.stop();
 
             LOG.info(String.format("JMS connection is stopped. ClientId=%s", connection.getClientID()));
+            
+            state = STATE.STOPPED;
 
         } catch (JMSException ex) {
             LOG.error(ex);
+            errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
     }
@@ -191,10 +215,98 @@ public class Receiver {
             connection.close();
 
             LOG.info(String.format("JMS connection is closed. ClientId=%s", connection.getClientID()));
+            
+            state = STATE.CLOSED;
 
         } catch (JMSException ex) {
             LOG.error(ex);
+            errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
+    }
+    
+    /**
+     * @return Get i=details about Receiver and Listener
+     */
+     public  NodeImpl info(String id) {
+
+        MemTreeBuilder builder = new MemTreeBuilder();
+        builder.startDocument();
+
+        // start root element
+        int nodeNr = builder.startElement("", "Receiver", "Receiver", null);
+        if(id!=null){
+         builder.addAttribute(new QName("id", null, null), id);
+        }
+        
+         builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
+         builder.characters("" + myListener.getMessageCounter());
+         builder.endElement();
+        
+         builder.startElement("", "State", "State", null);
+         builder.characters("" + state.name() );
+         builder.endElement();
+         
+         List<String> listenerErrors = myListener.getErrors();
+         if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
+             builder.startElement("", "ErrorMessages", "ErrorMessages", null);
+
+             if (!listenerErrors.isEmpty()) {
+                 for (String error : listenerErrors) {
+                     builder.startElement("", "ListenerError", "ListenerError", null);
+                     builder.characters(error);
+                     builder.endElement();
+                 }    
+             }
+             
+             if (!errors.isEmpty()) {
+                 for (String error : errors) {
+                     builder.startElement("", "ReceiverError", "ReceiverError", null);
+                     builder.characters(error);
+                     builder.endElement();
+                 }
+                 
+             }
+             
+             builder.endElement();
+         }
+         
+         builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
+         builder.addAttribute(QName.TEXT_QNAME, null);
+         builder.characters(config.getInitialContextFactory());
+         builder.endElement();
+         
+         builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
+         builder.characters(config.getProviderURL());
+         builder.endElement();
+         
+         builder.startElement("", "ConnectionFactory", "ConnectionFactory", null);
+         builder.characters(config.getConnectionFactory());
+         builder.endElement();
+
+         try {
+             String clientId = connection.getClientID();
+             if (clientId != null) {
+                 builder.startElement("", "ClientID", "ClientID", null);
+                 builder.characters(clientId);
+                 builder.endElement();
+             }
+         } catch (JMSException ex) {
+             //
+         }
+         
+         
+         builder.startElement("", "Destination", "Destination", null);
+         builder.characters(config.getDestination());
+         builder.endElement();
+         
+         
+        // finish root element
+        builder.endElement();
+
+        // return result
+        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+
+
     }
 }

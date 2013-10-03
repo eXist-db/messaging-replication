@@ -169,7 +169,7 @@ public class Sender  {
                 Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
                 String uri = b64doc.getUrl();
 
-                LOG.debug("Base64BinaryDocument detected, adding URL " + uri);
+                LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
                 mdd.setProperty(EXIST_DOCUMENT_URI, uri);
                 
             }

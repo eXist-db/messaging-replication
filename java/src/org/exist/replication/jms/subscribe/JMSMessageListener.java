@@ -341,6 +341,7 @@ public class JMSMessageListener implements MessageListener {
                 // Create collection anyway
                 createCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
             }
+            
         } catch (Throwable t){
              if(LOG.isDebugEnabled()){
                 LOG.error(t.getMessage(), t);
@@ -430,10 +431,6 @@ public class JMSMessageListener implements MessageListener {
             brokerPool.release(broker);
 
         }
-    }
-    
-    private void createCollectionWhenRequired(){
-        
     }
 
     /**

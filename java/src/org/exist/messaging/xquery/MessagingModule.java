@@ -43,7 +43,9 @@ public class MessagingModule extends AbstractInternalModule {
         new FunctionDef(CloseReceiver.signatures[0], CloseReceiver.class),
         new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
         new FunctionDef(StartReceiver.signatures[0], StartReceiver.class),
-        new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),};
+        new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),
+        new FunctionDef(InfoReceiver.signatures[0], InfoReceiver.class),
+    };
     public final static QName EXCEPTION_QNAME =
             new QName("exception", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX);
     public final static QName EXCEPTION_MESSAGE_QNAME =

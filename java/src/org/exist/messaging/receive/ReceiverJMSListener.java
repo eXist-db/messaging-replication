@@ -23,7 +23,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -72,11 +74,15 @@ import org.xml.sax.XMLReader;
 public class ReceiverJMSListener implements MessageListener {
     
     private final static Logger LOG = Logger.getLogger(ReceiverJMSListener.class);
-    
-
 
     private FunctionReference functionReference;
     private XQueryContext xqueryContext;
+    
+    // Number of messages
+    private long messageCounter=0;
+    
+    // Storage for errors
+    private List<String> errors = new ArrayList<String>();
 
     public ReceiverJMSListener() {
         // NOP
@@ -98,7 +104,9 @@ public class ReceiverJMSListener implements MessageListener {
             } else {
                 LOG.info(String.format("Received message: ID=%s", msg.getJMSMessageID()));
             }
+            
         } catch (JMSException ex) {
+            errors.add(ex.getMessage());
             LOG.error(ex.getMessage());
         }
 
@@ -159,6 +167,7 @@ public class ReceiverJMSListener implements MessageListener {
             } else {
                 // Unsupported JMS message type
                 String txt = "Unsupported JMS Message type " + msg.getClass().getCanonicalName();
+                errors.add(txt);
                 LOG.error(txt);
                 throw new XPathException(txt);
             }
@@ -179,14 +188,19 @@ public class ReceiverJMSListener implements MessageListener {
            
             // Acknowledge processing
             msg.acknowledge();
+            
+            messageCounter++;
 
         } catch (JMSException ex) {
+            errors.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
 
         } catch (XPathException ex) {
+            errors.add(ex.getMessage());
             LOG.error(ex);
 
         } catch (Throwable ex) {
+            errors.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
 
         } finally {
@@ -266,6 +280,7 @@ public class ReceiverJMSListener implements MessageListener {
 
         } else {
             String txt = String.format("Unable to convert the object %s", obj.toString());
+            errors.add(txt);
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -302,15 +317,32 @@ public class ReceiverJMSListener implements MessageListener {
             }
             
         } catch (SAXException ex) {
+            errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
             
         } catch (ParserConfigurationException ex) {
+            errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
             
         } catch (IOException ex) {
+            errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
         
         return content;
+    }
+    
+    /**
+     * @return Number of received messages
+     */
+    public long getMessageCounter() {
+        return messageCounter;
+    }
+
+    /**
+     * @return List of problems
+     */
+    public List<String> getErrors() {
+        return errors;
     }
 }

@@ -24,6 +24,7 @@ package org.exist.replication.jms.publish;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -104,6 +105,7 @@ public class JMSMessageSender implements MessageSender {
      * @param em The message that needs to be sent
      * @throws TransportException Thrown when something bad happens.
      */
+    @Override
     public void sendMessage(eXistMessage em) throws TransportException {
 
         // Get from .xconf file, fill defaults when needed
@@ -184,8 +186,11 @@ public class JMSMessageSender implements MessageSender {
 
             // Set other details
             Map<String, Object> metaData = em.getMetadata();
-            for (String item : metaData.keySet()) {
-                Object value = metaData.get(item);
+            
+            for(Map.Entry<String, Object> entry: metaData.entrySet()){
+                
+                String item=entry.getKey();
+                Object value = entry.getValue();
 
                 if (value instanceof String) {
                     message.setStringProperty(item, (String) value);
