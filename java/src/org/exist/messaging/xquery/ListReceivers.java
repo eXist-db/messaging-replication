@@ -35,11 +35,11 @@ public class ListReceivers extends BasicFunction {
 
         new FunctionSignature(
             new QName("list", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-            "Retrieve information about all rregistered receivers.",
+            "Retrieve sequence of reciever IDs",
             new SequenceType[]{
                           // no params              
             },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fragment with receiver information")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of receiver IDs")
         ),
         
     };
@@ -51,16 +51,19 @@ public class ListReceivers extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
     
+        // Get object that manages the receivers
         ReceiversManager manager = ReceiversManager.getInstance();
         
-        ValueSequence sequence = new ValueSequence();
+        // Conten holfer results
+        ValueSequence returnSequence = new ValueSequence();
         
+        // Collect IDs
         for(String id : manager.getIds()){
-            sequence.add( new StringValue(id) );
+            returnSequence.add( new StringValue(id) );
         }
         
-        return sequence;
-    
+        // Return IDs
+        return returnSequence;
     }
     
 }

@@ -35,8 +35,8 @@ public class MessagingModule extends AbstractInternalModule {
 
     public final static String NAMESPACE_URI = "http://exist-db.org/xquery/messaging";
     public final static String PREFIX = "jms";
-    public final static String INCLUSION_DATE = "2012-06-01";
-    public final static String RELEASED_IN_VERSION = "eXist-2.1";
+    public final static String INCLUSION_DATE = "2013-11-01";
+    public final static String RELEASED_IN_VERSION = "eXist-2.2";
     public final static FunctionDef[] functions = {
         new FunctionDef(SendMessage.signatures[0], SendMessage.class),
         new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),

@@ -60,6 +60,7 @@ import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
+
 import static org.exist.messaging.shared.Constants.*;
 
 import org.xml.sax.InputSource;
@@ -77,6 +78,7 @@ public class ReceiverJMSListener implements MessageListener {
 
     private FunctionReference functionReference;
     private XQueryContext xqueryContext;
+    private Sequence functionParams;
     
     // Number of messages
     private long messageCounter=0;
@@ -88,10 +90,11 @@ public class ReceiverJMSListener implements MessageListener {
         // NOP
     }
 
-    public ReceiverJMSListener(FunctionReference functionReference, XQueryContext xqueryContext) {
+    public ReceiverJMSListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
         this.xqueryContext = xqueryContext;
+        this.functionParams = functionParams;
     }
 
     @Override
@@ -173,10 +176,11 @@ public class ReceiverJMSListener implements MessageListener {
             }
 
             // Setup parameters callback function
-            Sequence params[] = new Sequence[3];
+            Sequence params[] = new Sequence[4];
             params[0] = content;
-            params[1] = msgProperties;
-            params[2] = jmsProperties;
+            params[1] = functionParams;
+            params[2] = msgProperties;
+            params[3] = jmsProperties;
 
             // Execute callback function
             Sequence result = functionReference.evalFunction(null, null, params);
@@ -218,6 +222,10 @@ public class ReceiverJMSListener implements MessageListener {
 
     public void setXQueryContext(XQueryContext context) {
         this.xqueryContext = context;
+    }
+    
+    void setFunctionParameters(Sequence functionParams) {
+        this.functionParams=functionParams;
     }
 
     private MapType getMessageProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
@@ -345,4 +353,5 @@ public class ReceiverJMSListener implements MessageListener {
     public List<String> getErrors() {
         return errors;
     }
+
 }

@@ -35,7 +35,6 @@ import org.exist.xquery.value.*;
 public class RegisterReceiver extends BasicFunction {
     
     
-    
     public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
@@ -43,9 +42,10 @@ public class RegisterReceiver extends BasicFunction {
             "Register function to receive JMS messages.",
             new SequenceType[]{
                 new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.ZERO_OR_ONE, "Function called when a JMS message is received"),
-                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),
+                new FunctionParameterSequenceType("params", Type.ITEM, Cardinality.ZERO_OR_MORE, "Additional function parameters"),
+                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),         
             },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ZERO_OR_ONE, "Confirmation message, if present")
+            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
         ),
       
     };
@@ -57,26 +57,30 @@ public class RegisterReceiver extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         
+        // Get object that manages the receivers
         ReceiversManager manager = ReceiversManager.getInstance();
 
         // Get function
         FunctionReference reference = (FunctionReference) args[0].itemAt(0);
+        
+        // Get optional function parameters
+        Sequence functionParams = args[1];
 
         // Get JMS configuration
-        AbstractMapType arg1 = (AbstractMapType) args[1].itemAt(0);
+        AbstractMapType configMap = (AbstractMapType) args[2].itemAt(0);
         JmsConfiguration config = new JmsConfiguration();
-        config.loadConfiguration(arg1);
-
+        config.loadConfiguration(configMap);
+        
         // Create receiver
-        Receiver receiver = new Receiver(reference, config, context); // .copyContext()
+        Receiver receiver = new Receiver(reference, config, functionParams, context); // TODO check use .copyContext() ?
         
         // Register, initialize and start receiver
-        String id = manager.register(receiver);
+        manager.register(receiver);
         receiver.initialize();
         receiver.start();
 
         // Return identification
-        return new StringValue(id);
+        return new StringValue( receiver.getId() );
 
     }
     

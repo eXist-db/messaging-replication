@@ -62,14 +62,14 @@ public class SendMessage extends BasicFunction {
         Item content = args[0].itemAt(0);
 
         // Get application properties
-        AbstractMapType arg1 = (AbstractMapType) args[1].itemAt(0);
+        AbstractMapType msgPropertiesMap = (AbstractMapType) args[1].itemAt(0);
         JmsMessageProperties meta = new JmsMessageProperties();
-        meta.loadConfiguration(arg1);
+        meta.loadConfiguration(msgPropertiesMap);
 
         // Get JMS configuration
-        AbstractMapType arg2 = (AbstractMapType) args[2].itemAt(0);
+        AbstractMapType jmsConfigurationMap = (AbstractMapType) args[2].itemAt(0);
         JmsConfiguration config = new JmsConfiguration();
-        config.loadConfiguration(arg2);
+        config.loadConfiguration(jmsConfigurationMap);
 
         // Send message
         Sender sender = new Sender(context);

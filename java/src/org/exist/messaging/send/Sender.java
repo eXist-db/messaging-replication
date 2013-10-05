@@ -54,8 +54,6 @@ public class Sender  {
 
     private final static Logger LOG = Logger.getLogger(Sender.class);
     
-
-    
     private XQueryContext xqcontext;
 
     public Sender(XQueryContext context) {
@@ -112,7 +110,7 @@ public class Sender  {
             // TODO keep connection open for re-use, efficiency
             connection.close();
 
-            return Reporter.createReport(message);
+            return Reporter.createReport(message, config);
 
         } catch (Throwable ex) {
             LOG.error(ex);

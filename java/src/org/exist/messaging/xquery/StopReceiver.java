@@ -41,7 +41,7 @@ public class StopReceiver extends BasicFunction {
                   new FunctionParameterSequenceType("id", Type.STRING, Cardinality.EXACTLY_ONE, "Receiver ID"),            
            
             },
-            new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ONE, "XML fragment with receiver information")
+            new SequenceType(Type.ITEM, Cardinality.EMPTY)
         ),
 
         
@@ -54,11 +54,19 @@ public class StopReceiver extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
     
-        ReceiversManager manager = ReceiversManager.getInstance();
-        
+        // Get receiver ID
         String id = args[0].getStringValue();
         
+        // Obtain receiver
+        ReceiversManager manager = ReceiversManager.getInstance();
         Receiver receiver = manager.get(id);
+        
+        // Verify if receiver is available
+        if (receiver == null) {
+            throw new XPathException(String.format("No receiver exists for id '%s'", id));
+        }
+        
+        // Stop receiver
         receiver.stop();
         
         return Sequence.EMPTY_SEQUENCE;

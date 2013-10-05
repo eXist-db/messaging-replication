@@ -55,15 +55,13 @@ public class ReceiversManager {
      *
      * @throws IllegalArgumentException When the argument has value NULL.
      */
-    public String register(Receiver receiver) {
+    public void register(Receiver receiver) {
 
         if (receiver == null) {
             throw new IllegalArgumentException("Receiver should not be null");
         }
-
-        String id = UUID.randomUUID().toString();
-        receivers.put(id, receiver);
-        return id;
+        
+        receivers.put(receiver.getId(), receiver);
     }
 
     /**

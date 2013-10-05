@@ -22,6 +22,7 @@ package org.exist.messaging.receive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.logging.Level;
 
 import javax.jms.Connection;
@@ -44,6 +45,7 @@ import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReference;
+import org.exist.xquery.value.Sequence;
 
 /**
  * JMS messages receiver, represents a JMS connection.
@@ -58,13 +60,20 @@ public class Receiver {
     
     private List<String> errors = new ArrayList<String>();
     
+    /** State of receiver  */
     private enum STATE { READY,  INITIALIZED, STARTED, STOPPED, CLOSED};
     
     private STATE state = STATE.READY;
     
+    /** The JMS listener */
     private ReceiverJMSListener myListener = new ReceiverJMSListener();
+    
+    /*
+     * 
+     */
     private FunctionReference ref;
     private JmsConfiguration config;
+    private Sequence functionParams;
     private XQueryContext context;
     private Context initialContext = null;
     private ConnectionFactory connectionFactory = null;
@@ -72,18 +81,32 @@ public class Receiver {
     private Destination destination = null;
     private MessageConsumer messageConsumer = null;
     private Connection connection = null;
+    
+    private String id;
 
     /**
      * Constructor
      *
      * @param ref Reference to XQUery
      * @param config Configuration parameters JMS
+     * @param functionParams option function parameters
      * @param context Xquery context
      */
-    public Receiver(FunctionReference ref, JmsConfiguration config, XQueryContext context) {
+    public Receiver(FunctionReference ref, JmsConfiguration config, Sequence functionParams, XQueryContext context) {
         this.ref = ref;
         this.config = config;
         this.context = context;
+        this.functionParams = functionParams;
+        
+        id = UUID.randomUUID().toString();
+    }
+    
+    /**
+     *  Get ID of receiver
+     * @return 
+     */
+    public String getId(){
+        return id;
     }
 
     /**
@@ -101,9 +124,7 @@ public class Receiver {
             throw new XPathException(txt);
         }
 
-
-        try {
-            
+        try {      
             // Start listener
             connection.start();
 
@@ -132,6 +153,7 @@ public class Receiver {
             // Setup listener
             myListener.setFunctionReference(ref);
             myListener.setXQueryContext(context);
+            myListener.setFunctionParameters(functionParams);
 
             // Setup Context
             Properties props = new Properties();
@@ -209,12 +231,36 @@ public class Receiver {
             LOG.error(txt);
             throw new XPathException(txt);
         }
-
+        
+        // If not stopped, try to stop first
+        if(state != STATE.STOPPED){
+            try {
+                connection.stop();
+            } catch (JMSException ex) {
+                LOG.error(ex);
+                errors.add(ex.getMessage());
+            }
+        }
+        
+        
         try {
+            
+            String clientId = null;
+            try {
+                clientId = connection.getClientID();
+            } catch (JMSException ex) {
+                LOG.debug(ex);
+            }
+            
             // Start listener
             connection.close();
 
-            LOG.info(String.format("JMS connection is closed. ClientId=%s", connection.getClientID()));
+            // Report with client ID when available
+            if(clientId==null){
+                LOG.info("JMS connection is closed.");
+            } else {
+                LOG.info(String.format("JMS connection is closed. ClientId=%s", clientId));
+            }
             
             state = STATE.CLOSED;
 
@@ -228,7 +274,7 @@ public class Receiver {
     /**
      * @return Get i=details about Receiver and Listener
      */
-     public  NodeImpl info(String id) {
+     public  NodeImpl info() {
 
         MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
@@ -253,7 +299,8 @@ public class Receiver {
 
              if (!listenerErrors.isEmpty()) {
                  for (String error : listenerErrors) {
-                     builder.startElement("", "ListenerError", "ListenerError", null);
+                     builder.startElement("", "Error", "Error", null);
+                     builder.addAttribute(new QName("src", null, null), "listener");
                      builder.characters(error);
                      builder.endElement();
                  }    
@@ -261,7 +308,8 @@ public class Receiver {
              
              if (!errors.isEmpty()) {
                  for (String error : errors) {
-                     builder.startElement("", "ReceiverError", "ReceiverError", null);
+                     builder.startElement("", "Error", "Error", null);
+                     builder.addAttribute(new QName("src", null, null), "receiver");
                      builder.characters(error);
                      builder.endElement();
                  }
@@ -272,7 +320,6 @@ public class Receiver {
          }
          
          builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
-         builder.addAttribute(QName.TEXT_QNAME, null);
          builder.characters(config.getInitialContextFactory());
          builder.endElement();
          

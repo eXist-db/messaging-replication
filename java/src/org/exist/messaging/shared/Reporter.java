@@ -19,33 +19,36 @@
  */
 package org.exist.messaging.shared;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.naming.Context;
 
 import org.apache.log4j.Logger;
+import org.exist.dom.QName;
 
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
+import org.exist.messaging.configuration.JmsConfiguration;
 
 import static org.exist.messaging.shared.Constants.*;
 
 /**
- *  Helper class ; content might be moved
- * 
+ * Helper class ; content might be moved
+ *
  * @author Dannes Wessels
  */
 public class Reporter {
-    
-    private final static Logger LOG = Logger.getLogger(Reporter.class);
 
+    private final static Logger LOG = Logger.getLogger(Reporter.class);
 
     /**
      * Create messaging results report
      *
      * TODO shared code, except context (new copied)
      */
-    public static NodeImpl createReport(Message message) {
+    public static NodeImpl createReport(Message message, JmsConfiguration config) {
 
         MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
@@ -84,6 +87,25 @@ public class Reporter {
             }
         } catch (JMSException ex) {
             LOG.error(ex);
+        }
+
+        if(config != null){
+            builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
+            builder.addAttribute(QName.TEXT_QNAME, null);
+            builder.characters(config.getInitialContextFactory());
+            builder.endElement();
+
+            builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
+            builder.characters(config.getProviderURL());
+            builder.endElement();
+
+            builder.startElement("", "ConnectionFactory", "ConnectionFactory", null);
+            builder.characters(config.getConnectionFactory());
+            builder.endElement();
+
+            builder.startElement("", "Destination", "Destination", null);
+            builder.characters(config.getDestination());
+            builder.endElement();
         }
 
         // finish root element

@@ -55,15 +55,20 @@ public class InfoReceiver extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
     
-        ReceiversManager manager = ReceiversManager.getInstance();
-        
+        // Get receiver ID
         String id = args[0].getStringValue();
         
+        // Obtain receiver
+        ReceiversManager manager = ReceiversManager.getInstance();
         Receiver receiver = manager.get(id);
-        NodeImpl info =receiver.info(id);
         
-        return info;
-    
+        // Verify if receiver is available
+        if (receiver == null) {
+            throw new XPathException(String.format("No receiver exists for id '%s'", id));
+        }
+          
+        // Return report
+        return receiver.info();   
     }
     
 }
