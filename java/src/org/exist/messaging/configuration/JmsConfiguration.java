@@ -21,6 +21,7 @@ package org.exist.messaging.configuration;
 
 import javax.naming.Context;
 import org.exist.xquery.XPathException;
+import org.exist.messaging.shared.Constants;
 
 
 /**
@@ -30,16 +31,15 @@ import org.exist.xquery.XPathException;
  */
 public class JmsConfiguration extends MessagingConfiguration {
     
-    public static final String CONNECTION_FACTORY = "ConnectionFactory";
-    public static final String DESTINATION = "Destination";
     public static final String CONFIG_ERROR_MSG = "Missing configuration item '%s'";
+
     
     public String getConnectionFactory() {
-        return getProperty(CONNECTION_FACTORY);
+        return getProperty(Constants.CONNECTION_FACTORY);
     }
 
     public String getDestination() {
-        return getProperty(DESTINATION);
+        return getProperty(Constants.DESTINATION);
     }
     
     public String getInitialContextFactory(){
@@ -51,11 +51,11 @@ public class JmsConfiguration extends MessagingConfiguration {
     }
     
     public String getConnectionUserName(){
-        return getProperty("jms.connection.username");
+        return getProperty(Constants.JMS_CONNECTION_USERNAME);
     }
     
     public String getConnectionPassword(){
-        return getProperty("jms.connection.password");
+        return getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
 
     /**
@@ -77,12 +77,12 @@ public class JmsConfiguration extends MessagingConfiguration {
         
         String connectionFactory = getConnectionFactory();
         if(connectionFactory==null){
-            throw new XPathException(String.format(CONFIG_ERROR_MSG, CONNECTION_FACTORY));
+            throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.CONNECTION_FACTORY));
         }
         
         String destination = getDestination();
         if(destination==null){
-            throw new XPathException(String.format(CONFIG_ERROR_MSG, DESTINATION));
+            throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.DESTINATION));
         }
         
     }

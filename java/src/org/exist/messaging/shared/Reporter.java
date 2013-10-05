@@ -23,6 +23,7 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.naming.Context;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.log4j.Logger;
 import org.exist.dom.QName;
@@ -60,7 +61,7 @@ public class Reporter {
             String txt = message.getJMSMessageID();
             if (txt != null) {
                 builder.startElement("", JMS_MESSAGE_ID, JMS_MESSAGE_ID, null);
-                builder.characters(message.getJMSMessageID());
+                builder.characters(txt);
                 builder.endElement();
             }
         } catch (JMSException ex) {
@@ -71,7 +72,7 @@ public class Reporter {
             String txt = message.getJMSCorrelationID();
             if (txt != null) {
                 builder.startElement("", JMS_CORRELATION_ID, JMS_CORRELATION_ID, null);
-                builder.characters(message.getJMSCorrelationID());
+                builder.characters(txt);
                 builder.endElement();
             }
         } catch (JMSException ex) {
@@ -80,16 +81,16 @@ public class Reporter {
 
         try {
             String txt = message.getJMSType();
-            if (txt != null) {
+            if (StringUtils.isNotEmpty(txt)) {
                 builder.startElement("", JMS_TYPE, JMS_TYPE, null);
-                builder.characters(message.getJMSType());
+                builder.characters(txt);
                 builder.endElement();
             }
         } catch (JMSException ex) {
             LOG.error(ex);
         }
 
-        if(config != null){
+        if (config != null) {
             builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
             builder.addAttribute(QName.TEXT_QNAME, null);
             builder.characters(config.getInitialContextFactory());
@@ -99,13 +100,20 @@ public class Reporter {
             builder.characters(config.getProviderURL());
             builder.endElement();
 
-            builder.startElement("", "ConnectionFactory", "ConnectionFactory", null);
+            builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);
             builder.characters(config.getConnectionFactory());
             builder.endElement();
 
-            builder.startElement("", "Destination", "Destination", null);
+            builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
             builder.characters(config.getDestination());
             builder.endElement();
+
+            String userName = config.getConnectionUserName();
+            if (StringUtils.isNotBlank(userName)) {
+                builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
+                builder.characters(userName);
+                builder.endElement();
+            }
         }
 
         // finish root element

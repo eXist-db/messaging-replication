@@ -22,5 +22,10 @@ public class Constants {
     public static final String JMS_PRIORITY = "JMSPriority";
     public static final String JMS_TIMESTAMP = "JMSTimestamp";
     public static final String JMS_TYPE = "JMSType";
+    
+    public static final String JMS_CONNECTION_USERNAME = "jms.connection.username";
+    public static final String JMS_CONNECTION_PASSWORD = "jms.connection.password";
+    public static final String CONNECTION_FACTORY = "ConnectionFactory";
+    public static final String DESTINATION = "Destination";
 
 }
