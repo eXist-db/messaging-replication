@@ -37,17 +37,22 @@ public class MessagingModule extends AbstractInternalModule {
     public final static String PREFIX = "jms";
     public final static String INCLUSION_DATE = "2013-11-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
+    
     public final static FunctionDef[] functions = {
         new FunctionDef(SendMessage.signatures[0], SendMessage.class),
         new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
-        new FunctionDef(CloseReceiver.signatures[0], CloseReceiver.class),
+        
         new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
-        new FunctionDef(StartReceiver.signatures[0], StartReceiver.class),
-        new FunctionDef(StopReceiver.signatures[0], StopReceiver.class),
-        new FunctionDef(InfoReceiver.signatures[0], InfoReceiver.class),
+
+        new FunctionDef(StartStopCloseInfoReceiver.signatures[0], StartStopCloseInfoReceiver.class),
+        new FunctionDef(StartStopCloseInfoReceiver.signatures[1], StartStopCloseInfoReceiver.class),
+        new FunctionDef(StartStopCloseInfoReceiver.signatures[2], StartStopCloseInfoReceiver.class),
+        new FunctionDef(StartStopCloseInfoReceiver.signatures[3], StartStopCloseInfoReceiver.class),
     };
+    
     public final static QName EXCEPTION_QNAME =
             new QName("exception", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX);
+    
     public final static QName EXCEPTION_MESSAGE_QNAME =
             new QName("exception-message", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX);
 
@@ -67,7 +72,7 @@ public class MessagingModule extends AbstractInternalModule {
 
     @Override
     public String getDescription() {
-        return "A module for sending JMS messages";
+        return "JMS messaging module";
     }
 
     @Override
