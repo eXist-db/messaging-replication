@@ -27,5 +27,6 @@ public class Constants {
     public static final String JMS_CONNECTION_PASSWORD = "jms.connection.password";
     public static final String CONNECTION_FACTORY = "ConnectionFactory";
     public static final String DESTINATION = "Destination";
+    public static final String CLIENT_ID = "ClientID";
 
 }
