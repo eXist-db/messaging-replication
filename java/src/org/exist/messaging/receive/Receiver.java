@@ -62,13 +62,12 @@ public class Receiver {
     private List<String> errors = new ArrayList<String>();
 
     /**
-     * State of receiver
+     * States of receiver
      */
     private enum STATE {
-
-        READY, INITIALIZED, STARTED, STOPPED, CLOSED
+        NOT_DEFINED, STARTED, STOPPED, CLOSED
     };
-    private STATE state = STATE.READY;
+    private STATE state = STATE.NOT_DEFINED;
     /**
      * The JMS listener
      */
@@ -191,7 +190,7 @@ public class Receiver {
 
             LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));
 
-            state = STATE.INITIALIZED;
+            state = STATE.STOPPED;
 
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
@@ -254,7 +253,6 @@ public class Receiver {
                 errors.add(ex.getMessage());
             }
         }
-
 
         try {
 
