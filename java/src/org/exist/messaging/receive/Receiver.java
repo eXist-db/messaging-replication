@@ -34,6 +34,7 @@ import javax.jms.Session;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.log4j.Logger;
 import org.exist.dom.QName;
@@ -163,7 +164,15 @@ public class Receiver {
 
             // Setup connection
             connectionFactory = (ConnectionFactory) initialContext.lookup(config.getConnectionFactory());
-            connection = connectionFactory.createConnection();
+            
+            // Setup username/password when required
+            String userName = config.getConnectionUserName();
+            String password = config.getConnectionPassword();
+            if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
+                connection = connectionFactory.createConnection();
+            } else {
+                connection = connectionFactory.createConnection(userName, password);
+            }
 
             // Setup session
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);

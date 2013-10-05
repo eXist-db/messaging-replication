@@ -31,6 +31,7 @@ import javax.naming.InitialContext;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.exist.dom.NodeProxy;
@@ -82,7 +83,16 @@ public class Sender  {
 
             // Setup connection
             ConnectionFactory cf = (ConnectionFactory) context.lookup(connectionFactory);
-            Connection connection = cf.createConnection();
+            
+            // Setup username/password when required
+            Connection connection = null;
+            String userName = config.getConnectionUserName();
+            String password = config.getConnectionPassword();
+            if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
+                connection = cf.createConnection();
+            } else {
+                connection = cf.createConnection(userName, password);
+            }
 
             // Lookup queue
             Destination dest = (Destination) context.lookup(destination);

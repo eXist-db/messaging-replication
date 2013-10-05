@@ -42,13 +42,20 @@ public class JmsConfiguration extends MessagingConfiguration {
         return getProperty(DESTINATION);
     }
     
-    
     public String getInitialContextFactory(){
         return getProperty(Context.INITIAL_CONTEXT_FACTORY);
     }
     
     public String getProviderURL(){
         return getProperty(Context.PROVIDER_URL);
+    }
+    
+    public String getConnectionUserName(){
+        return getProperty("jms.connection.username");
+    }
+    
+    public String getConnectionPassword(){
+        return getProperty("jms.connection.password");
     }
 
     /**
