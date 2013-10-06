@@ -28,5 +28,6 @@ public class Constants {
     public static final String CONNECTION_FACTORY = "ConnectionFactory";
     public static final String DESTINATION = "Destination";
     public static final String CLIENT_ID = "ClientID";
+    public static final String MESSAGE_SELECTOR = "MessageSelector";
 
 }

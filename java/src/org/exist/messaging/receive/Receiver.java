@@ -198,7 +198,6 @@ public class Receiver {
             messageConsumer = session.createConsumer(destination);
             messageConsumer.setMessageListener(myListener);
 
-
             LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));
 
             state = STATE.STOPPED;
@@ -364,6 +363,17 @@ public class Receiver {
                 builder.endElement();
             }
         } catch (JMSException ex) {
+            //
+        }
+        
+        try {
+            String messageSelector = messageConsumer.getMessageSelector();
+            if(messageSelector!=null){
+                builder.startElement("", Constants.MESSAGE_SELECTOR, Constants.MESSAGE_SELECTOR, null);
+                builder.characters(messageSelector);
+                builder.endElement();
+            }
+         } catch (JMSException ex) {
             //
         }
         
