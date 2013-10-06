@@ -64,13 +64,13 @@ public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
     private List<String> errors = new ArrayList<String>();
-    
     private DatatypeFactory dtFactory = null;
 
     /**
      * States of receiver
      */
     private enum STATE {
+
         NOT_DEFINED, STARTED, STOPPED, CLOSED
     };
     private STATE state = STATE.NOT_DEFINED;
@@ -311,6 +311,54 @@ public class Receiver {
         builder.characters("" + state.name());
         builder.endElement();
 
+
+
+        builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
+        builder.characters(config.getInitialContextFactory());
+        builder.endElement();
+
+        builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
+        builder.characters(config.getProviderURL());
+        builder.endElement();
+
+        builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);
+        builder.characters(config.getConnectionFactory());
+        builder.endElement();
+
+        String userName = config.getConnectionUserName();
+        if (StringUtils.isNotBlank(userName)) {
+            builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
+            builder.characters(userName);
+            builder.endElement();
+        }
+
+        builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
+        builder.characters(config.getDestination());
+        builder.endElement();
+
+        try {
+            String clientId = connection.getClientID();
+            if (StringUtils.isNotEmpty(clientId)) {
+                builder.startElement("", Constants.CLIENT_ID, Constants.CLIENT_ID, null);
+                builder.characters(clientId);
+                builder.endElement();
+            }
+        } catch (JMSException ex) {
+            //
+        }
+
+        try {
+            String messageSelector = messageConsumer.getMessageSelector();
+            if (messageSelector != null) {
+                builder.startElement("", Constants.MESSAGE_SELECTOR, Constants.MESSAGE_SELECTOR, null);
+                builder.characters(messageSelector);
+                builder.endElement();
+            }
+        } catch (JMSException ex) {
+            //
+        }
+
+
         List<String> listenerErrors = myListener.getErrors();
         if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
             builder.startElement("", "ErrorMessages", "ErrorMessages", null);
@@ -337,68 +385,23 @@ public class Receiver {
             builder.endElement();
         }
 
-        builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
-        builder.characters(config.getInitialContextFactory());
-        builder.endElement();
-
-        builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
-        builder.characters(config.getProviderURL());
-        builder.endElement();
-
-        builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);
-        builder.characters(config.getConnectionFactory());
-        builder.endElement();
-
-        String userName = config.getConnectionUserName();
-        if (StringUtils.isNotBlank(userName)) {
-            builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
-            builder.characters(userName);
-            builder.endElement();
-        }
-
-        try {
-            String clientId = connection.getClientID();
-            if (StringUtils.isNotEmpty(clientId)) {
-                builder.startElement("", Constants.CLIENT_ID, Constants.CLIENT_ID, null);
-                builder.characters(clientId);
-                builder.endElement();
-            }
-        } catch (JMSException ex) {
-            //
-        }
-        
-        try {
-            String messageSelector = messageConsumer.getMessageSelector();
-            if(messageSelector!=null){
-                builder.startElement("", Constants.MESSAGE_SELECTOR, Constants.MESSAGE_SELECTOR, null);
-                builder.characters(messageSelector);
-                builder.endElement();
-            }
-         } catch (JMSException ex) {
-            //
-        }
-        
-        builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
-        builder.characters(config.getDestination());
-        builder.endElement();
-        
         builder.startElement("", "Statistics", "Statistics", null);
-        
+
         builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
         builder.characters("" + myListener.getMessageCounterTotal());
         builder.endElement();
-        
+
         builder.startElement("", "CumulativeProcessingTime", "CumulativeProcessingTime", null);
         Duration duration = dtFactory.newDuration(myListener.getCumulatedProcessingTime());
         builder.characters(duration.toString());
         builder.endElement();
-        
+
         builder.startElement("", "NrUnprocessedMessages", "NrUnprocessedMessages", null);
         builder.characters("" + myListener.getMessageCounterNOK());
         builder.endElement();
-        
+
         builder.endElement();
-        
+
         // finish root element
         builder.endElement();
 

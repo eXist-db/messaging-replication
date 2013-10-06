@@ -92,7 +92,6 @@ public class Reporter {
 
         if (config != null) {
             builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
-            builder.addAttribute(QName.TEXT_QNAME, null);
             builder.characters(config.getInitialContextFactory());
             builder.endElement();
 
