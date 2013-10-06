@@ -19,13 +19,23 @@
  */
 package org.exist.messaging.configuration;
 
+import java.math.BigInteger;
 import java.util.Properties;
+
+import org.apache.log4j.Logger;
+
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
+import org.exist.xquery.value.AtomicValue;
+import org.exist.xquery.value.BooleanValue;
+import org.exist.xquery.value.DoubleValue;
+import org.exist.xquery.value.FloatValue;
+import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
 import org.exist.xquery.value.StringValue;
+import org.exist.xquery.value.ValueSequence;
 
 /**
  *  Wrapper for properties object.
@@ -33,6 +43,8 @@ import org.exist.xquery.value.StringValue;
  * @author Dannes Wessels
  */
 public class MessagingConfiguration extends Properties {
+    
+    private final static Logger LOG = Logger.getLogger(MessagingConfiguration.class);
     
    /**
      * Load data from XQuery map-type.
@@ -45,18 +57,46 @@ public class MessagingConfiguration extends Properties {
 
         // Get all keys
         Sequence keys = map.keys();
+        
 
         // Iterate over all keys
         for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
 
             // Get next item
-            Item item = i.nextItem();
+            Item key = i.nextItem();
+            
+            // Only use Strings as key, as required by JMS
+            String keyValue = key.getStringValue();
+            
+            // Get values
+            Sequence values = map.get((AtomicValue)key);
 
             // Parse data only if the key is a String
-            if (item instanceof StringValue) {
-                StringValue key = (StringValue) item;
-                Sequence values = map.get(key);
-                this.setProperty(key.getStringValue(), values.getStringValue());
+            if (values instanceof StringValue) {
+                StringValue singlevalue = (StringValue) values;
+                setProperty(keyValue, singlevalue.getStringValue());
+
+            } else if (values instanceof IntegerValue) {
+                IntegerValue singleValue = (IntegerValue) values;
+                put(keyValue, singleValue.toJavaObject(BigInteger.class));
+
+            } else if (values instanceof DoubleValue) {
+                DoubleValue singleValue = (DoubleValue) values;
+                put(keyValue, singleValue.toJavaObject(Double.class));
+                
+            } else if (values instanceof BooleanValue) {
+                BooleanValue singleValue = (BooleanValue) values;
+                put(keyValue, singleValue.toJavaObject(Boolean.class));
+                
+            } else if (values instanceof FloatValue) {
+                FloatValue singleValue = (FloatValue) values;
+                put(keyValue, singleValue.toJavaObject(Float.class));
+                
+            } else if (values instanceof ValueSequence) {
+                LOG.info(String.format("Cannot convert a sequence of values for key '%s' into JMS message properties", keyValue));
+                
+            } else {
+                LOG.info(String.format("Cannot convert map entry '%s'/'%s' into a JMS message property", keyValue, values.getStringValue()));
             }
 
         }
