@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.logging.Level;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -34,6 +33,11 @@ import javax.jms.Session;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -60,6 +64,8 @@ public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
     private List<String> errors = new ArrayList<String>();
+    
+    private DatatypeFactory dtFactory = null;
 
     /**
      * States of receiver
@@ -102,6 +108,11 @@ public class Receiver {
         this.functionParams = functionParams;
 
         id = UUID.randomUUID().toString();
+        try {
+            dtFactory = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException ex) {
+            LOG.fatal(ex);
+        }
     }
 
     /**
@@ -296,10 +307,6 @@ public class Receiver {
             builder.addAttribute(new QName("id", null, null), id);
         }
 
-        builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
-        builder.characters("" + myListener.getMessageCounter());
-        builder.endElement();
-
         builder.startElement("", "State", "State", null);
         builder.characters("" + state.name());
         builder.endElement();
@@ -359,19 +366,33 @@ public class Receiver {
         } catch (JMSException ex) {
             //
         }
-
-
+        
         builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
         builder.characters(config.getDestination());
         builder.endElement();
-
+        
+        builder.startElement("", "Statistics", "Statistics", null);
+        
+        builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
+        builder.characters("" + myListener.getMessageCounterTotal());
+        builder.endElement();
+        
+        builder.startElement("", "CumulativeProcessingTime", "CumulativeProcessingTime", null);
+        Duration duration = dtFactory.newDuration(myListener.getCumulatedProcessingTime());
+        builder.characters(duration.toString());
+        builder.endElement();
+        
+        builder.startElement("", "NrUnprocessedMessages", "NrUnprocessedMessages", null);
+        builder.characters("" + myListener.getMessageCounterNOK());
+        builder.endElement();
+        
+        builder.endElement();
+        
 
         // finish root element
         builder.endElement();
 
         // return result
         return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
-
-
     }
 }

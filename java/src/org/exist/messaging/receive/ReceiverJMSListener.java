@@ -69,21 +69,24 @@ import org.xml.sax.XMLReader;
 
 /**
  * JMS message receiver. Passes call to XQuery callback function.
- * 
+ *
  * @author Dannes Wessels
  */
 public class ReceiverJMSListener implements MessageListener {
-    
-    private final static Logger LOG = Logger.getLogger(ReceiverJMSListener.class);
 
+    private final static Logger LOG = Logger.getLogger(ReceiverJMSListener.class);
     private FunctionReference functionReference;
     private XQueryContext xqueryContext;
     private Sequence functionParams;
     
-    // Number of messages
-    private long messageCounter=0;
+    /** Number of messages */
+    private long messageCounterOK = 0;
+    private long messageCounterTotal = 0;
     
-    // Storage for errors
+    /** Cumulated time successful messages */
+    private long totalTime = 0;
+    
+    /** Storage for errors */
     private List<String> errors = new ArrayList<String>();
 
     public ReceiverJMSListener() {
@@ -99,15 +102,17 @@ public class ReceiverJMSListener implements MessageListener {
 
     @Override
     public void onMessage(Message msg) {
+        
+        long startTime = System.currentTimeMillis();
 
         // Log incoming message
         try {
-            if(LOG.isDebugEnabled()){
-                LOG.debug(String.format("Received message: ID=%s JavaType=%s", msg.getJMSMessageID(), msg.getClass().getSimpleName()));        
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("Received message: ID=%s JavaType=%s", msg.getJMSMessageID(), msg.getClass().getSimpleName()));
             } else {
                 LOG.info(String.format("Received message: ID=%s", msg.getJMSMessageID()));
             }
-            
+
         } catch (JMSException ex) {
             errors.add(ex.getMessage());
             LOG.error(ex.getMessage());
@@ -140,7 +145,7 @@ public class ReceiverJMSListener implements MessageListener {
                 content = new StringValue(((TextMessage) msg).getText());
 
             } else if (msg instanceof ObjectMessage) {
-                
+
                 // the supported other types are wrapped into a corresponding
                 // Java object inside the ObjectMessage
                 content = handleObjectMessage((ObjectMessage) msg);
@@ -189,11 +194,12 @@ public class ReceiverJMSListener implements MessageListener {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(String.format("Function returned %s", result.getStringValue()));
             }
-           
+
             // Acknowledge processing
             msg.acknowledge();
-            
-            messageCounter++;
+
+            // Update statistics
+            messageCounterOK++;        
 
         } catch (JMSException ex) {
             errors.add(ex.getMessage());
@@ -212,6 +218,11 @@ public class ReceiverJMSListener implements MessageListener {
             if (dummyBroker != null) {
                 dummyBroker.release();
             }
+            
+            // update statistics
+            messageCounterTotal++;
+            long endTime = System.currentTimeMillis();
+            totalTime += (endTime-startTime);
         }
 
     }
@@ -223,9 +234,9 @@ public class ReceiverJMSListener implements MessageListener {
     public void setXQueryContext(XQueryContext context) {
         this.xqueryContext = context;
     }
-    
+
     void setFunctionParameters(Sequence functionParams) {
-        this.functionParams=functionParams;
+        this.functionParams = functionParams;
     }
 
     private MapType getMessageProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
@@ -261,15 +272,14 @@ public class ReceiverJMSListener implements MessageListener {
         }
     }
 
-    
     /**
      * @throws JMSException if the JMS provider fails to set the object due to some internal error.
      * @throws XPathException Object type is not supported.
      */
     private Sequence handleObjectMessage(ObjectMessage msg) throws JMSException, XPathException {
-        
+
         Object obj = ((ObjectMessage) msg).getObject();
-        Sequence content=null;
+        Sequence content = null;
 
         if (obj instanceof BigInteger) {
             content = new IntegerValue((BigInteger) obj);
@@ -309,13 +319,13 @@ public class ReceiverJMSListener implements MessageListener {
             final InputSource src = new InputSource(bais);
             final SAXParser parser = factory.newSAXParser();
             XMLReader xr = parser.getXMLReader();
-            
+
             xr.setErrorHandler(report);
             xr.setContentHandler(adapter);
             xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
-            
+
             xr.parse(src);
-            
+
             if (report.isValid()) {
                 content = (DocumentImpl) adapter.getDocument();
             } else {
@@ -323,29 +333,51 @@ public class ReceiverJMSListener implements MessageListener {
                 LOG.debug(txt);
                 throw new XPathException(txt);
             }
-            
+
         } catch (SAXException ex) {
             errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
-            
+
         } catch (ParserConfigurationException ex) {
             errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
-            
+
         } catch (IOException ex) {
             errors.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
-        
+
         return content;
+    }
+
+    /**
+     * @return Total number of received messages
+     */
+    public long getMessageCounterTotal() {
+        return messageCounterTotal;
     }
     
     /**
-     * @return Number of received messages
+     * @return Total number of NOT successfully received messages
      */
-    public long getMessageCounter() {
-        return messageCounter;
+    public long getMessageCounterNOK() {
+        return (messageCounterTotal - messageCounterOK);
     }
+    
+    /**
+     * @return Total number of successfully received messages
+     */
+    public long getMessageCounterOK() {
+        return messageCounterOK;
+    }
+    
+    /**
+     * @return Total processing time
+     */
+    public long getCumulatedProcessingTime() {
+        return totalTime;
+    }
+
 
     /**
      * @return List of problems
@@ -353,5 +385,4 @@ public class ReceiverJMSListener implements MessageListener {
     public List<String> getErrors() {
         return errors;
     }
-
 }
