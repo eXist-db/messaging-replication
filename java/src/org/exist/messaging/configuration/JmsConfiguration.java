@@ -19,9 +19,21 @@
  */
 package org.exist.messaging.configuration;
 
+import java.math.BigInteger;
 import javax.naming.Context;
 import org.exist.xquery.XPathException;
 import org.exist.messaging.shared.Constants;
+import org.exist.xquery.functions.map.AbstractMapType;
+import org.exist.xquery.value.AtomicValue;
+import org.exist.xquery.value.BooleanValue;
+import org.exist.xquery.value.DoubleValue;
+import org.exist.xquery.value.FloatValue;
+import org.exist.xquery.value.IntegerValue;
+import org.exist.xquery.value.Item;
+import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.SequenceIterator;
+import org.exist.xquery.value.StringValue;
+import org.exist.xquery.value.ValueSequence;
 
 
 /**
@@ -32,6 +44,35 @@ import org.exist.messaging.shared.Constants;
 public class JmsConfiguration extends MessagingConfiguration {
     
     public static final String CONFIG_ERROR_MSG = "Missing configuration item '%s'";
+    
+    /**
+     * Load data from XQuery map-type and convert the data into String key/value pairs.
+     *
+     * @param map The XQuery map
+     * @return The converted map
+     * @throws XPathException Something bad happened.
+     */
+    @Override
+    public void loadConfiguration(AbstractMapType map) throws XPathException {
+        // Get all keys
+        Sequence keys = map.keys();
+        
+        // Iterate over all keys
+        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
+
+            // Get next item
+            Item key = i.nextItem();
+            
+            // Only use Strings as key, as required by JMS
+            String keyValue = key.getStringValue();
+            
+            // Get values
+            Sequence values = map.get((AtomicValue)key);
+
+            // Purely set String values
+            setProperty(keyValue, values.getStringValue());
+        }
+    }
 
     
     public String getConnectionFactory() {

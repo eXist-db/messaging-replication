@@ -37,6 +37,7 @@ import javax.jms.TextMessage;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import org.apache.log4j.Logger;
 
@@ -62,6 +63,7 @@ import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
 
 import static org.exist.messaging.shared.Constants.*;
+import org.exist.xquery.value.AtomicValue;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -245,9 +247,43 @@ public class ReceiverJMSListener implements MessageListener {
 
         Enumeration props = msg.getPropertyNames();
         while (props.hasMoreElements()) {
-            String elt = (String) props.nextElement();
-            String value = msg.getStringProperty(elt);
-            add(map, elt, value);
+            String key = (String) props.nextElement();
+            
+            Object obj = msg.getObjectProperty(key);
+
+            if(obj instanceof String){
+                String value = msg.getStringProperty(key);
+                addStringKV(map, key, value);
+                
+            } else if (obj instanceof Integer) {
+                Integer localValue = msg.getIntProperty(key);
+                ValueSequence vs = new ValueSequence(new IntegerValue(localValue));
+                addKV(map, key, vs);
+   
+            } else if (obj instanceof Double) {
+                Double localValue = msg.getDoubleProperty(key);
+                ValueSequence vs = new ValueSequence(new DoubleValue(localValue));
+                addKV(map, key, vs);
+            
+            } else if (obj instanceof Boolean) {   
+                Boolean localValue = msg.getBooleanProperty(key);
+                ValueSequence vs = new ValueSequence(new BooleanValue(localValue));
+                addKV(map, key, vs);
+                
+            } else if (obj instanceof Float) {
+                Float localValue = msg.getFloatProperty(key);
+                ValueSequence vs = new ValueSequence(new FloatValue(localValue));
+                addKV(map, key, vs);
+                
+            } else {             
+                String value = msg.getStringProperty(key);
+                addStringKV(map, key, value);
+                LOG.debug(String.format("Unable to convert '%s'/'%s' into a map. Falling back to String value", key, value));
+            }
+
+            
+            
+
         }
         return map;
     }
@@ -256,19 +292,25 @@ public class ReceiverJMSListener implements MessageListener {
         // Copy property values into Maptype
         MapType map = new MapType(xqueryContext);
 
-        add(map, JMS_MESSAGE_ID, msg.getJMSMessageID());
-        add(map, JMS_CORRELATION_ID, msg.getJMSCorrelationID());
-        add(map, JMS_TYPE, msg.getJMSType());
-        add(map, JMS_PRIORITY, "" + msg.getJMSPriority());
-        add(map, JMS_EXPIRATION, "" + msg.getJMSExpiration());
-        add(map, JMS_TIMESTAMP, "" + msg.getJMSTimestamp());
+        addStringKV(map, JMS_MESSAGE_ID, msg.getJMSMessageID());
+        addStringKV(map, JMS_CORRELATION_ID, msg.getJMSCorrelationID());
+        addStringKV(map, JMS_TYPE, msg.getJMSType());
+        addStringKV(map, JMS_PRIORITY, "" + msg.getJMSPriority());
+        addStringKV(map, JMS_EXPIRATION, "" + msg.getJMSExpiration());
+        addStringKV(map, JMS_TIMESTAMP, "" + msg.getJMSTimestamp());
 
         return map;
     }
 
-    private void add(MapType map, String key, String value) throws XPathException {
+    private void addStringKV(MapType map, String key, String value) throws XPathException {
         if (map != null && key != null && !key.isEmpty() && value != null) {
             map.add(new StringValue(key), new ValueSequence(new StringValue(value)));
+        }
+    }
+    
+    private void addKV(MapType map, String key, ValueSequence valueSequence) throws XPathException {
+        if (map != null && StringUtils.isNotBlank(key) && valueSequence != null) {
+            map.add(new StringValue(key), valueSequence);    
         }
     }
 

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.jms.*;
@@ -62,16 +63,16 @@ public class Sender  {
     }
 
 
-    public NodeImpl send(JmsConfiguration config, JmsMessageProperties metadata, Item content) throws XPathException {
+    public NodeImpl send(JmsConfiguration jmsConfig, JmsMessageProperties msgMetaProps, Item content) throws XPathException {
 
         // JMS specific checks
-        config.validate();
+        jmsConfig.validate();
 
         // Retrieve relevant values
-        String initialContextFactory = config.getInitialContextFactory();
-        String providerURL = config.getProviderURL();
-        String connectionFactory = config.getConnectionFactory();
-        String destination = config.getDestination();
+        String initialContextFactory = jmsConfig.getInitialContextFactory();
+        String providerURL = jmsConfig.getProviderURL();
+        String connectionFactory = jmsConfig.getConnectionFactory();
+        String destination = jmsConfig.getDestination();
 
 
         // TODO split up, use more exceptions, add better reporting
@@ -86,8 +87,8 @@ public class Sender  {
             
             // Setup username/password when required
             Connection connection = null;
-            String userName = config.getConnectionUserName();
-            String password = config.getConnectionPassword();
+            String userName = jmsConfig.getConnectionUserName();
+            String password = jmsConfig.getConnectionPassword();
             if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
                 connection = cf.createConnection();
             } else {
@@ -105,13 +106,33 @@ public class Sender  {
 
 
             // Create message
-            Message message = createMessage(session, content, metadata, xqcontext);
+            Message message = createMessage(session, content, msgMetaProps, xqcontext);
 
-            // Write properties
-            for (String key : metadata.stringPropertyNames()) {
-                message.setStringProperty(key, metadata.getProperty(key));
+            // Write message properties
+            for (Map.Entry<Object, Object> entry : msgMetaProps.entrySet()) {
+                
+                String key = (String) entry.getKey();
+                Object value = entry.getValue();
+                               
+                if (value instanceof String) {
+                    message.setStringProperty(key, (String) value);
+                    
+                } else if (value instanceof Integer) {
+                    message.setIntProperty(key, (Integer) value);
+                    
+                } else if (value instanceof Double) {
+                    message.setDoubleProperty(key, (Double) value);
+                    
+                } else if (value instanceof Boolean) {
+                    message.setBooleanProperty(key, (Boolean) value);
+                    
+                } else if (value instanceof Float) {
+                    message.setFloatProperty(key, (Float) value);
+                    
+                } else {
+                    LOG.error(String.format("Cannot set %s into a JMS property", value.getClass().getCanonicalName()));
+                }
             }
-
 
             // Send message
             producer.send(message);
@@ -120,7 +141,7 @@ public class Sender  {
             // TODO keep connection open for re-use, efficiency
             connection.close();
 
-            return Reporter.createReport(message, config);
+            return Reporter.createReport(message, jmsConfig);
 
         } catch (Throwable ex) {
             LOG.error(ex);

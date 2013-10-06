@@ -63,17 +63,17 @@ public class SendMessage extends BasicFunction {
 
         // Get application properties
         AbstractMapType msgPropertiesMap = (AbstractMapType) args[1].itemAt(0);
-        JmsMessageProperties meta = new JmsMessageProperties();
-        meta.loadConfiguration(msgPropertiesMap);
+        JmsMessageProperties messageProperties = new JmsMessageProperties();
+        messageProperties.loadConfiguration(msgPropertiesMap);
 
         // Get JMS configuration
         AbstractMapType jmsConfigurationMap = (AbstractMapType) args[2].itemAt(0);
-        JmsConfiguration config = new JmsConfiguration();
-        config.loadConfiguration(jmsConfigurationMap);
+        JmsConfiguration jmsConfiguration = new JmsConfiguration();
+        jmsConfiguration.loadConfiguration(jmsConfigurationMap);
 
         // Send message
         Sender sender = new Sender(context);
-        NodeImpl result = sender.send(config, meta, content);
+        NodeImpl result = sender.send(jmsConfiguration, messageProperties, content);
 
         // Return results
         return result;

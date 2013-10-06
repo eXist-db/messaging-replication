@@ -78,7 +78,7 @@ public class MessagingConfiguration extends Properties {
 
             } else if (values instanceof IntegerValue) {
                 IntegerValue singleValue = (IntegerValue) values;
-                put(keyValue, singleValue.toJavaObject(BigInteger.class));
+                put(keyValue, singleValue.toJavaObject(Integer.class));
 
             } else if (values instanceof DoubleValue) {
                 DoubleValue singleValue = (DoubleValue) values;
