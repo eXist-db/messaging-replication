@@ -205,6 +205,7 @@ public class Receiver {
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
             errors.add(t.getMessage());
+            throw new XPathException(t.getMessage());
         }
 
     }
@@ -398,7 +399,6 @@ public class Receiver {
         
         builder.endElement();
         
-
         // finish root element
         builder.endElement();
 
