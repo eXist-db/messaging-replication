@@ -93,6 +93,10 @@ public class JmsConfiguration extends MessagingConfiguration {
     public String getConnectionPassword(){
         return getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
+    
+    public String getMessageSelector(){
+        return getProperty(Constants.MESSAGE_SELECTOR);
+    }
 
     /**
      * Verify if all required data is available.

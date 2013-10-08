@@ -60,6 +60,9 @@ public class Identity {
         return identity;
     }
 
+    /**
+     * Find identity file
+     */
     private void findIdentityFile() {
 
         if (identityFile == null) {
@@ -69,6 +72,9 @@ public class Identity {
         }
     }
 
+    /**
+     * Read identity from file, create if not existent
+     */
     private void getIdentityFromFile() {
 
         Properties props = new Properties();

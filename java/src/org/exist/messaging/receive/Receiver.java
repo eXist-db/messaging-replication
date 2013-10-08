@@ -194,8 +194,10 @@ public class Receiver {
             // Setup destination
             destination = (Destination) initialContext.lookup(config.getDestination());
 
-            // Setup consumer
-            messageConsumer = session.createConsumer(destination);
+            // Setup consumer with message selector
+            // TODO: set noLoLocal, Add Topic/durable
+            String messageSelector = config.getMessageSelector();;
+            messageConsumer = session.createConsumer(destination,messageSelector);
             messageConsumer.setMessageListener(myListener);
 
             LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));

@@ -63,7 +63,6 @@ import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
 
 import static org.exist.messaging.shared.Constants.*;
-import org.exist.xquery.value.AtomicValue;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
