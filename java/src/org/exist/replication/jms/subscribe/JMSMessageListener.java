@@ -31,11 +31,14 @@ import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
 import org.exist.dom.DocumentMetadata;
+import org.exist.messaging.shared.Constants;
+import org.exist.messaging.shared.Identity;
 import org.exist.replication.shared.MessageHelper;
 import org.exist.replication.shared.eXistMessage;
 import org.exist.security.Account;
@@ -63,6 +66,8 @@ public class JMSMessageListener implements MessageListener {
     private final static Logger LOG = Logger.getLogger(JMSMessageListener.class);
     private BrokerPool brokerPool = null;
     private org.exist.security.SecurityManager securityManager = null;
+    
+    private String localID=null;
 
     /**
      * Constructor
@@ -72,6 +77,8 @@ public class JMSMessageListener implements MessageListener {
     public JMSMessageListener(BrokerPool brokerpool) {
         brokerPool = brokerpool;
         securityManager = brokerpool.getSecurityManager();
+        
+        localID=Identity.getInstance().getIdentity();
     }
 
     /**
@@ -119,8 +126,19 @@ public class JMSMessageListener implements MessageListener {
 
     @Override
     public void onMessage(Message msg) {
-
+        
         try {
+            // Detect if the sender of the incoming message
+            // is the receiver
+            if (StringUtils.isNotEmpty(localID)) {
+                String remoteID = msg.getStringProperty(Constants.EXIST_INSTANCE_ID);
+                if(localID.equals(remoteID)){
+                    LOG.info("Incoming JMS messsage was sent by this instance. Processing stopped.");
+                    return;
+                }
+            }
+            
+            
             if (msg instanceof BytesMessage) {
 
                 // Prepare received message

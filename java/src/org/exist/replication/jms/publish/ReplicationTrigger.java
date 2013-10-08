@@ -64,6 +64,7 @@ public class ReplicationTrigger extends FilteringTrigger implements DocumentTrig
             LOG.debug(document.getURI().toString());
         }
         
+        /** TODO: make optional? (for lJO) */
         if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;

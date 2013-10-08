@@ -24,12 +24,16 @@ package org.exist.replication.jms.publish;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
 import org.apache.log4j.Logger;
+import org.exist.messaging.shared.Constants;
+import org.exist.messaging.shared.Identity;
+
 import org.exist.replication.shared.JmsConnectionHelper;
 import org.exist.replication.shared.MessageSender;
 import org.exist.replication.shared.TransportException;
@@ -43,6 +47,7 @@ import org.exist.replication.shared.eXistMessage;
 public class JMSMessageSender implements MessageSender {
 
     private final static Logger LOG = Logger.getLogger(JMSMessageSender.class);
+    
     private PublisherParameters parameters = new PublisherParameters();
 
     /**
@@ -110,7 +115,7 @@ public class JMSMessageSender implements MessageSender {
 
         // Get from .xconf file, fill defaults when needed
         parameters.processParameters();
-
+        
         Properties contextProps = parameters.getInitialContextProps();
 
         if(LOG.isDebugEnabled()){
@@ -181,6 +186,12 @@ public class JMSMessageSender implements MessageSender {
 
             if (em.getDestinationPath() != null) {
                 message.setStringProperty(eXistMessage.EXIST_DESTINATION_PATH, em.getDestinationPath());
+            }
+            
+            // Retrieve and set JMS identifier
+            String id = Identity.getInstance().getIdentity();
+            if (id != null) {
+                message.setStringProperty(Constants.EXIST_INSTANCE_ID, id);
             }
 
 

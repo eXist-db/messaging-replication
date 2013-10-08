@@ -34,6 +34,8 @@ public class Constants {
     public static final String EXIST_DOCUMENT_URI = "exist.document.uri";
     public static final String EXIST_XPATH_DATATYPE = "exist.xpath.datatype";
     
+    public static final String EXIST_INSTANCE_ID = "exist.instance.id";
+    
     public static final String JMS = "JMS";
     public static final String JMS_CORRELATION_ID = "JMSCorrelationID";
     public static final String JMS_EXPIRATION = "JMSExpiration";

@@ -19,21 +19,16 @@
  */
 package org.exist.messaging.configuration;
 
-import java.math.BigInteger;
 import javax.naming.Context;
-import org.exist.xquery.XPathException;
+
 import org.exist.messaging.shared.Constants;
+
+import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.AtomicValue;
-import org.exist.xquery.value.BooleanValue;
-import org.exist.xquery.value.DoubleValue;
-import org.exist.xquery.value.FloatValue;
-import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.ValueSequence;
 
 
 /**

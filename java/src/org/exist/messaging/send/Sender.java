@@ -39,6 +39,7 @@ import org.exist.dom.NodeProxy;
 import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.configuration.JmsMessageProperties;
+import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Reporter;
 import org.exist.storage.serializers.Serializer;
 import org.exist.validation.internal.node.NodeInputStream;
@@ -47,6 +48,7 @@ import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
 import static org.exist.messaging.shared.Constants.*;
+import org.exist.messaging.shared.Identity;
 
 /**
  *
@@ -67,6 +69,12 @@ public class Sender  {
 
         // JMS specific checks
         jmsConfig.validate();
+        
+        // Retrieve and set JMS identifier
+        String id  = Identity.getInstance().getIdentity();    
+        if(id!=null){
+            msgMetaProps.setProperty(Constants.EXIST_INSTANCE_ID, id);
+        }
 
         // Retrieve relevant values
         String initialContextFactory = jmsConfig.getInitialContextFactory();
@@ -74,8 +82,6 @@ public class Sender  {
         String connectionFactory = jmsConfig.getConnectionFactory();
         String destination = jmsConfig.getDestination();
 
-
-        // TODO split up, use more exceptions, add better reporting
         try {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
@@ -86,15 +92,12 @@ public class Sender  {
             ConnectionFactory cf = (ConnectionFactory) context.lookup(connectionFactory);
             
             // Setup username/password when required
-            Connection connection = null;
             String userName = jmsConfig.getConnectionUserName();
             String password = jmsConfig.getConnectionPassword();
-            if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
-                connection = cf.createConnection();
-            } else {
-                connection = cf.createConnection(userName, password);
-            }
-
+            
+            Connection connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) 
+                    ?  cf.createConnection(): cf.createConnection(userName, password); 
+            
             // Lookup queue
             Destination dest = (Destination) context.lookup(destination);
 
@@ -103,7 +106,6 @@ public class Sender  {
 
             // Create message producer
             MessageProducer producer = session.createProducer(dest);
-
 
             // Create message
             Message message = createMessage(session, content, msgMetaProps, xqcontext);
