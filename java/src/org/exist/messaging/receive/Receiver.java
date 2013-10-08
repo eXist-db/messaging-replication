@@ -82,7 +82,7 @@ public class Receiver {
      * 
      */
     private FunctionReference ref;
-    private JmsConfiguration config;
+    private JmsConfiguration jmsConfig;
     private Sequence functionParams;
     private XQueryContext context;
     private Context initialContext = null;
@@ -103,7 +103,7 @@ public class Receiver {
      */
     public Receiver(FunctionReference ref, JmsConfiguration config, Sequence functionParams, XQueryContext context) {
         this.ref = ref;
-        this.config = config;
+        this.jmsConfig = config;
         this.context = context;
         this.functionParams = functionParams;
 
@@ -162,7 +162,7 @@ public class Receiver {
     public void initialize() throws XPathException {
 
         // JMS specific checks
-        config.validate();
+        jmsConfig.validate();
 
         try {
             // Setup listener
@@ -172,31 +172,37 @@ public class Receiver {
 
             // Setup Context
             Properties props = new Properties();
-            props.setProperty(Context.INITIAL_CONTEXT_FACTORY, config.getInitialContextFactory());
-            props.setProperty(Context.PROVIDER_URL, config.getProviderURL());
+            props.setProperty(Context.INITIAL_CONTEXT_FACTORY, jmsConfig.getInitialContextFactory());
+            props.setProperty(Context.PROVIDER_URL, jmsConfig.getProviderURL());
             initialContext = new InitialContext(props);
 
             // Setup connection
-            connectionFactory = (ConnectionFactory) initialContext.lookup(config.getConnectionFactory());
+            connectionFactory = (ConnectionFactory) initialContext.lookup(jmsConfig.getConnectionFactory());
 
             // Setup username/password when required
-            String userName = config.getConnectionUserName();
-            String password = config.getConnectionPassword();
+            String userName = jmsConfig.getConnectionUserName();
+            String password = jmsConfig.getConnectionPassword();
             if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
                 connection = connectionFactory.createConnection();
             } else {
                 connection = connectionFactory.createConnection(userName, password);
+            }
+            
+            // Set clientId when set and not empty
+            String clientId=jmsConfig.getClientID();
+            if(StringUtils.isNotBlank(clientId)){
+                connection.setClientID(clientId);
             }
 
             // Setup session
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Setup destination
-            destination = (Destination) initialContext.lookup(config.getDestination());
+            destination = (Destination) initialContext.lookup(jmsConfig.getDestination());
 
             // Setup consumer with message selector
             // TODO: set noLoLocal, Add Topic/durable
-            String messageSelector = config.getMessageSelector();;
+            String messageSelector = jmsConfig.getMessageSelector();;
             messageConsumer = session.createConsumer(destination,messageSelector);
             messageConsumer.setMessageListener(myListener);
 
@@ -316,18 +322,18 @@ public class Receiver {
 
 
         builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
-        builder.characters(config.getInitialContextFactory());
+        builder.characters(jmsConfig.getInitialContextFactory());
         builder.endElement();
 
         builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
-        builder.characters(config.getProviderURL());
+        builder.characters(jmsConfig.getProviderURL());
         builder.endElement();
 
         builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);
-        builder.characters(config.getConnectionFactory());
+        builder.characters(jmsConfig.getConnectionFactory());
         builder.endElement();
 
-        String userName = config.getConnectionUserName();
+        String userName = jmsConfig.getConnectionUserName();
         if (StringUtils.isNotBlank(userName)) {
             builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
             builder.characters(userName);
@@ -335,7 +341,7 @@ public class Receiver {
         }
 
         builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
-        builder.characters(config.getDestination());
+        builder.characters(jmsConfig.getDestination());
         builder.endElement();
 
         try {

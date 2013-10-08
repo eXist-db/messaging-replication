@@ -97,6 +97,10 @@ public class JmsConfiguration extends MessagingConfiguration {
     public String getMessageSelector(){
         return getProperty(Constants.MESSAGE_SELECTOR);
     }
+    
+    public String getClientID(){
+        return getProperty(Constants.CLIENT_ID);
+    }
 
     /**
      * Verify if all required data is available.
@@ -126,4 +130,5 @@ public class JmsConfiguration extends MessagingConfiguration {
         }
         
     }
+
 }

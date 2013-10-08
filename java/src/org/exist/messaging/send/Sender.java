@@ -72,8 +72,10 @@ public class Sender  {
         
         // Retrieve and set JMS identifier
         String id  = Identity.getInstance().getIdentity();    
-        if(id!=null){
+        if(StringUtils.isNotBlank(id)){
             msgMetaProps.setProperty(Constants.EXIST_INSTANCE_ID, id);
+        } else {
+            LOG.error(String.format("An empty value was provided for '%s'", Constants.EXIST_INSTANCE_ID));
         }
 
         // Retrieve relevant values
@@ -97,6 +99,12 @@ public class Sender  {
             
             Connection connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) 
                     ?  cf.createConnection(): cf.createConnection(userName, password); 
+            
+            // Set clientId when set and not empty
+            String clientId=jmsConfig.getClientID();
+            if(StringUtils.isNotBlank(clientId)){
+                connection.setClientID(clientId);
+            }
             
             // Lookup queue
             Destination dest = (Destination) context.lookup(destination);
