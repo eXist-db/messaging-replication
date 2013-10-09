@@ -20,6 +20,7 @@
 package org.exist.messaging.configuration;
 
 import javax.naming.Context;
+import org.apache.commons.lang3.BooleanUtils;
 
 import org.exist.messaging.shared.Constants;
 
@@ -129,6 +130,31 @@ public class JmsConfiguration extends MessagingConfiguration {
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.DESTINATION));
         }
         
+    }
+
+
+    public boolean isDurable() {
+        String durable = getProperty(Constants.DURABLE);
+        
+        if(durable==null){
+            return false;
+        }
+        return BooleanUtils.toBoolean(durable);
+    }
+
+
+    public boolean isNoLocal() {
+        String noLocal = getProperty(Constants.NO_LOCAL);
+        
+        if(noLocal==null){
+            return true;
+        }
+        return BooleanUtils.toBoolean(noLocal);
+    }
+
+
+    public String getSubscriberName() {
+        return getProperty(Constants.SUBSCRIBER_NAME);
     }
 
 }

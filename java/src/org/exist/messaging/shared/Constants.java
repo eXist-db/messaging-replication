@@ -51,4 +51,8 @@ public class Constants {
     public static final String DESTINATION = "Destination";
     public static final String CLIENT_ID = "ClientID";
     public static final String MESSAGE_SELECTOR = "MessageSelector";
+    
+    public static final String DURABLE = "durable";
+    public static final String NO_LOCAL = "nolocal";
+    public static final String SUBSCRIBER_NAME = "subscribername";
 }

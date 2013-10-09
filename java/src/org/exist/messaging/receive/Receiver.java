@@ -30,6 +30,8 @@ import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
+import javax.jms.Topic;
+import javax.jms.TopicSubscriber;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -201,9 +203,22 @@ public class Receiver {
             destination = (Destination) initialContext.lookup(jmsConfig.getDestination());
 
             // Setup consumer with message selector
-            // TODO: set noLoLocal, Add Topic/durable
-            String messageSelector = jmsConfig.getMessageSelector();;
-            messageConsumer = session.createConsumer(destination,messageSelector);
+            String messageSelector = jmsConfig.getMessageSelector();
+            boolean isDurable = jmsConfig.isDurable();
+            boolean isNoLocal = jmsConfig.isNoLocal();
+            String subscriberName = jmsConfig.getSubscriberName();
+            
+             // Set durable messaging, when required
+            if (isDurable) {
+                // Set subscriber
+                messageConsumer = session.createDurableSubscriber( (Topic) destination, subscriberName, messageSelector, isNoLocal);
+
+            } else {
+                // Create message consumer
+                messageConsumer = session.createConsumer( destination, messageSelector, isNoLocal);    
+            }
+            
+            // Register listeners
             messageConsumer.setMessageListener(myListener);
 
             LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));
