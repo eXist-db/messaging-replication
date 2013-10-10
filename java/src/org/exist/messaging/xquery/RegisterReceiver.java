@@ -56,6 +56,8 @@ public class RegisterReceiver extends BasicFunction {
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+
+        try {
         
         // Get object that manages the receivers
         ReceiversManager manager = ReceiversManager.getInstance();
@@ -80,7 +82,12 @@ public class RegisterReceiver extends BasicFunction {
         receiver.start();
 
         // Return identification
-        return new StringValue( receiver.getId() );
+            return new StringValue(receiver.getId());
+
+        } catch (XPathException ex) {
+            LOG.error(ex);
+            throw ex;
+        }
 
     }
     

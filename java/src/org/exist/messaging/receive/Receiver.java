@@ -204,29 +204,33 @@ public class Receiver {
 
             // Setup consumer with message selector
             String messageSelector = jmsConfig.getMessageSelector();
-            boolean isDurable = jmsConfig.isDurable();
-            boolean isNoLocal = jmsConfig.isNoLocal();
             String subscriberName = jmsConfig.getSubscriberName();
             
-             // Set durable messaging, when required
-            if (isDurable) {
-                // Set subscriber
-                messageConsumer = session.createDurableSubscriber( (Topic) destination, subscriberName, messageSelector, isNoLocal);
+            boolean isDurable = jmsConfig.isDurable(); // TRUE if not set, special case for Durable topic
+            boolean isNoLocal = jmsConfig.isNoLocal();
+            
+            // Interesting switch due to JMS specification
+            if (destination instanceof Topic && isDurable) {
+                // Create durable subscriber for topic only when set durable manually
+                messageConsumer = session.createDurableSubscriber((Topic) destination, subscriberName, messageSelector, isNoLocal);
 
             } else {
-                // Create message consumer
-                messageConsumer = session.createConsumer( destination, messageSelector, isNoLocal);    
+                // When not a Topic OR when a Topic but not durable.....
+                messageConsumer = session.createConsumer(destination, messageSelector, isNoLocal);
             }
             
             // Register listeners
             messageConsumer.setMessageListener(myListener);
 
-            LOG.info(String.format("JMS connection is initialized. ClientId=%s", connection.getClientID()));
+            LOG.info(String.format("JMS connection is initialized: %s=%s %s=%s %s=%s %s=%s %s=%s",
+                    Constants.CLIENT_ID, connection.getClientID(), Constants.MESSAGE_SELECTOR, messageSelector,
+                    Constants.SUBSCRIBER_NAME, subscriberName, Constants.DURABLE, isDurable, Constants.NO_LOCAL, isNoLocal));
 
             state = STATE.STOPPED;
 
         } catch (Throwable t) {
             LOG.error(t.getMessage(), t);
+            LOG.debug("" + jmsConfig.toString());
             errors.add(t.getMessage());
             throw new XPathException(t.getMessage());
         }

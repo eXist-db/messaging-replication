@@ -21,6 +21,8 @@ package org.exist.messaging.configuration;
 
 import javax.naming.Context;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import org.exist.messaging.shared.Constants;
 
@@ -133,12 +135,16 @@ public class JmsConfiguration extends MessagingConfiguration {
     }
 
 
+    /**
+     * @return The value or TRUE when not set
+     */
     public boolean isDurable() {
         String durable = getProperty(Constants.DURABLE);
         
         if(durable==null){
-            return false;
+            return true;
         }
+        
         return BooleanUtils.toBoolean(durable);
     }
 
@@ -155,6 +161,11 @@ public class JmsConfiguration extends MessagingConfiguration {
 
     public String getSubscriberName() {
         return getProperty(Constants.SUBSCRIBER_NAME);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }

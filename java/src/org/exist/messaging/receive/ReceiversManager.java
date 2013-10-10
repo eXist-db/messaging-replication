@@ -22,7 +22,6 @@ package org.exist.messaging.receive;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Class for managing Receivers

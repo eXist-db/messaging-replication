@@ -44,15 +44,16 @@ public class Constants {
     public static final String JMS_TIMESTAMP = "JMSTimestamp";
     public static final String JMS_TYPE = "JMSType";
     
-    public static final String JMS_CONNECTION_USERNAME = "jms.connection.username";
-    public static final String JMS_CONNECTION_PASSWORD = "jms.connection.password";
+    public static final String CONNECTION_FACTORY = "connection-factory";
+    public static final String DESTINATION = "destination";
     
-    public static final String CONNECTION_FACTORY = "ConnectionFactory";
-    public static final String DESTINATION = "Destination";
-    public static final String CLIENT_ID = "ClientID";
-    public static final String MESSAGE_SELECTOR = "MessageSelector";
+    public static final String JMS_CONNECTION_USERNAME = "connection.username";
+    public static final String JMS_CONNECTION_PASSWORD = "connection.password";
+    public static final String CLIENT_ID = "connection.client-id";
     
-    public static final String DURABLE = "durable";
-    public static final String NO_LOCAL = "nolocal";
-    public static final String SUBSCRIBER_NAME = "subscribername";
+    public static final String MESSAGE_SELECTOR = "consumer.message-selector";
+    
+    public static final String DURABLE = "subscriber.durable";
+    public static final String NO_LOCAL = "subscriber.nolocal";
+    public static final String SUBSCRIBER_NAME = "subscriber.name";
 }
