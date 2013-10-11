@@ -58,34 +58,34 @@ public class RegisterReceiver extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-        
-        // Get object that manages the receivers
-        ReceiversManager manager = ReceiversManager.getInstance();
 
-        // Get function
-        FunctionReference reference = (FunctionReference) args[0].itemAt(0);
-        
-        // Get optional function parameters
-        Sequence functionParams = args[1];
+            // Get object that manages the receivers
+            ReceiversManager manager = ReceiversManager.getInstance();
 
-        // Get JMS configuration
-        AbstractMapType configMap = (AbstractMapType) args[2].itemAt(0);
-        JmsConfiguration config = new JmsConfiguration();
-        config.loadConfiguration(configMap);
-        
-        // Create receiver
-        Receiver receiver = new Receiver(reference, config, functionParams, context); // TODO check use .copyContext() ?
-        
-        // Register, initialize and start receiver
-        manager.register(receiver);
-        receiver.initialize();
-        receiver.start();
+            // Get function
+            FunctionReference reference = (FunctionReference) args[0].itemAt(0);
 
-        // Return identification
+            // Get optional function parameters
+            Sequence functionParams = args[1];
+
+            // Get JMS configuration
+            AbstractMapType configMap = (AbstractMapType) args[2].itemAt(0);
+            JmsConfiguration config = new JmsConfiguration();
+            config.loadConfiguration(configMap);
+
+            // Create receiver
+            Receiver receiver = new Receiver(reference, config, functionParams, context); // TODO check use .copyContext() ?
+
+            // Register, initialize and start receiver
+            manager.register(receiver);
+            receiver.initialize();
+            receiver.start();
+
+            // Return identification
             return new StringValue(receiver.getId());
 
         } catch (XPathException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage());
             throw ex;
         }
 
