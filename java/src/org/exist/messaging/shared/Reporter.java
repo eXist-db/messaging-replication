@@ -19,14 +19,12 @@
  */
 package org.exist.messaging.shared;
 
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.naming.Context;
-import org.apache.commons.lang3.StringUtils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.exist.dom.QName;
 
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;

@@ -19,7 +19,6 @@
  */
 package org.exist.messaging.configuration;
 
-import java.math.BigInteger;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;

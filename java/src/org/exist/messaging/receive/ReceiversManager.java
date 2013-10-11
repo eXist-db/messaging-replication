@@ -90,22 +90,4 @@ public class ReceiversManager {
         return receivers.keySet();
     }
 
-    /**
-     * Get detailed information about receivers
-     *
-     * @TODO not implemented yet
-     *
-     * @return
-     */
-    public String list() {
-
-        for (String key : receivers.keySet()) {
-            Receiver receiver = receivers.get(key);
-        }
-        return null;
-    }
-
-    public Receiver info(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }

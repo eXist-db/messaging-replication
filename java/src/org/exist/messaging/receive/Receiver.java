@@ -31,7 +31,6 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
 import javax.jms.Topic;
-import javax.jms.TopicSubscriber;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -41,8 +40,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.apache.log4j.Logger;
+
 import org.exist.dom.QName;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
@@ -371,7 +370,7 @@ public class Receiver {
                 builder.endElement();
             }
         } catch (JMSException ex) {
-            //
+            LOG.debug(ex.getMessage());
         }
 
         try {
@@ -382,7 +381,7 @@ public class Receiver {
                 builder.endElement();
             }
         } catch (JMSException ex) {
-            //
+            LOG.debug(ex.getMessage());
         }
 
 
