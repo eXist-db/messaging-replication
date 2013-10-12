@@ -88,6 +88,8 @@ public class Sender  {
         String connectionFactory = jmsConfig.getConnectionFactory();
         String destinationValue = jmsConfig.getDestination();
 
+        Connection connection = null;
+
         try {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
@@ -101,7 +103,7 @@ public class Sender  {
             String userName = jmsConfig.getConnectionUserName();
             String password = jmsConfig.getConnectionPassword();
             
-            Connection connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) 
+            connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) 
                     ?  cf.createConnection(): cf.createConnection(userName, password); 
             
             // Set clientId when set and not empty
@@ -140,15 +142,22 @@ public class Sender  {
             // Send message
             producer.send(message);
 
-            // Close connection
-            connection.close();
-            // TODO keep connection open for re-use, efficiency
-
+            // Return report
             return createReport(message, producer, jmsConfig);
 
         } catch (Throwable ex) {
             LOG.error(ex);
             throw new XPathException(ex.getMessage());
+
+        } finally {
+            try {
+                if (connection != null) {
+                    // Close connection
+                    connection.close();
+                }
+            } catch (JMSException ex) {
+                LOG.error(String.format("Problem closing connection, ignored. %s (%s)", ex.getMessage(), ex.getErrorCode()));
+            }
         }
     }
 
