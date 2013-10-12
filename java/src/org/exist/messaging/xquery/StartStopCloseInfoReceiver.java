@@ -94,34 +94,40 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
         if (receiver == null) {
             throw new XPathException(String.format("No receiver exists for id '%s'", id));
         }
-        
-        // Holder for return values
-        Sequence returnValue = Sequence.EMPTY_SEQUENCE;
 
-        if (isCalledAs("start")) {
-            // Start receiver
-            receiver.start();
+        try {
+            // Holder for return values
+            Sequence returnValue = Sequence.EMPTY_SEQUENCE;
 
-        } else if (isCalledAs("stop")) {
-            // Stop receiver
-            receiver.stop();
+            if (isCalledAs("start")) {
+                // Start receiver
+                receiver.start();
 
-        } else if (isCalledAs("close")) {
-            // Close and remove receiver 
-            try {
-                receiver.close();
-            } finally {
-                manager.remove(id);
+            } else if (isCalledAs("stop")) {
+                // Stop receiver
+                receiver.stop();
+
+            } else if (isCalledAs("close")) {
+                // Close and remove receiver
+                try {
+                    receiver.close();
+                } finally {
+                    manager.remove(id);
+                }
+
+            } else if (isCalledAs("info")) {
+                // Return report
+                returnValue = receiver.info();
+
+            } else {
+                throw new XPathException("Function '" + getSignature().getName().getLocalName() + "' does not exist.");
             }
-          
-        } else if (isCalledAs("info")) { 
-            // Return report
-            returnValue = receiver.info(); 
 
-        } else {
-            throw new XPathException("Function '" + getSignature().getName().getLocalName() + "' does not exist.");
+            return returnValue;
+
+        } catch (XPathException ex) {
+            LOG.error(ex.getMessage());
+            throw ex;
         }
-
-        return returnValue;
     }
 }
