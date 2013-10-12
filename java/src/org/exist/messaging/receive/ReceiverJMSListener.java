@@ -21,11 +21,13 @@ package org.exist.messaging.receive;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -37,6 +39,7 @@ import javax.jms.TextMessage;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.apache.log4j.Logger;
@@ -160,16 +163,24 @@ public class ReceiverJMSListener implements MessageListener {
                 byte[] data = new byte[(int) bm.getBodyLength()];
                 bm.readBytes(data);
 
+                String value = msg.getStringProperty(EXIST_DOCUMENT_COMPRESSION);
+                boolean isCompressed = (StringUtils.isNotBlank(value) && COMPRESSION_TYPE_GZIP.equals(value));
+
                 // Serialize data
                 if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
                     // XML(fragment)
-                    content = processXML(data);
+                    content = processXML(data, isCompressed);
 
                 } else {
                     // Binary data
-                    ByteArrayInputStream bais = new ByteArrayInputStream(data);
-                    BinaryValue bv = Base64BinaryDocument.getInstance(xqueryContext, bais);
+                    InputStream is = new ByteArrayInputStream(data);
+
+                    if (isCompressed) {
+                        is = new GZIPInputStream(is);
+                    }
+                    BinaryValue bv = Base64BinaryDocument.getInstance(xqueryContext, is);
                     content = bv;
+                    IOUtils.closeQuietly(is);
                 }
 
 
@@ -346,18 +357,24 @@ public class ReceiverJMSListener implements MessageListener {
         return content;
     }
 
-    private Sequence processXML(byte[] data) throws XPathException {
+    private Sequence processXML(byte[] data, boolean isGzipped) throws XPathException {
 
         Sequence content = null;
 
         try {
-            // XML fragment
-            ByteArrayInputStream bais = new ByteArrayInputStream(data);
+            // Reading compressed XML fragment
+            InputStream is = new ByteArrayInputStream(data);
+
+            // Decompress when needed
+            if (isGzipped) {
+                is = new GZIPInputStream(is);
+            }
+
             final ValidationReport report = new ValidationReport();
             final SAXAdapter adapter = new SAXAdapter(xqueryContext);
             final SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
-            final InputSource src = new InputSource(bais);
+            final InputSource src = new InputSource(is);
             final SAXParser parser = factory.newSAXParser();
             XMLReader xr = parser.getXMLReader();
 
@@ -366,6 +383,9 @@ public class ReceiverJMSListener implements MessageListener {
             xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
 
             xr.parse(src);
+
+            // Cleanup
+            IOUtils.closeQuietly(is);
 
             if (report.isValid()) {
                 content = (DocumentImpl) adapter.getDocument();

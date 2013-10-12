@@ -21,10 +21,12 @@ package org.exist.messaging.send;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 import java.util.Properties;
+import java.util.zip.GZIPOutputStream;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -164,6 +166,7 @@ public class Sender  {
         Message message = null;
 
         mdd.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
+        boolean isCompressed = isCompressedDocumentRequired(mdd);
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
@@ -179,19 +182,28 @@ public class Sender  {
             // Node provided
             Serializer serializer = xqcontext.getBroker().newSerializer();
 
+            // Stream content node to buffer
             NodeValue node = (NodeValue) item;
             InputStream is = new NodeInputStream(serializer, node);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            OutputStream os = baos;
             try {
-                baos.write(is);
-                
+                if (isCompressed) {
+                    os = new GZIPOutputStream(os);
+                }
+                IOUtils.copy(is, os);
+
             } catch (IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
             }
+
             IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(baos);
+            IOUtils.closeQuietly(os);
+
+//            // The data is compressed
+//            mdd.setProperty(Constants.EXIST_DOCUMENT_COMPRESSION, Constants.COMPRESSION_TYPE_GZIP);
 
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
@@ -218,20 +230,30 @@ public class Sender  {
             BinaryValue binary = (BinaryValue) item;
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            OutputStream os = baos;
+
             InputStream is = binary.getInputStream();
 
             //TODO consider using BinaryValue.getInputStream()
             //byte[] data = (byte[]) binary.toJavaObject(byte[].class);
 
             try {
-                baos.write(is);
+                if (isCompressed) {
+                    os = new GZIPOutputStream(os);
+                }
+                IOUtils.copy(is, os);
+                IOUtils.closeQuietly(os);
 
             } catch (IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
             }
             IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(baos);
+            IOUtils.closeQuietly(os);
+
+//            // The data is compressed
+//            mdd.setProperty(Constants.EXIST_DOCUMENT_COMPRESSION, Constants.COMPRESSION_TYPE_GZIP);
+
 
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
@@ -279,6 +301,24 @@ public class Sender  {
         }
 
         return message;
+    }
+
+    /**
+     * Determine if the XML/Binary payload needs to be compressed
+     *
+     * @param mdd The JMS message properties
+     * @return TRUE if not set or has value 'gzip' else FALSE.
+     *
+     */
+    private boolean isCompressedDocumentRequired(JmsMessageProperties mdd) {
+        // 
+        String compressionValue = mdd.getProperty(EXIST_DOCUMENT_COMPRESSION);
+        if (StringUtils.isBlank(compressionValue)) {
+            compressionValue = COMPRESSION_TYPE_GZIP;
+            mdd.setProperty(EXIST_DOCUMENT_COMPRESSION, COMPRESSION_TYPE_GZIP);
+        }
+        boolean isCompressed = COMPRESSION_TYPE_GZIP.equals(compressionValue);
+        return isCompressed;
     }
 
 }
