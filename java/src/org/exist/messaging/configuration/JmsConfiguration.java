@@ -107,7 +107,7 @@ public class JmsConfiguration extends MessagingConfiguration {
     }
 
     public Long getTimeToLive() {
-        String timeToLiveValue = getProperty(Constants.TIME_TO_LIVE);
+        String timeToLiveValue = getProperty(Constants.PRODUCER_TTL);
 
         Long retVal = null;
 
@@ -121,6 +121,21 @@ public class JmsConfiguration extends MessagingConfiguration {
 
     }
 
+    public Integer getPriority() {
+        String priority = getProperty(Constants.PRODUCER_PRIORITY);
+
+        Integer retVal = null;
+
+        try {
+            retVal = NumberUtils.toInt(priority);
+
+        } catch (NumberFormatException ex) {
+            LOG.error(ex.getMessage());
+        }
+
+        return retVal;
+    }
+    
     /**
      * Verify if all required data is available.
      * 

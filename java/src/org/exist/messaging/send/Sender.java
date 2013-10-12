@@ -125,10 +125,16 @@ public class Sender  {
             // Set Message properties from user provided data
             setMessagePropertiesFromMap(msgMetaProps, message);
 
-            // Set time-to-live (when set)
+            // Set time-to-live (when available)
             Long timeToLive = jmsConfig.getTimeToLive();
             if (timeToLive != null) {
                 producer.setTimeToLive(timeToLive);
+            }
+
+            // Set priority (when available)
+            Integer priority = jmsConfig.getPriority();
+            if (priority != null) {
+                producer.setPriority(priority);
             }
 
             // Send message
@@ -382,8 +388,17 @@ public class Sender  {
         if (producer != null) {
             try {
                 long timeToLive = producer.getTimeToLive();
-                builder.startElement("", TIME_TO_LIVE, TIME_TO_LIVE, null);
+                builder.startElement("", PRODUCER_TTL, PRODUCER_TTL, null);
                 builder.characters("" + timeToLive);
+                builder.endElement();
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+
+            try {
+                long priority = producer.getPriority();
+                builder.startElement("", PRODUCER_PRIORITY, PRODUCER_PRIORITY, null);
+                builder.characters("" + priority);
                 builder.endElement();
             } catch (JMSException ex) {
                 LOG.error(ex);
