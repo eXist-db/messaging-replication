@@ -13,10 +13,20 @@ import module namespace jms="http://exist-db.org/xquery/messaging" at "java:org.
 declare function local:handleMessage($content as item(), $params as item()*, $messageProperties as map(), $jmsConfig as map() )
 {
     ( 
-        util:log-system-out( data($content) ), 
-        util:log-system-out( $params ), 
-        util:log-system-out( map:keys($messageProperties) ), 
-        util:log-system-out( map:keys($jmsConfig) )
+        util:log-system-out( util:get-sequence-type($content) || "->" ||   data($content) ), 
+        
+        util:log-system-out( for $param in $params
+                             return util:get-sequence-type($param) || "->" || $param || " ;  "
+        ), 
+        
+        util:log-system-out( 
+            for $key in map:keys($messageProperties)
+            let $value := map:get($messageProperties, $key) 
+            return util:get-sequence-type($value) || "-->" || $key || "=" ||  $value || " ;  " ), 
+            
+        util:log-system-out( for $key in map:keys($jmsConfig)
+            let $value := map:get($jmsConfig, $key) 
+            return util:get-sequence-type($value) || "-->" || $key || "=" ||  $value || " ;  " )
     )
 };
 
@@ -33,7 +43,7 @@ let $jmsConfiguration :=
 let $callback := local:handleMessage#4 
 
 (: Additional (optional) data to parameterize the callback function :)
-let $additionalParameters := (1,2,3)
+let $additionalParameters := (1, "2" , xs:float(3.0))
     
 return
     (: Register the function to the JMS broker :)

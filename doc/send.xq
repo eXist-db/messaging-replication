@@ -19,14 +19,16 @@ let $messageProperties :=
         "Tu" := 2,
         "We" := true(),
         2 := "a",
-        "test" := (1,2,3,4,5),
-        "a" := xs:short(5)
-        
+        "test" := (1,2,3,4,5), (: not send :)
+        "a" := xs:short(5)      
     }
 
-(: The actual message payload :)
-let $content := <a>b</a>
 
 return
+    
+    for $i in (1 to 10)
+    (: The actual message payload :)
+    let $content := <a>{$i}</a>
+    return
     (: Send message to the JMS broker :)
     jms:send( $content , $messageProperties, $jmsConfiguration) 
