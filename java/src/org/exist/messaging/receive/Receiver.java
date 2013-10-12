@@ -72,7 +72,7 @@ public class Receiver {
      */
     private enum STATE {
 
-        NOT_DEFINED, STARTED, STOPPED, CLOSED
+        NOT_DEFINED, STARTED, STOPPED, CLOSED, ERROR
     };
     private STATE state = STATE.NOT_DEFINED;
     /**
@@ -362,26 +362,30 @@ public class Receiver {
         builder.characters(jmsConfig.getDestination());
         builder.endElement();
 
-        try {
-            String clientId = connection.getClientID();
-            if (StringUtils.isNotEmpty(clientId)) {
-                builder.startElement("", Constants.CLIENT_ID, Constants.CLIENT_ID, null);
-                builder.characters(clientId);
-                builder.endElement();
+        if (connection != null) {
+            try {
+                String clientId = connection.getClientID();
+                if (StringUtils.isNotEmpty(clientId)) {
+                    builder.startElement("", Constants.CLIENT_ID, Constants.CLIENT_ID, null);
+                    builder.characters(clientId);
+                    builder.endElement();
+                }
+            } catch (JMSException ex) {
+                LOG.debug(ex.getMessage());
             }
-        } catch (JMSException ex) {
-            LOG.debug(ex.getMessage());
         }
 
-        try {
-            String messageSelector = messageConsumer.getMessageSelector();
-            if (messageSelector != null) {
-                builder.startElement("", Constants.MESSAGE_SELECTOR, Constants.MESSAGE_SELECTOR, null);
-                builder.characters(messageSelector);
-                builder.endElement();
+        if (messageConsumer != null) {
+            try {
+                String messageSelector = messageConsumer.getMessageSelector();
+                if (messageSelector != null) {
+                    builder.startElement("", Constants.MESSAGE_SELECTOR, Constants.MESSAGE_SELECTOR, null);
+                    builder.characters(messageSelector);
+                    builder.endElement();
+                }
+            } catch (JMSException ex) {
+                LOG.debug(ex.getMessage());
             }
-        } catch (JMSException ex) {
-            LOG.debug(ex.getMessage());
         }
 
 
