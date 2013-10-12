@@ -92,7 +92,7 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
 
         // Verify if receiver is available
         if (receiver == null) {
-            throw new XPathException(String.format("No receiver exists for id '%s'", id));
+            throw new XPathException(this, String.format("No receiver exists for id '%s'", id));
         }
 
         try {
@@ -120,13 +120,14 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
                 returnValue = receiver.info();
 
             } else {
-                throw new XPathException("Function '" + getSignature().getName().getLocalName() + "' does not exist.");
+                throw new XPathException(this, "Function '" + getSignature().getName().getLocalName() + "' does not exist.");
             }
 
             return returnValue;
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage());
+            ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
         }
     }

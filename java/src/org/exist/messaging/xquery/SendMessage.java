@@ -72,17 +72,14 @@ public class SendMessage extends BasicFunction {
         jmsConfiguration.loadConfiguration(jmsConfigurationMap);
 
         try {
-            // Send message
+            // Send message and return results
             Sender sender = new Sender(context);
-            NodeImpl result = sender.send(jmsConfiguration, messageProperties, content);
-
-            // Return results
-            return result;
+            return sender.send(jmsConfiguration, messageProperties, content);
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage());
+            ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
-        }
-     
+        }   
     }    
 }

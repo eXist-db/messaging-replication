@@ -58,7 +58,6 @@ public class RegisterReceiver extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         try {
-
             // Get object that manages the receivers
             ReceiversManager manager = ReceiversManager.getInstance();
 
@@ -86,9 +85,8 @@ public class RegisterReceiver extends BasicFunction {
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage());
+            ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
         }
-
     }
-    
 }
