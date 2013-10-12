@@ -22,6 +22,7 @@ package org.exist.messaging.receive;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.log4j.Logger;
 
 /**
  * Class for managing Receivers
@@ -29,6 +30,8 @@ import java.util.Set;
  * @author Dannes Wessels
  */
 public class ReceiversManager {
+
+    private final static Logger LOG = Logger.getLogger(ReceiversManager.class);
 
     private Map<String, Receiver> receivers = new HashMap<String, Receiver>();
     private static ReceiversManager instance;
@@ -40,6 +43,7 @@ public class ReceiversManager {
     public static ReceiversManager getInstance() {
 
         if (null == instance) {
+            LOG.debug("Initializing JMS receiver management");
             instance = new ReceiversManager();
         }
 
@@ -59,7 +63,8 @@ public class ReceiversManager {
         if (receiver == null) {
             throw new IllegalArgumentException("Receiver should not be null");
         }
-        
+
+        LOG.info(String.format("Registering receiver %s", receiver.getId()));
         receivers.put(receiver.getId(), receiver);
     }
 
@@ -69,6 +74,7 @@ public class ReceiversManager {
      * @param id Identification of receiver
      */
     public void remove(String id) {
+        LOG.info(String.format("Remove receiver %s", id));
         receivers.remove(id);
     }
 

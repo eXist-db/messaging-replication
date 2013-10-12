@@ -162,6 +162,8 @@ public class Receiver {
      */
     public void initialize() throws XPathException {
 
+        LOG.info("Initializing JMS connection");
+
         // JMS specific checks
         jmsConfig.validate();
 
@@ -414,6 +416,10 @@ public class Receiver {
 
             builder.endElement();
         }
+
+        /*
+         * Statistics
+         */
 
         builder.startElement("", "Statistics", "Statistics", null);
 
