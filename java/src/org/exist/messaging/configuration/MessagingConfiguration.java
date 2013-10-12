@@ -43,7 +43,7 @@ import org.exist.xquery.value.ValueSequence;
  */
 public class MessagingConfiguration extends Properties {
     
-    private final static Logger LOG = Logger.getLogger(MessagingConfiguration.class);
+    protected final static Logger LOG = Logger.getLogger(MessagingConfiguration.class);
     
    /**
      * Load data from XQuery map-type.

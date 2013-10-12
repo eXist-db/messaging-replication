@@ -23,6 +23,7 @@ import javax.naming.Context;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exist.messaging.shared.Constants;
 
@@ -103,6 +104,21 @@ public class JmsConfiguration extends MessagingConfiguration {
     
     public String getClientID(){
         return getProperty(Constants.CLIENT_ID);
+    }
+
+    public Long getTimeToLive() {
+        String timeToLiveValue = getProperty(Constants.TIME_TO_LIVE);
+
+        Long retVal = null;
+
+        try {
+            retVal = NumberUtils.toLong(timeToLiveValue);
+        } catch (NumberFormatException ex) {
+            LOG.error(ex.getMessage());
+        }
+
+        return retVal;
+
     }
 
     /**

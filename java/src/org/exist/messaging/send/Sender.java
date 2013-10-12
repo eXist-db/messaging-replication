@@ -38,11 +38,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.exist.dom.NodeProxy;
+import org.exist.memtree.DocumentImpl;
+import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.configuration.JmsMessageProperties;
 import org.exist.messaging.shared.Constants;
-import org.exist.messaging.shared.Reporter;
+
 import org.exist.storage.serializers.Serializer;
 import org.exist.validation.internal.node.NodeInputStream;
 import org.exist.xquery.XPathException;
@@ -84,7 +86,7 @@ public class Sender  {
         String initialContextFactory = jmsConfig.getInitialContextFactory();
         String providerURL = jmsConfig.getProviderURL();
         String connectionFactory = jmsConfig.getConnectionFactory();
-        String destination = jmsConfig.getDestination();
+        String destinationValue = jmsConfig.getDestination();
 
         try {
             Properties props = new Properties();
@@ -109,51 +111,34 @@ public class Sender  {
             }
             
             // Lookup queue
-            Destination dest = (Destination) context.lookup(destination);
+            Destination destination = (Destination) context.lookup(destinationValue);
 
             // Create session
             Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
             // Create message producer
-            MessageProducer producer = session.createProducer(dest);
+            MessageProducer producer = session.createProducer(destination);
 
             // Create message
             Message message = createMessage(session, content, msgMetaProps, xqcontext);
 
-            // Write message properties
-            for (Map.Entry<Object, Object> entry : msgMetaProps.entrySet()) {
-                
-                String key = (String) entry.getKey();
-                Object value = entry.getValue();
-                               
-                if (value instanceof String) {
-                    message.setStringProperty(key, (String) value);
-                    
-                } else if (value instanceof Integer) {
-                    message.setIntProperty(key, (Integer) value);
-                    
-                } else if (value instanceof Double) {
-                    message.setDoubleProperty(key, (Double) value);
-                    
-                } else if (value instanceof Boolean) {
-                    message.setBooleanProperty(key, (Boolean) value);
-                    
-                } else if (value instanceof Float) {
-                    message.setFloatProperty(key, (Float) value);
-                    
-                } else {
-                    LOG.error(String.format("Cannot set %s into a JMS property", value.getClass().getCanonicalName()));
-                }
+            // Set Message properties from user provided data
+            setMessagePropertiesFromMap(msgMetaProps, message);
+
+            // Set time-to-live (when set)
+            Long timeToLive = jmsConfig.getTimeToLive();
+            if (timeToLive != null) {
+                producer.setTimeToLive(timeToLive);
             }
 
             // Send message
             producer.send(message);
 
             // Close connection
-            // TODO keep connection open for re-use, efficiency
             connection.close();
+            // TODO keep connection open for re-use, efficiency
 
-            return Reporter.createReport(message, jmsConfig);
+            return createReport(message, producer, jmsConfig);
 
         } catch (Throwable ex) {
             LOG.error(ex);
@@ -179,15 +164,14 @@ public class Sender  {
                 mdd.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDocument().getMetadata().getMimeType());
             }
 
-            // Node provided
-            Serializer serializer = xqcontext.getBroker().newSerializer();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            OutputStream os = baos;
 
             // Stream content node to buffer
             NodeValue node = (NodeValue) item;
+            Serializer serializer = xqcontext.getBroker().newSerializer();
             InputStream is = new NodeInputStream(serializer, node);
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            OutputStream os = baos;
             try {
                 if (isCompressed) {
                     os = new GZIPOutputStream(os);
@@ -197,14 +181,13 @@ public class Sender  {
             } catch (IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
+
+            } finally {
+                IOUtils.closeQuietly(is);
+                IOUtils.closeQuietly(os);
             }
 
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
-
-//            // The data is compressed
-//            mdd.setProperty(Constants.EXIST_DOCUMENT_COMPRESSION, Constants.COMPRESSION_TYPE_GZIP);
-
+            // Create actual message, pass data
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
 
@@ -216,6 +199,8 @@ public class Sender  {
             
             LOG.debug("Streaming base64 binary");
 
+            mdd.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
+
             if (item instanceof Base64BinaryDocument) {
                 Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
                 String uri = b64doc.getUrl();
@@ -224,37 +209,29 @@ public class Sender  {
                 mdd.setProperty(EXIST_DOCUMENT_URI, uri);
                 
             }
-            
-            mdd.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
-
-            BinaryValue binary = (BinaryValue) item;
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             OutputStream os = baos;
 
+            // Copy data from item to buffer
+            BinaryValue binary = (BinaryValue) item;
             InputStream is = binary.getInputStream();
-
-            //TODO consider using BinaryValue.getInputStream()
-            //byte[] data = (byte[]) binary.toJavaObject(byte[].class);
-
             try {
                 if (isCompressed) {
                     os = new GZIPOutputStream(os);
                 }
                 IOUtils.copy(is, os);
-                IOUtils.closeQuietly(os);
 
             } catch (IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
+
+            } finally {
+                IOUtils.closeQuietly(is);
+                IOUtils.closeQuietly(os);
             }
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
 
-//            // The data is compressed
-//            mdd.setProperty(Constants.EXIST_DOCUMENT_COMPRESSION, Constants.COMPRESSION_TYPE_GZIP);
-
-
+            // Create actual message, pass data
             BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
 
@@ -262,6 +239,7 @@ public class Sender  {
             message = bytesMessage;
 
         } else if (item.getType() == Type.STRING) {
+            // xs:string() is mapped to a TextMessage
             TextMessage textMessage = session.createTextMessage();
             textMessage.setText(item.getStringValue());
             message = textMessage;
@@ -272,31 +250,31 @@ public class Sender  {
 
             switch (item.getType()) {
                 case Type.INTEGER:
-                    BigInteger value1 = item.toJavaObject(BigInteger.class);
-                    objectMessage.setObject(value1);
+                    BigInteger intValue = item.toJavaObject(BigInteger.class);
+                    objectMessage.setObject(intValue);
                     break;
                 case Type.DOUBLE:
-                    Double value2 = item.toJavaObject(Double.class);
-                    objectMessage.setObject(value2);
+                    Double doubleValue = item.toJavaObject(Double.class);
+                    objectMessage.setObject(doubleValue);
                     break;
                 case Type.FLOAT:
-                    Float value3 = item.toJavaObject(Float.class);
-                    objectMessage.setObject(value3);
+                    Float foatValue = item.toJavaObject(Float.class);
+                    objectMessage.setObject(foatValue);
                     break;
                 case Type.DECIMAL:
-                    BigDecimal value5 = item.toJavaObject(BigDecimal.class);
-                    objectMessage.setObject(value5);
+                    BigDecimal decimalValue = item.toJavaObject(BigDecimal.class);
+                    objectMessage.setObject(decimalValue);
                     break;
                 case Type.BOOLEAN:
-                    Boolean value6 = item.toJavaObject(Boolean.class);
-                    objectMessage.setObject(value6);
+                    Boolean booleanValue = item.toJavaObject(Boolean.class);
+                    objectMessage.setObject(booleanValue);
                     break;    
                 default:
                     throw new XPathException(
                             String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
             }
 
-            //objectMessage.setObject(item.toJavaObject(Object.class)); TODO hmmmm
+            // Swap
             message = objectMessage;
         }
 
@@ -319,6 +297,135 @@ public class Sender  {
         }
         boolean isCompressed = COMPRESSION_TYPE_GZIP.equals(compressionValue);
         return isCompressed;
+    }
+
+    private void setMessagePropertiesFromMap(JmsMessageProperties msgMetaProps, Message message) throws JMSException {
+        // Write message properties
+        for (Map.Entry<Object, Object> entry : msgMetaProps.entrySet()) {
+
+            String key = (String) entry.getKey();
+            Object value = entry.getValue();
+
+            if (value instanceof String) {
+                message.setStringProperty(key, (String) value);
+
+            } else if (value instanceof Integer) {
+                message.setIntProperty(key, (Integer) value);
+
+            } else if (value instanceof Double) {
+                message.setDoubleProperty(key, (Double) value);
+
+            } else if (value instanceof Boolean) {
+                message.setBooleanProperty(key, (Boolean) value);
+
+            } else if (value instanceof Float) {
+                message.setFloatProperty(key, (Float) value);
+
+            } else {
+                LOG.error(String.format("Cannot set %s into a JMS property", value.getClass().getCanonicalName()));
+            }
+        }
+    }
+
+    /**
+     * Create messaging results report
+     */
+    private NodeImpl createReport(Message message, MessageProducer producer, JmsConfiguration config) {
+
+        MemTreeBuilder builder = new MemTreeBuilder();
+        builder.startDocument();
+
+        // start root element
+        int nodeNr = builder.startElement("", JMS, JMS, null);
+
+        /*
+         * Message
+         */
+        if (message != null) {
+            try {
+                String txt = message.getJMSMessageID();
+                if (txt != null) {
+                    builder.startElement("", JMS_MESSAGE_ID, JMS_MESSAGE_ID, null);
+                    builder.characters(txt);
+                    builder.endElement();
+                }
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+
+            try {
+                String txt = message.getJMSCorrelationID();
+                if (txt != null) {
+                    builder.startElement("", JMS_CORRELATION_ID, JMS_CORRELATION_ID, null);
+                    builder.characters(txt);
+                    builder.endElement();
+                }
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+
+            try {
+                String txt = message.getJMSType();
+                if (StringUtils.isNotEmpty(txt)) {
+                    builder.startElement("", JMS_TYPE, JMS_TYPE, null);
+                    builder.characters(txt);
+                    builder.endElement();
+                }
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+        }
+
+        /*
+         * Producer
+         */
+        if (producer != null) {
+            try {
+                long timeToLive = producer.getTimeToLive();
+                builder.startElement("", TIME_TO_LIVE, TIME_TO_LIVE, null);
+                builder.characters("" + timeToLive);
+                builder.endElement();
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+        }
+
+        /*
+         * Configuration
+         */
+        if (config != null) {
+            builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
+            builder.characters(config.getInitialContextFactory());
+            builder.endElement();
+
+            builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
+            builder.characters(config.getProviderURL());
+            builder.endElement();
+
+            builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);
+            builder.characters(config.getConnectionFactory());
+            builder.endElement();
+
+            builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
+            builder.characters(config.getDestination());
+            builder.endElement();
+
+            String userName = config.getConnectionUserName();
+            if (StringUtils.isNotBlank(userName)) {
+                builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
+                builder.characters(userName);
+                builder.endElement();
+            }
+        }
+
+
+        // finish root element
+        builder.endElement();
+
+        // return result
+        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+
+
     }
 
 }

@@ -335,12 +335,16 @@ public class Receiver {
             builder.addAttribute(new QName("id", null, null), id);
         }
 
+        /*
+         * Internal state
+         */
         builder.startElement("", "State", "State", null);
         builder.characters("" + state.name());
         builder.endElement();
 
-
-
+        /*
+         * JMS configuration
+         */
         builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
         builder.characters(jmsConfig.getInitialContextFactory());
         builder.endElement();
@@ -377,6 +381,9 @@ public class Receiver {
             }
         }
 
+        /*
+         * Message consumer
+         */
         if (messageConsumer != null) {
             try {
                 String messageSelector = messageConsumer.getMessageSelector();
@@ -390,7 +397,9 @@ public class Receiver {
             }
         }
 
-
+        /*
+         * Errors
+         */
         List<String> listenerErrors = myListener.getErrors();
         if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
             builder.startElement("", "ErrorMessages", "ErrorMessages", null);
@@ -420,23 +429,24 @@ public class Receiver {
         /*
          * Statistics
          */
+        if (myListener != null) {
+            builder.startElement("", "Statistics", "Statistics", null);
 
-        builder.startElement("", "Statistics", "Statistics", null);
+            builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
+            builder.characters("" + myListener.getMessageCounterTotal());
+            builder.endElement();
 
-        builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
-        builder.characters("" + myListener.getMessageCounterTotal());
-        builder.endElement();
+            builder.startElement("", "CumulativeProcessingTime", "CumulativeProcessingTime", null);
+            Duration duration = dtFactory.newDuration(myListener.getCumulatedProcessingTime());
+            builder.characters(duration.toString());
+            builder.endElement();
 
-        builder.startElement("", "CumulativeProcessingTime", "CumulativeProcessingTime", null);
-        Duration duration = dtFactory.newDuration(myListener.getCumulatedProcessingTime());
-        builder.characters(duration.toString());
-        builder.endElement();
+            builder.startElement("", "NrUnprocessedMessages", "NrUnprocessedMessages", null);
+            builder.characters("" + myListener.getMessageCounterNOK());
+            builder.endElement();
 
-        builder.startElement("", "NrUnprocessedMessages", "NrUnprocessedMessages", null);
-        builder.characters("" + myListener.getMessageCounterNOK());
-        builder.endElement();
-
-        builder.endElement();
+            builder.endElement();
+        }
 
         // finish root element
         builder.endElement();

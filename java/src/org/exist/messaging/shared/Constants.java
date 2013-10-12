@@ -76,4 +76,8 @@ public class Constants {
     public static final String DURABLE = "subscriber.durable";
     public static final String NO_LOCAL = "subscriber.nolocal";
     public static final String SUBSCRIBER_NAME = "subscriber.name";
+    /*
+     * Producer parameters
+     */
+    public static final String TIME_TO_LIVE = "producer.time-to-live";
 }
