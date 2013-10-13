@@ -96,10 +96,10 @@ public class Receiver {
     /**
      * Constructor
      *
-     * @param ref Reference to XQUery
-     * @param config Configuration parameters JMS
-     * @param functionParams option function parameters
-     * @param context Xquery context
+     * @param ref Reference to the XQuery function
+     * @param config JMSConfiguration parameters
+     * @param functionParams Optional function parameters
+     * @param context The XQuery context
      */
     public Receiver(FunctionReference ref, JmsConfiguration config, Sequence functionParams, XQueryContext context) {
         this.ref = ref;

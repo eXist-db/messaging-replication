@@ -88,6 +88,9 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
         }
     }
 
+    /*
+     * Entry point for starting the trigger.
+     */
     @Override
     public void execute(final DBBroker broker, final Map<String, List<? extends Object>> params) {
         

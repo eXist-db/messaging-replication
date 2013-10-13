@@ -20,6 +20,7 @@
 package org.exist.messaging.configuration;
 
 import javax.naming.Context;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -27,7 +28,6 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exist.messaging.shared.Constants;
 import org.exist.replication.jms.publish.PublisherParameters;
-import org.exist.replication.shared.ClientParameters;
 
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
