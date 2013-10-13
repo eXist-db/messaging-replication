@@ -29,6 +29,7 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.value.AtomicValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.Type;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -52,7 +53,7 @@ public class eXistMessageItem implements Item {
 
     @Override
     public int getType() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return Type.COMMENT;
     }
 
     @Override
@@ -65,41 +66,41 @@ public class eXistMessageItem implements Item {
 
     @Override
     public Sequence toSequence() {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. toSequence");
     }
 
     @Override
     public AtomicValue convertTo(int requiredType) throws XPathException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. convertTo");
     }
 
     @Override
     public AtomicValue atomize() throws XPathException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. atomize");
     }
 
     @Override
     public void toSAX(DBBroker broker, ContentHandler handler, Properties properties) throws SAXException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. toSAX");
     }
 
     @Override
     public void copyTo(DBBroker broker, DocumentBuilderReceiver receiver) throws SAXException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. copyTo");
     }
 
     @Override
     public int conversionPreference(Class<?> javaClass) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. conversionPreference");
     }
 
     @Override
     public <T> T toJavaObject(Class<T> target) throws XPathException {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet. toJavaObject");
     }
 
     @Override
     public void nodeMoved(NodeId oldNodeId, StoredNode newNode) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        throw new UnsupportedOperationException("Not supported yet.nodeMoved");
     }
 }

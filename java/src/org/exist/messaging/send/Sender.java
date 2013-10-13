@@ -54,6 +54,7 @@ import org.exist.xquery.value.*;
 import static org.exist.messaging.shared.Constants.*;
 import org.exist.messaging.shared.Identity;
 import org.exist.messaging.shared.eXistMessage;
+import org.exist.messaging.shared.eXistMessageItem;
 
 /**
  *
@@ -64,6 +65,9 @@ public class Sender  {
     private final static Logger LOG = Logger.getLogger(Sender.class);
     
     private XQueryContext xqcontext;
+
+    public Sender() {
+    }
 
     /**
      * Constructor.
@@ -136,9 +140,9 @@ public class Sender  {
             MessageProducer producer = session.createProducer(destination);
 
             // Create message, depending on incoming object type
-            boolean isExistMessage = (content instanceof eXistMessage);
+            boolean isExistMessage = (content instanceof eXistMessageItem);
             Message message = isExistMessage
-                    ? createMessageFromExistMessage(session, (eXistMessage) content, msgMetaProps)
+                    ? createMessageFromExistMessage(session, (eXistMessageItem) content, msgMetaProps)
                     : createMessageFromItem(session, content, msgMetaProps, xqcontext);
 
             // Set Message properties from user provided data
@@ -313,12 +317,14 @@ public class Sender  {
         return message;
     }
 
-    private Message createMessageFromExistMessage(Session session, eXistMessage em, JmsMessageProperties msgMetaProps) throws JMSException {
+    private Message createMessageFromExistMessage(Session session, eXistMessageItem emi, JmsMessageProperties msgMetaProps) throws JMSException {
 
         // Create bytes message
         BytesMessage message = session.createBytesMessage();
 
         // Set payload when available
+        eXistMessage em = emi.getData();
+
         byte[] payload = em.getPayload();
 
         if (payload == null) {

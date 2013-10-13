@@ -70,7 +70,7 @@ public class JMSMessageSender implements MessageSender {
             // Get from .xconf file, fill defaults when needed
             parameters.processParameters();
 
-            Sender sender = new Sender(null);
+            Sender sender = new Sender();
 
             eXistMessageItem item = new eXistMessageItem();
             item.setData(em);
