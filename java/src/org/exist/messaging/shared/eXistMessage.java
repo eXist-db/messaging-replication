@@ -19,13 +19,17 @@
  *
  *  $Id$
  */
-package org.exist.replication.shared;
+package org.exist.messaging.shared;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.jms.JMSException;
+import javax.jms.Message;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.exist.messaging.shared.Constants;
+import org.exist.messaging.shared.Identity;
 
 /**
  * Container class for clustering messages.
@@ -194,5 +198,51 @@ public class eXistMessage {
     @Override
     public String toString(){
         return ToStringBuilder.reflectionToString(this);
+    }
+
+    /**
+     * Update JMS message properties with replication details.
+     *
+     * @param message JMS message.
+     * @throws JMSException A property could not be set.
+     */
+    public void updateMessageProperties(Message message) throws JMSException {
+
+        // Set eXist-db clustering specific details
+        message.setStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION, getResourceOperation().name());
+        message.setStringProperty(eXistMessage.EXIST_RESOURCE_TYPE, getResourceType().name());
+        message.setStringProperty(eXistMessage.EXIST_SOURCE_PATH, getResourcePath());
+
+        if (getDestinationPath() != null) {
+            message.setStringProperty(eXistMessage.EXIST_DESTINATION_PATH, getDestinationPath());
+        }
+
+//        // Retrieve and set JMS identifier
+//        String id = Identity.getInstance().getIdentity();
+//        if (id != null) {
+//            message.setStringProperty(Constants.EXIST_INSTANCE_ID, id);
+//        }
+
+        // Set other details
+        Map<String, Object> metaDataMap = getMetadata();
+
+        for (Map.Entry<String, Object> entry : metaDataMap.entrySet()) {
+
+            String item = entry.getKey();
+            Object value = entry.getValue();
+
+            if (value instanceof String) {
+                message.setStringProperty(item, (String) value);
+
+            } else if (value instanceof Integer) {
+                message.setIntProperty(item, (Integer) value);
+
+            } else if (value instanceof Long) {
+                message.setLongProperty(item, (Long) value);
+
+            } else {
+                message.setStringProperty(item, "" + value);
+            }
+        }
     }
 }

@@ -21,6 +21,7 @@
  */
 package org.exist.replication.shared;
 
+import org.exist.messaging.shared.eXistMessage;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;

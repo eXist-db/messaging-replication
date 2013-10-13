@@ -37,7 +37,7 @@ import org.exist.messaging.shared.Identity;
 import org.exist.replication.shared.JmsConnectionHelper;
 import org.exist.replication.shared.MessageSender;
 import org.exist.replication.shared.TransportException;
-import org.exist.replication.shared.eXistMessage;
+import org.exist.messaging.shared.eXistMessage;
 
 /**
  * Specific class for sending a eXistMessage via JMS to a broker
@@ -179,14 +179,9 @@ public class JMSMessageSender implements MessageSender {
                 message.writeBytes(payload); // check empty, collection!
             }
 
-            // Set eXist-db clustering specific details
-            message.setStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION, em.getResourceOperation().name());
-            message.setStringProperty(eXistMessage.EXIST_RESOURCE_TYPE, em.getResourceType().name());
-            message.setStringProperty(eXistMessage.EXIST_SOURCE_PATH, em.getResourcePath());
+            em.updateMessageProperties(message);
 
-            if (em.getDestinationPath() != null) {
-                message.setStringProperty(eXistMessage.EXIST_DESTINATION_PATH, em.getDestinationPath());
-            }
+
             
             // Retrieve and set JMS identifier
             String id = Identity.getInstance().getIdentity();
@@ -194,28 +189,36 @@ public class JMSMessageSender implements MessageSender {
                 message.setStringProperty(Constants.EXIST_INSTANCE_ID, id);
             }
 
+//            // Set eXist-db clustering specific details
+//            message.setStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION, em.getResourceOperation().name());
+//            message.setStringProperty(eXistMessage.EXIST_RESOURCE_TYPE, em.getResourceType().name());
+//            message.setStringProperty(eXistMessage.EXIST_SOURCE_PATH, em.getResourcePath());
+//
+//            if (em.getDestinationPath() != null) {
+//                message.setStringProperty(eXistMessage.EXIST_DESTINATION_PATH, em.getDestinationPath());
+//            }
 
-            // Set other details
-            Map<String, Object> metaData = em.getMetadata();
-            
-            for(Map.Entry<String, Object> entry: metaData.entrySet()){
-                
-                String item=entry.getKey();
-                Object value = entry.getValue();
-
-                if (value instanceof String) {
-                    message.setStringProperty(item, (String) value);
-
-                } else if (value instanceof Integer) {
-                    message.setIntProperty(item, (Integer) value);
-
-                } else if (value instanceof Long) {
-                    message.setLongProperty(item, (Long) value);
-
-                } else {
-                    message.setStringProperty(item, "" + value);
-                }
-            }
+//            // Set other details
+//            Map<String, Object> metaData = em.getMetadata();
+//
+//            for(Map.Entry<String, Object> entry: metaData.entrySet()){
+//
+//                String item=entry.getKey();
+//                Object value = entry.getValue();
+//
+//                if (value instanceof String) {
+//                    message.setStringProperty(item, (String) value);
+//
+//                } else if (value instanceof Integer) {
+//                    message.setIntProperty(item, (Integer) value);
+//
+//                } else if (value instanceof Long) {
+//                    message.setLongProperty(item, (Long) value);
+//
+//                } else {
+//                    message.setStringProperty(item, "" + value);
+//                }
+//            }
 
             // Send message
             producer.send(message);

@@ -40,7 +40,7 @@ import org.exist.dom.DocumentMetadata;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Identity;
 import org.exist.replication.shared.MessageHelper;
-import org.exist.replication.shared.eXistMessage;
+import org.exist.messaging.shared.eXistMessage;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.Permission;

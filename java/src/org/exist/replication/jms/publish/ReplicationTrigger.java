@@ -34,7 +34,7 @@ import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.DocumentImpl;
 import org.exist.replication.shared.MessageHelper;
 import org.exist.replication.shared.TransportException;
-import org.exist.replication.shared.eXistMessage;
+import org.exist.messaging.shared.eXistMessage;
 import org.exist.storage.DBBroker;
 import org.exist.storage.txn.Txn;
 import org.exist.xmldb.XmldbURI;
@@ -301,7 +301,10 @@ public class ReplicationTrigger extends FilteringTrigger implements DocumentTrig
         if (LOG.isDebugEnabled()) {
             LOG.debug(document.getURI().toString());
         }
-        
+
+        /*
+         * If the action is originated from a trigger, do not process it again
+         */
         if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
@@ -327,8 +330,8 @@ public class ReplicationTrigger extends FilteringTrigger implements DocumentTrig
     // Misc         
     //
     @Override
-    public void configure(DBBroker broker, Collection parent, Map<String, List<?>> parameters) throws TriggerException {
-        super.configure(broker, parent, parameters);
+    public void configure(DBBroker broker, Collection parentCollection, Map<String, List<?>> parameters) throws TriggerException {
+        super.configure(broker, parentCollection, parameters);
         this.parameters = parameters;
 
     }

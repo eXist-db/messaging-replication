@@ -21,6 +21,8 @@
  */
 package org.exist.replication.shared;
 
+import org.exist.messaging.shared.eXistMessage;
+
 /**
  *  Generic send-message interface
  * 

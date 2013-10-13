@@ -53,6 +53,7 @@ import org.exist.xquery.value.*;
 
 import static org.exist.messaging.shared.Constants.*;
 import org.exist.messaging.shared.Identity;
+import org.exist.messaging.shared.eXistMessage;
 
 /**
  *
@@ -68,7 +69,15 @@ public class Sender  {
         xqcontext = context.copyContext();
     }
 
-
+    /**
+     * Send content to JMS broker.
+     *
+     * @param jmsConfig JMS configuration
+     * @param msgMetaProps JMS message properties
+     * @param content The content to be transferred
+     * @return Report
+     * @throws XPathException Something bad happened.
+     */
     public NodeImpl send(JmsConfiguration jmsConfig, JmsMessageProperties msgMetaProps, Item content) throws XPathException {
 
         // JMS specific checks
@@ -121,8 +130,11 @@ public class Sender  {
             // Create message producer
             MessageProducer producer = session.createProducer(destination);
 
-            // Create message
-            Message message = createMessage(session, content, msgMetaProps, xqcontext);
+            // Create message, depending on incoming object type
+            boolean isExistMessage = (content instanceof eXistMessage);
+            Message message = isExistMessage
+                    ? createMessageFromExistMessage(session, (eXistMessage) content, msgMetaProps)
+                    : createMessageFromItem(session, content, msgMetaProps, xqcontext);
 
             // Set Message properties from user provided data
             setMessagePropertiesFromMap(msgMetaProps, message);
@@ -161,7 +173,7 @@ public class Sender  {
         }
     }
 
-    private Message createMessage(Session session, Item item, JmsMessageProperties mdd, XQueryContext xqcontext) throws JMSException, XPathException {
+    private Message createMessageFromItem(Session session, Item item, JmsMessageProperties mdd, XQueryContext xqcontext) throws JMSException, XPathException {
 
         Message message = null;
 
@@ -296,6 +308,25 @@ public class Sender  {
         return message;
     }
 
+    private Message createMessageFromExistMessage(Session session, eXistMessage em, JmsMessageProperties msgMetaProps) throws JMSException {
+
+        // Create bytes message
+        BytesMessage message = session.createBytesMessage();
+
+        // Set payload when available
+        byte[] payload = em.getPayload();
+
+        if (payload == null) {
+            LOG.error("No payload for replication");
+        } else {
+            message.writeBytes(payload);
+        }
+
+        em.updateMessageProperties(message);
+
+        return message;
+    }
+
     /**
      * Determine if the XML/Binary payload needs to be compressed
      *
@@ -315,6 +346,12 @@ public class Sender  {
     }
 
     private void setMessagePropertiesFromMap(JmsMessageProperties msgMetaProps, Message message) throws JMSException {
+
+        if (msgMetaProps == null) {
+            LOG.debug("No JmsMessageProperties was provided");
+            return;
+        }
+
         // Write message properties
         for (Map.Entry<Object, Object> entry : msgMetaProps.entrySet()) {
 
@@ -451,5 +488,6 @@ public class Sender  {
 
 
     }
+
 
 }
