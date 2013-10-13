@@ -81,13 +81,16 @@ public class Identity {
 
         // Read if possible
         if (identityFile.exists()) {
+            InputStream is = null;
             try {
-                InputStream is = new FileInputStream(identityFile);
+                is = new FileInputStream(identityFile);
                 props.load(is);
-                IOUtils.closeQuietly(is);
+                
                 identity = props.getProperty("identity");
             } catch (IOException ex) {
                 LOG.error(ex.getMessage());
+            } finally {
+                IOUtils.closeQuietly(is);
             }
 
         }
@@ -98,12 +101,15 @@ public class Identity {
 
             props.setProperty("identity", identity);
 
+            OutputStream os = null;
             try {
-                OutputStream os = new FileOutputStream(identityFile);
+                os = new FileOutputStream(identityFile);
                 props.store(os, "");
-                IOUtils.closeQuietly(os);
+                
             } catch (IOException ex) {
                 LOG.error(ex.getMessage());
+            } finally {
+                IOUtils.closeQuietly(os);
             }
 
         }

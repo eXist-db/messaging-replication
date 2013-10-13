@@ -120,7 +120,7 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
                 returnValue = receiver.info();
 
             } else {
-                throw new XPathException(this, "Function '" + getSignature().getName().getLocalName() + "' does not exist.");
+                throw new XPathException(this, String.format("Function '%s' does not exist.", getSignature().getName().getLocalName()));
             }
 
             return returnValue;
