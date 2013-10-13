@@ -23,26 +23,18 @@ package org.exist.replication.jms.publish;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
-import javax.jms.*;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
+
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.configuration.JmsMessageProperties;
 import org.exist.messaging.send.Sender;
-import org.exist.messaging.shared.Constants;
-import org.exist.messaging.shared.Identity;
 
-import org.exist.replication.shared.JmsConnectionHelper;
-import org.exist.replication.shared.MessageSender;
-import org.exist.replication.shared.TransportException;
 import org.exist.messaging.shared.eXistMessage;
 import org.exist.messaging.shared.eXistMessageItem;
-import org.exist.xquery.value.Item;
+
+import org.exist.replication.shared.MessageSender;
+import org.exist.replication.shared.TransportException;
 
 /**
  * Specific class for sending a eXistMessage via JMS to a broker
@@ -66,50 +58,6 @@ public class JMSMessageSender implements MessageSender {
     }
 
     /**
-     * Helper method to give resources back
-     */
-    private void closeAll(Context context, Connection connection, Session session) {
-
-        boolean doLog = LOG.isDebugEnabled();
-
-        if (session != null) {
-            if (doLog) {
-                LOG.debug("Closing session");
-            }
-
-            try {
-                session.close();
-            } catch (JMSException ex) {
-                LOG.error(ex);
-            }
-        }
-
-        if (connection != null) {
-            if (doLog) {
-                LOG.debug("Closing connection");
-            }
-            
-            try {
-                connection.close();
-            } catch (JMSException ex) {
-                LOG.error(ex);
-            }
-        }
-
-        if (context != null) {
-            if (doLog) {
-                LOG.debug("Closing context");
-            }
-             
-            try {
-                context.close();
-            } catch (NamingException ex) {
-                LOG.error(ex);
-            }
-        }
-    }
-
-    /**
      * Send {@link eXistMessage} to message broker.
      *
      * @param em The message that needs to be sent
@@ -118,12 +66,12 @@ public class JMSMessageSender implements MessageSender {
     @Override
     public void sendMessage(eXistMessage em) throws TransportException {
 
-        // Get from .xconf file, fill defaults when needed
-        parameters.processParameters();
-
-        Sender sender = new Sender(null);
-
         try {
+            // Get from .xconf file, fill defaults when needed
+            parameters.processParameters();
+
+            Sender sender = new Sender(null);
+
             eXistMessageItem item = new eXistMessageItem();
             item.setData(em);
 
@@ -136,143 +84,11 @@ public class JMSMessageSender implements MessageSender {
             sender.send(jmsConfig, msgMetaProps, item);
 
         } catch (Throwable ex) {
-            // I know, bad coding practice, really need it
+            // I know, this is bad coding practice,
+            // but in case of probles we really need to fire this exception
             LOG.error(ex.getMessage(), ex);
             throw new TransportException(ex.getMessage(), ex);
+        } 
 
-        } finally {
-            // Close all that has been opened. Always.
-        }
-
-        
-//        Properties contextProps = parameters.getInitialContextProps();
-//
-//        if(LOG.isDebugEnabled()){
-//            LOG.debug(parameters.getReport());
-//        }
-//
-//        Context context = null;
-//        Connection connection = null;
-//        Session session = null;
-//
-//        try {
-//            // Setup context
-//            context = new InitialContext(contextProps);
-//
-//            // Lookup connection factory
-//            ConnectionFactory cf = (ConnectionFactory) context.lookup(parameters.getConnectionFactory());
-//
-//            // Set specific properties on the connection factory (username/password)
-//            JmsConnectionHelper.configureConnectionFactory(cf, parameters);
-//
-//            // Setup connection
-//            connection = cf.createConnection();
-//
-//            // Set clientId if present
-//            String clientId = parameters.getClientId();
-//            if (clientId != null) {
-//                connection.setClientID(clientId);
-//            }
-//
-//            // TODO DW: should this be configurable?
-//            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//
-//            // Lookup topic
-//            Destination destination = (Destination) context.lookup(parameters.getTopic());
-//            if (!(destination instanceof Topic)) {
-//                String errorText = String.format("'%s' is not a Topic.", parameters.getTopic());
-//                LOG.error(errorText);
-//                throw new TransportException(errorText);
-//            }
-//
-//            // Create message
-//            MessageProducer producer = session.createProducer(destination);
-//
-//            // Set time-to-live is set
-//            Long timeToLive = parameters.getTimeToLive();
-//            if (timeToLive != null) {
-//                producer.setTimeToLive(timeToLive);
-//            }
-//
-//            // Set priority if set
-//            Integer priority = parameters.getPriority();
-//            if (priority != null) {
-//                producer.setPriority(priority);
-//            }
-//
-//            BytesMessage message = session.createBytesMessage();
-//
-//            // Set payload when available
-//            byte[] payload = em.getPayload();
-//            if (payload != null) {
-//                message.writeBytes(payload); // check empty, collection!
-//            }
-//
-//            // Add specific properties
-//            em.updateMessageProperties(message);
-//
-//
-//
-//            // Retrieve and set JMS identifier
-//            String id = Identity.getInstance().getIdentity();
-//            if (id != null) {
-//                message.setStringProperty(Constants.EXIST_INSTANCE_ID, id);
-//            }
-
-//            // Set eXist-db clustering specific details
-//            message.setStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION, em.getResourceOperation().name());
-//            message.setStringProperty(eXistMessage.EXIST_RESOURCE_TYPE, em.getResourceType().name());
-//            message.setStringProperty(eXistMessage.EXIST_SOURCE_PATH, em.getResourcePath());
-//
-//            if (em.getDestinationPath() != null) {
-//                message.setStringProperty(eXistMessage.EXIST_DESTINATION_PATH, em.getDestinationPath());
-//            }
-
-//            // Set other details
-//            Map<String, Object> metaData = em.getMetadata();
-//
-//            for(Map.Entry<String, Object> entry: metaData.entrySet()){
-//
-//                String item=entry.getKey();
-//                Object value = entry.getValue();
-//
-//                if (value instanceof String) {
-//                    message.setStringProperty(item, (String) value);
-//
-//                } else if (value instanceof Integer) {
-//                    message.setIntProperty(item, (Integer) value);
-//
-//                } else if (value instanceof Long) {
-//                    message.setLongProperty(item, (Long) value);
-//
-//                } else {
-//                    message.setStringProperty(item, "" + value);
-//                }
-//            }
-
-//            // Send message
-//            producer.send(message);
-//
-//            if(LOG.isDebugEnabled()){
-//                LOG.debug(String.format("Message sent with id '%s'", message.getJMSMessageID()));
-//            }
-//
-//        } catch (JMSException ex) {
-//            LOG.error(ex.getMessage(), ex);
-//            throw new TransportException(String.format("Problem during communication: %s", ex.getMessage()), ex);
-//
-//        } catch (NamingException ex) {
-//            LOG.error(ex.getMessage(), ex);
-//            throw new TransportException(ex.getMessage(), ex);
-//
-//        } catch (Throwable ex) {
-//            // I know, bad coding practice, really need it
-//            LOG.error(ex.getMessage(), ex);
-//            throw new TransportException(ex.getMessage(), ex);
-//
-//        } finally {
-//            // Close all that has been opened. Always.
-//            closeAll(context, connection, session);
-//        }
     }
 }
