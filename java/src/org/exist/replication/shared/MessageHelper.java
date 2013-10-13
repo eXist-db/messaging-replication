@@ -112,7 +112,7 @@ public class MessageHelper {
                 payload = new byte[0];
                 System.gc(); // recover from out of memory exception
                 LOG.error(e);
-                throw new IOException("Error while serializing XML document: " + e.getMessage(), e);
+                throw new IOException(String.format("Error while serializing XML document: %s", e.getMessage()), e);
             }
 
         } else {
@@ -128,13 +128,13 @@ public class MessageHelper {
             } catch (IOException e) {
                 payload = new byte[0];
                 LOG.error(e);
-                throw new IOException("Error while serializing binary document: " + e.getMessage(), e);
+                throw new IOException(String.format("Error while serializing binary document: %s", e.getMessage()), e);
 
             } catch (Throwable e) {
                 payload = new byte[0];
                 System.gc(); // recover from out of memory exception
                 LOG.error(e);
-                throw new IOException("Error while serializing binary document: " + e.getMessage(), e);
+                throw new IOException(String.format("Error while serializing binary document: %s", e.getMessage()), e);
             }
         }
 

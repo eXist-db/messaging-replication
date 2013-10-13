@@ -54,9 +54,9 @@ public class eXistMessage {
      */
     public final static String EXIST_DESTINATION_PATH = "exist.destination.path";
     
-    private ResourceOperation resourceOperation;
-    private ResourceType resourceType;
-    private ContentType contentType;
+    private ResourceOperation resourceOperation = ResourceOperation.UNDEFINED;
+    private ResourceType resourceType = ResourceType.UNDEFINED;
+    private ContentType contentType = ContentType.UNDEFINED;
     
     private String path;
     private String destination;
@@ -68,21 +68,21 @@ public class eXistMessage {
      * Atomic operations on resources
      */
     public enum ResourceOperation {
-        CREATE, UPDATE, DELETE, MOVE, COPY, METADATA
+        CREATE, UPDATE, DELETE, MOVE, COPY, METADATA, UNDEFINED
     }
 
     /**
      * Types of exist-db resources
      */
     public enum ResourceType {
-        DOCUMENT, COLLECTION
+        DOCUMENT, COLLECTION, UNDEFINED
     }
     
     /**
      * Types of exist-db resources
      */
     public enum ContentType {
-        XML, BINARY
+        XML, BINARY, UNDEFINED
     }
 
     public void setResourceOperation(ResourceOperation type) {

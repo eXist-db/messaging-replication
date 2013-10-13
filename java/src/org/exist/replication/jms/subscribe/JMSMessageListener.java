@@ -502,9 +502,8 @@ public class JMSMessageListener implements MessageListener {
                 return;
             }
 
-            DocumentMetadata metadata = resource.getMetadata();
-            //DW: to do something
-
+            //DW: TODO to do something
+            /* DocumentMetadata metadata = */ resource.getMetadata();
 
             // Commit change
             txnManager.commit(txn);

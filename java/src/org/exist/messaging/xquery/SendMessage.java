@@ -20,7 +20,6 @@
 package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
-import org.exist.memtree.NodeImpl;
 import org.exist.messaging.send.Sender;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.configuration.JmsMessageProperties;

@@ -71,7 +71,6 @@ public class Receiver {
      * States of receiver
      */
     private enum STATE {
-
         NOT_DEFINED, STARTED, STOPPED, CLOSED, ERROR
     };
     private STATE state = STATE.NOT_DEFINED;
@@ -397,39 +396,43 @@ public class Receiver {
             }
         }
 
-        /*
-         * Errors
-         */
-        List<String> listenerErrors = myListener.getErrors();
-        if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
-            builder.startElement("", "ErrorMessages", "ErrorMessages", null);
-
-            if (!listenerErrors.isEmpty()) {
-                for (String error : listenerErrors) {
-                    builder.startElement("", "Error", "Error", null);
-                    builder.addAttribute(new QName("src", null, null), "listener");
-                    builder.characters(error);
-                    builder.endElement();
-                }
-            }
-
-            if (!errors.isEmpty()) {
-                for (String error : errors) {
-                    builder.startElement("", "Error", "Error", null);
-                    builder.addAttribute(new QName("src", null, null), "receiver");
-                    builder.characters(error);
-                    builder.endElement();
-                }
-
-            }
-
-            builder.endElement();
-        }
 
         /*
-         * Statistics
+         * Statistics & error reporting 
          */
         if (myListener != null) {
+            /*
+             * Error reproting
+             */
+            List<String> listenerErrors = myListener.getErrors();
+            if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
+                builder.startElement("", "ErrorMessages", "ErrorMessages", null);
+
+                if (!listenerErrors.isEmpty()) {
+                    for (String error : listenerErrors) {
+                        builder.startElement("", "Error", "Error", null);
+                        builder.addAttribute(new QName("src", null, null), "listener");
+                        builder.characters(error);
+                        builder.endElement();
+                    }
+                }
+
+                if (!errors.isEmpty()) {
+                    for (String error : errors) {
+                        builder.startElement("", "Error", "Error", null);
+                        builder.addAttribute(new QName("src", null, null), "receiver");
+                        builder.characters(error);
+                        builder.endElement();
+                    }
+
+                }
+
+                builder.endElement();
+            }
+
+            /*
+             * Statistics
+             */
             builder.startElement("", "Statistics", "Statistics", null);
 
             builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
