@@ -22,8 +22,10 @@
 package org.exist.replication.jms.publish;
 
 import javax.naming.Context;
+import org.exist.messaging.shared.Constants;
 import org.exist.replication.shared.ClientParameters;
 import org.exist.replication.shared.TransportException;
+
 
 /**
  * Publisher specific properties.
@@ -32,8 +34,8 @@ import org.exist.replication.shared.TransportException;
  */
 public class PublisherParameters extends ClientParameters {
 
-    public static final String TIME_TO_LIVE = "time-to-live";
-    public static final String PRIORITY = "priority";
+    public static final String TIME_TO_LIVE = Constants.PRODUCER_TTL; //"time-to-live";
+    public static final String PRIORITY = Constants.PRODUCER_PRIORITY; //"priority";
     
     private Long timeToLive;
     private Integer priority;

@@ -22,6 +22,8 @@
 package org.exist.replication.jms.subscribe;
 
 import javax.naming.Context;
+
+import org.exist.messaging.shared.Constants;
 import org.exist.replication.shared.ClientParameterException;
 import org.exist.replication.shared.ClientParameters;
 
@@ -32,10 +34,10 @@ import org.exist.replication.shared.ClientParameters;
  */
 public class SubscriberParameters extends ClientParameters {
 
-    public static final String SUBSCRIBER_NAME = "subscriber-name";
-    public static final String MESSAGE_SELECTOR = "messageselector";
-    public static final String DURABLE = "durable";
-    public static final String NO_LOCAL = "nolocal";
+    public static final String SUBSCRIBER_NAME = Constants.SUBSCRIBER_NAME; // "subscriber-name";
+    public static final String MESSAGE_SELECTOR = Constants.MESSAGE_SELECTOR; //"messageselector";
+    public static final String DURABLE = Constants.DURABLE; //"durable";
+    public static final String NO_LOCAL = Constants.NO_LOCAL; //"nolocal";
     
     private String subscriberName;
     private String messageSelector;

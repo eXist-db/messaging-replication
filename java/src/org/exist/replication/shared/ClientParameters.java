@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.naming.Context;
 import org.apache.log4j.Logger;
+import org.exist.messaging.shared.Constants;
 
 /**
  *
@@ -35,9 +36,9 @@ public abstract class ClientParameters {
 
     protected final static Logger LOG = Logger.getLogger(ClientParameters.class);
     
-    public static final String CONNECTION_FACTORY = "connectionfactory";
-    public static final String TOPIC = "topic";
-    public static final String CLIENT_ID = "client-id";
+    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
+    public static final String TOPIC = Constants.DESTINATION;  //"topic";
+    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
     public static final String PARAMETER_GROUPING = "..";
    
     protected String connectionFactory = null;

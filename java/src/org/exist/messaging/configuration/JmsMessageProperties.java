@@ -19,11 +19,25 @@
  */
 package org.exist.messaging.configuration;
 
+import java.util.Properties;
+import org.exist.replication.shared.ClientParameters;
+
 /**
  *  Class for containing JMS Message properties (application specific)
  * 
  * @author Dannes Wessels
  */
 public class JmsMessageProperties extends MessagingConfiguration {
-    // Intentionally left empty
+
+    public void loadParameters(ClientParameters params) {
+
+        // Get properties
+        Properties props = params.getProps();
+
+        // TODO remove properties needed for connection
+        //props.remove(LOG)
+
+        // Use it all
+        this.putAll(props);
+    }
 }

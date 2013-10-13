@@ -26,6 +26,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exist.messaging.shared.Constants;
+import org.exist.replication.jms.publish.PublisherParameters;
+import org.exist.replication.shared.ClientParameters;
 
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
@@ -71,6 +73,16 @@ public class JmsConfiguration extends MessagingConfiguration {
             // Purely set String values
             setProperty(keyValue, values.getStringValue());
         }
+    }
+
+    public void loadParameters(PublisherParameters params) {
+        setProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
+        setProperty(Constants.DESTINATION, params.getTopic());
+        setProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
+        setProperty(Context.PROVIDER_URL, params.getProviderUrl());
+        setProperty(Constants.CLIENT_ID, params.getClientId());
+        setProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
+        setProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
     }
 
     

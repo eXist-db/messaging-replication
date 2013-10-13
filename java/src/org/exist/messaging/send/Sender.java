@@ -65,6 +65,11 @@ public class Sender  {
     
     private XQueryContext xqcontext;
 
+    /**
+     * Constructor.
+     *
+     * @param context Xquery context, can be NULL for eXistMessageItem
+     */
     public Sender(XQueryContext context) {
         xqcontext = context.copyContext();
     }

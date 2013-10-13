@@ -31,6 +31,9 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.apache.log4j.Logger;
+import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.messaging.configuration.JmsMessageProperties;
+import org.exist.messaging.send.Sender;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Identity;
 
@@ -38,6 +41,8 @@ import org.exist.replication.shared.JmsConnectionHelper;
 import org.exist.replication.shared.MessageSender;
 import org.exist.replication.shared.TransportException;
 import org.exist.messaging.shared.eXistMessage;
+import org.exist.messaging.shared.eXistMessageItem;
+import org.exist.xquery.value.Item;
 
 /**
  * Specific class for sending a eXistMessage via JMS to a broker
@@ -115,79 +120,104 @@ public class JMSMessageSender implements MessageSender {
 
         // Get from .xconf file, fill defaults when needed
         parameters.processParameters();
-        
-        Properties contextProps = parameters.getInitialContextProps();
 
-        if(LOG.isDebugEnabled()){
-            LOG.debug(parameters.getReport());
-        }
-
-        Context context = null;
-        Connection connection = null;
-        Session session = null;
+        Sender sender = new Sender(null);
 
         try {
-            // Setup context
-            context = new InitialContext(contextProps);
+            eXistMessageItem item = new eXistMessageItem();
+            item.setData(em);
 
-            // Lookup connection factory        
-            ConnectionFactory cf = (ConnectionFactory) context.lookup(parameters.getConnectionFactory()); 
-            
-            // Set specific properties on the connection factory
-            JmsConnectionHelper.configureConnectionFactory(cf, parameters);
+            JmsConfiguration jmsConfig = new JmsConfiguration();
+            jmsConfig.loadParameters(parameters);
 
-            // Setup connection
-            connection = cf.createConnection();
-            
-            // Set clientId if present
-            String clientId = parameters.getClientId();
-            if (clientId != null) {
-                connection.setClientID(clientId);
-            }
+            JmsMessageProperties msgMetaProps = new JmsMessageProperties();
+            msgMetaProps.loadParameters(parameters);
 
-            // TODO DW: should this be configurable?
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            sender.send(jmsConfig, msgMetaProps, item);
 
-            // Lookup topic
-            Destination destination = (Destination) context.lookup(parameters.getTopic());
-            if (!(destination instanceof Topic)) {
-                String errorText = String.format("'%s' is not a Topic.", parameters.getTopic());
-                LOG.error(errorText);
-                throw new TransportException(errorText);
-            }
+        } catch (Throwable ex) {
+            // I know, bad coding practice, really need it
+            LOG.error(ex.getMessage(), ex);
+            throw new TransportException(ex.getMessage(), ex);
 
-            // Create message
-            MessageProducer producer = session.createProducer(destination);
+        } finally {
+            // Close all that has been opened. Always.
+        }
 
-            // Set time-to-live is set
-            Long timeToLive = parameters.getTimeToLive();
-            if (timeToLive != null) {
-                producer.setTimeToLive(timeToLive);
-            }
-
-            // Set priority if set
-            Integer priority = parameters.getPriority();
-            if (priority != null) {
-                producer.setPriority(priority);
-            }
-
-            BytesMessage message = session.createBytesMessage();
-
-            // Set payload when available
-            byte[] payload = em.getPayload();
-            if (payload != null) {
-                message.writeBytes(payload); // check empty, collection!
-            }
-
-            em.updateMessageProperties(message);
-
-
-            
-            // Retrieve and set JMS identifier
-            String id = Identity.getInstance().getIdentity();
-            if (id != null) {
-                message.setStringProperty(Constants.EXIST_INSTANCE_ID, id);
-            }
+        
+//        Properties contextProps = parameters.getInitialContextProps();
+//
+//        if(LOG.isDebugEnabled()){
+//            LOG.debug(parameters.getReport());
+//        }
+//
+//        Context context = null;
+//        Connection connection = null;
+//        Session session = null;
+//
+//        try {
+//            // Setup context
+//            context = new InitialContext(contextProps);
+//
+//            // Lookup connection factory
+//            ConnectionFactory cf = (ConnectionFactory) context.lookup(parameters.getConnectionFactory());
+//
+//            // Set specific properties on the connection factory (username/password)
+//            JmsConnectionHelper.configureConnectionFactory(cf, parameters);
+//
+//            // Setup connection
+//            connection = cf.createConnection();
+//
+//            // Set clientId if present
+//            String clientId = parameters.getClientId();
+//            if (clientId != null) {
+//                connection.setClientID(clientId);
+//            }
+//
+//            // TODO DW: should this be configurable?
+//            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+//
+//            // Lookup topic
+//            Destination destination = (Destination) context.lookup(parameters.getTopic());
+//            if (!(destination instanceof Topic)) {
+//                String errorText = String.format("'%s' is not a Topic.", parameters.getTopic());
+//                LOG.error(errorText);
+//                throw new TransportException(errorText);
+//            }
+//
+//            // Create message
+//            MessageProducer producer = session.createProducer(destination);
+//
+//            // Set time-to-live is set
+//            Long timeToLive = parameters.getTimeToLive();
+//            if (timeToLive != null) {
+//                producer.setTimeToLive(timeToLive);
+//            }
+//
+//            // Set priority if set
+//            Integer priority = parameters.getPriority();
+//            if (priority != null) {
+//                producer.setPriority(priority);
+//            }
+//
+//            BytesMessage message = session.createBytesMessage();
+//
+//            // Set payload when available
+//            byte[] payload = em.getPayload();
+//            if (payload != null) {
+//                message.writeBytes(payload); // check empty, collection!
+//            }
+//
+//            // Add specific properties
+//            em.updateMessageProperties(message);
+//
+//
+//
+//            // Retrieve and set JMS identifier
+//            String id = Identity.getInstance().getIdentity();
+//            if (id != null) {
+//                message.setStringProperty(Constants.EXIST_INSTANCE_ID, id);
+//            }
 
 //            // Set eXist-db clustering specific details
 //            message.setStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION, em.getResourceOperation().name());
@@ -220,29 +250,29 @@ public class JMSMessageSender implements MessageSender {
 //                }
 //            }
 
-            // Send message
-            producer.send(message);
-
-            if(LOG.isDebugEnabled()){
-                LOG.debug(String.format("Message sent with id '%s'", message.getJMSMessageID()));
-            }
-
-        } catch (JMSException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new TransportException(String.format("Problem during communication: %s", ex.getMessage()), ex);
-
-        } catch (NamingException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw new TransportException(ex.getMessage(), ex);
-
-        } catch (Throwable ex) {
-            // I know, bad coding practice, really need it
-            LOG.error(ex.getMessage(), ex);
-            throw new TransportException(ex.getMessage(), ex);
-
-        } finally {
-            // Close all that has been opened. Always.
-            closeAll(context, connection, session);
-        }
+//            // Send message
+//            producer.send(message);
+//
+//            if(LOG.isDebugEnabled()){
+//                LOG.debug(String.format("Message sent with id '%s'", message.getJMSMessageID()));
+//            }
+//
+//        } catch (JMSException ex) {
+//            LOG.error(ex.getMessage(), ex);
+//            throw new TransportException(String.format("Problem during communication: %s", ex.getMessage()), ex);
+//
+//        } catch (NamingException ex) {
+//            LOG.error(ex.getMessage(), ex);
+//            throw new TransportException(ex.getMessage(), ex);
+//
+//        } catch (Throwable ex) {
+//            // I know, bad coding practice, really need it
+//            LOG.error(ex.getMessage(), ex);
+//            throw new TransportException(ex.getMessage(), ex);
+//
+//        } finally {
+//            // Close all that has been opened. Always.
+//            closeAll(context, connection, session);
+//        }
     }
 }
