@@ -26,7 +26,7 @@ import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- * Implementation of the start-stop-close-info functions
+ * Implementation of the start-stop-close-getReport functions
  *
  * @author Dannes Wessels
  */
@@ -117,7 +117,7 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
 
             } else if (isCalledAs("info")) {
                 // Return report
-                returnValue = receiver.info();
+                returnValue = receiver.getReport();
 
             } else {
                 throw new XPathException(this, String.format("Function '%s' does not exist.", getSignature().getName().getLocalName()));

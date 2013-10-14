@@ -66,6 +66,7 @@ import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
 
 import static org.exist.messaging.shared.Constants.*;
+import org.exist.messaging.shared.JmsStatistics;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -83,15 +84,7 @@ public class MessagingJmsListener implements MessageListener {
     private XQueryContext xqueryContext;
     private Sequence functionParams;
     
-    /** Number of messages */
-    private long messageCounterOK = 0;
-    private long messageCounterTotal = 0;
-    
-    /** Cumulated time successful messages */
-    private long totalTime = 0;
-    
-    /** Storage for errors */
-    private List<String> errors = new ArrayList<String>();
+    private JmsStatistics stats = new JmsStatistics();
 
     public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
@@ -114,7 +107,7 @@ public class MessagingJmsListener implements MessageListener {
             }
 
         } catch (JMSException ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             LOG.error(ex.getMessage());
         }
 
@@ -182,7 +175,7 @@ public class MessagingJmsListener implements MessageListener {
             } else {
                 // Unsupported JMS message type
                 String txt = "Unsupported JMS Message type " + msg.getClass().getCanonicalName();
-                errors.add(txt);
+                stats.add(txt);
                 LOG.error(txt);
                 throw new XPathException(txt);
             }
@@ -206,18 +199,18 @@ public class MessagingJmsListener implements MessageListener {
             msg.acknowledge();
 
             // Update statistics
-            messageCounterOK++;        
+            stats.incMessageCounterOK();
 
         } catch (JMSException ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
 
         } catch (XPathException ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             LOG.error(ex);
 
         } catch (Throwable ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
 
         } finally {
@@ -227,9 +220,9 @@ public class MessagingJmsListener implements MessageListener {
             }
             
             // update statistics
-            messageCounterTotal++;
+            stats.incMessageCounterTotal();
             long endTime = System.currentTimeMillis();
-            totalTime += (endTime-startTime);
+            stats.addCumulatedProcessingTime(endTime - startTime);
         }
 
     }
@@ -331,7 +324,7 @@ public class MessagingJmsListener implements MessageListener {
 
         } else {
             String txt = String.format("Unable to convert the object %s", obj.toString());
-            errors.add(txt);
+            stats.add(txt);
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -341,7 +334,6 @@ public class MessagingJmsListener implements MessageListener {
     private Sequence processXML(byte[] data, boolean isGzipped) throws XPathException {
 
         Sequence content = null;
-
         try {
             // Reading compressed XML fragment
             InputStream is = new ByteArrayInputStream(data);
@@ -377,54 +369,22 @@ public class MessagingJmsListener implements MessageListener {
             }
 
         } catch (SAXException ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
 
         } catch (ParserConfigurationException ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
 
         } catch (IOException ex) {
-            errors.add(ex.getMessage());
+            stats.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
 
         return content;
     }
 
-    /**
-     * @return Total number of received messages
-     */
-    public long getMessageCounterTotal() {
-        return messageCounterTotal;
-    }
-    
-    /**
-     * @return Total number of NOT successfully received messages
-     */
-    public long getMessageCounterNOK() {
-        return (messageCounterTotal - messageCounterOK);
-    }
-    
-    /**
-     * @return Total number of successfully received messages
-     */
-    public long getMessageCounterOK() {
-        return messageCounterOK;
-    }
-    
-    /**
-     * @return Total processing time
-     */
-    public long getCumulatedProcessingTime() {
-        return totalTime;
-    }
-
-
-    /**
-     * @return List of problems
-     */
-    public List<String> getErrors() {
-        return errors;
+    public JmsStatistics getStatistics() {
+        return stats;
     }
 }

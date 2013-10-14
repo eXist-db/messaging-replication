@@ -49,6 +49,7 @@ import org.exist.memtree.NodeImpl;
 
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.shared.Constants;
+import org.exist.messaging.shared.JmsStatistics;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReference;
@@ -314,9 +315,9 @@ public class Receiver {
     }
 
     /**
-     * @return Get i=details about Receiver and Listener
+     * @return Get report about Receiver and Listener
      */
-    public NodeImpl info() {
+    public NodeImpl getReport() {
 
         MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
@@ -397,7 +398,7 @@ public class Receiver {
             /*
              * Error reproting
              */
-            List<String> listenerErrors = myListener.getErrors();
+            List<String> listenerErrors = myListener.getStatistics().getErrors();
             if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
                 builder.startElement("", "ErrorMessages", "ErrorMessages", null);
 
@@ -426,19 +427,20 @@ public class Receiver {
             /*
              * Statistics
              */
+            JmsStatistics stats = myListener.getStatistics();
             builder.startElement("", "Statistics", "Statistics", null);
 
             builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
-            builder.characters("" + myListener.getMessageCounterTotal());
+            builder.characters("" + stats.getMessageCounterTotal());
             builder.endElement();
 
             builder.startElement("", "CumulativeProcessingTime", "CumulativeProcessingTime", null);
-            Duration duration = dtFactory.newDuration(myListener.getCumulatedProcessingTime());
+            Duration duration = dtFactory.newDuration(stats.getCumulatedProcessingTime());
             builder.characters(duration.toString());
             builder.endElement();
 
             builder.startElement("", "NrUnprocessedMessages", "NrUnprocessedMessages", null);
-            builder.characters("" + myListener.getMessageCounterNOK());
+            builder.characters("" + stats.getMessageCounterNOK());
             builder.endElement();
 
             builder.endElement();
