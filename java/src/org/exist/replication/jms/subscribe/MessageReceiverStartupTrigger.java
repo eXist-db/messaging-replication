@@ -113,7 +113,7 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             }
 
             // Setup listeners
-            JMSMessageListener jmsListener = new JMSMessageListener(broker.getBrokerPool());
+            ReplicationJmsListener jmsListener = new ReplicationJmsListener(broker.getBrokerPool());
             ExceptionListener exceptionListener = new JmsConnectionExceptionListener();
         
             // Setup context

@@ -76,9 +76,9 @@ import org.xml.sax.XMLReader;
  *
  * @author Dannes Wessels
  */
-public class ReceiverJMSListener implements MessageListener {
+public class MessagingJmsListener implements MessageListener {
 
-    private final static Logger LOG = Logger.getLogger(ReceiverJMSListener.class);
+    private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
     private FunctionReference functionReference;
     private XQueryContext xqueryContext;
     private Sequence functionParams;
@@ -93,11 +93,7 @@ public class ReceiverJMSListener implements MessageListener {
     /** Storage for errors */
     private List<String> errors = new ArrayList<String>();
 
-    public ReceiverJMSListener() {
-        // NOP
-    }
-
-    public ReceiverJMSListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
+    public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
         this.xqueryContext = xqueryContext;
@@ -183,7 +179,6 @@ public class ReceiverJMSListener implements MessageListener {
                     IOUtils.closeQuietly(is);
                 }
 
-
             } else {
                 // Unsupported JMS message type
                 String txt = "Unsupported JMS Message type " + msg.getClass().getCanonicalName();
@@ -239,17 +234,6 @@ public class ReceiverJMSListener implements MessageListener {
 
     }
 
-    public void setFunctionReference(FunctionReference ref) {
-        this.functionReference = ref;
-    }
-
-    public void setXQueryContext(XQueryContext context) {
-        this.xqueryContext = context;
-    }
-
-    public void setFunctionParameters(Sequence functionParams) {
-        this.functionParams = functionParams;
-    }
 
     private MapType getMessageProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
         // Copy property values into Maptype
@@ -290,9 +274,6 @@ public class ReceiverJMSListener implements MessageListener {
                 addStringKV(map, key, value);
                 LOG.debug(String.format("Unable to convert '%s'/'%s' into a map. Falling back to String value", key, value));
             }
-
-            
-            
 
         }
         return map;

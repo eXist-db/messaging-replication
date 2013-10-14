@@ -60,13 +60,13 @@ import org.exist.xmldb.XmldbURI;
 import org.xml.sax.InputSource;
 
 /**
- * JMS listener for receiving JMS messages
+ * JMS listener for receiving JMS replication messages
  *
  * @author Dannes Wessels
  */
-public class JMSMessageListener implements MessageListener {
+public class ReplicationJmsListener implements MessageListener {
 
-    private final static Logger LOG = Logger.getLogger(JMSMessageListener.class);
+    private final static Logger LOG = Logger.getLogger(ReplicationJmsListener.class);
     private BrokerPool brokerPool = null;
     private org.exist.security.SecurityManager securityManager = null;
     
@@ -77,7 +77,7 @@ public class JMSMessageListener implements MessageListener {
      *
      * @param brokerpool Reference to database brokerpool
      */
-    public JMSMessageListener(BrokerPool brokerpool) {
+    public ReplicationJmsListener(BrokerPool brokerpool) {
         brokerPool = brokerpool;
         securityManager = brokerpool.getSecurityManager();
         

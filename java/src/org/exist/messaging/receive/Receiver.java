@@ -77,7 +77,7 @@ public class Receiver {
     /**
      * The JMS listener
      */
-    private ReceiverJMSListener myListener = null; //new ReceiverJMSListener();
+    private MessagingJmsListener myListener = null; //new MessagingJmsListener();
     /*
      * 
      */
@@ -98,7 +98,7 @@ public class Receiver {
      * @param functionParams Optional function parameters
      * @param context The XQuery context
      */
-    public Receiver(JmsConfiguration config, ReceiverJMSListener listener) {
+    public Receiver(JmsConfiguration config, MessagingJmsListener listener) {
         this.jmsConfig = config;
         this.myListener = listener;
 
