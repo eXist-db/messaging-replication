@@ -138,6 +138,8 @@ public class ReplicationJmsListener implements MessageListener {
                 if(localID.equals(remoteID)){
                     LOG.info("Incoming JMS messsage was sent by this instance. Processing stopped.");
                     return;
+
+                    // TODO: throw exception?
                 }
             }
             

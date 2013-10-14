@@ -79,6 +79,11 @@ public class SendMessage extends BasicFunction {
             LOG.error(ex.getMessage());
             ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
-        }   
+
+        } catch (Throwable t) {
+            LOG.error(t.getMessage());
+            XPathException ex = new XPathException(this, t);
+            throw ex;
+        }
     }    
 }
