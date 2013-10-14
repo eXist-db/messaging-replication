@@ -77,14 +77,11 @@ public class Receiver {
     /**
      * The JMS listener
      */
-    private ReceiverJMSListener myListener = new ReceiverJMSListener();
+    private ReceiverJMSListener myListener = null; //new ReceiverJMSListener();
     /*
      * 
      */
-    private FunctionReference ref;
     private JmsConfiguration jmsConfig;
-    private Sequence functionParams;
-    private XQueryContext context;
     private Context initialContext = null;
     private ConnectionFactory connectionFactory = null;
     private Session session = null;
@@ -101,13 +98,14 @@ public class Receiver {
      * @param functionParams Optional function parameters
      * @param context The XQuery context
      */
-    public Receiver(FunctionReference ref, JmsConfiguration config, Sequence functionParams, XQueryContext context) {
-        this.ref = ref;
+    public Receiver(JmsConfiguration config, ReceiverJMSListener listener) {
         this.jmsConfig = config;
-        this.context = context;
-        this.functionParams = functionParams;
+        this.myListener = listener;
 
+        // Uniq ID for Receiver
         id = UUID.randomUUID().toString();
+
+        // Initialing XML datafactory
         try {
             dtFactory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException ex) {
@@ -167,11 +165,6 @@ public class Receiver {
         jmsConfig.validate();
 
         try {
-            // Setup listener
-            myListener.setFunctionReference(ref);
-            myListener.setXQueryContext(context);
-            myListener.setFunctionParameters(functionParams);
-
             // Setup Context
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, jmsConfig.getInitialContextFactory());

@@ -22,6 +22,7 @@ package org.exist.messaging.xquery;
 import org.exist.messaging.receive.Receiver;
 import org.exist.dom.QName;
 import org.exist.messaging.configuration.JmsConfiguration;
+import org.exist.messaging.receive.ReceiverJMSListener;
 import org.exist.messaging.receive.ReceiversManager;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
@@ -72,8 +73,14 @@ public class RegisterReceiver extends BasicFunction {
             JmsConfiguration config = new JmsConfiguration();
             config.loadConfiguration(configMap);
 
+            // Setup listener
+            ReceiverJMSListener myListener = new ReceiverJMSListener();
+            myListener.setFunctionReference(reference);
+            myListener.setXQueryContext(context);
+            myListener.setFunctionParameters(functionParams);
+
             // Create receiver
-            Receiver receiver = new Receiver(reference, config, functionParams, context); // TODO check use .copyContext() ?
+            Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
 
             // Register, initialize and start receiver
             manager.register(receiver);

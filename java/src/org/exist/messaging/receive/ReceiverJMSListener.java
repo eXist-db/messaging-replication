@@ -247,7 +247,7 @@ public class ReceiverJMSListener implements MessageListener {
         this.xqueryContext = context;
     }
 
-    void setFunctionParameters(Sequence functionParams) {
+    public void setFunctionParameters(Sequence functionParams) {
         this.functionParams = functionParams;
     }
 
