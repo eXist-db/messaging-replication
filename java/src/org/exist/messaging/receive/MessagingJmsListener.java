@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import javax.jms.BytesMessage;
@@ -66,7 +64,8 @@ import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
 
 import static org.exist.messaging.shared.Constants.*;
-import org.exist.messaging.shared.JmsStatistics;
+import org.exist.messaging.shared.Report;
+import org.exist.messaging.shared.Reporter;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -77,14 +76,14 @@ import org.xml.sax.XMLReader;
  *
  * @author Dannes Wessels
  */
-public class MessagingJmsListener implements MessageListener {
+public class MessagingJmsListener implements MessageListener, Reporter {
 
     private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
     private FunctionReference functionReference;
     private XQueryContext xqueryContext;
     private Sequence functionParams;
     
-    private JmsStatistics stats = new JmsStatistics();
+    private Report report = new Report();
 
     public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
@@ -95,8 +94,8 @@ public class MessagingJmsListener implements MessageListener {
 
     @Override
     public void onMessage(Message msg) {
-        
-        long startTime = System.currentTimeMillis();
+
+        report.start();
 
         // Log incoming message
         try {
@@ -107,7 +106,7 @@ public class MessagingJmsListener implements MessageListener {
             }
 
         } catch (JMSException ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             LOG.error(ex.getMessage());
         }
 
@@ -175,7 +174,7 @@ public class MessagingJmsListener implements MessageListener {
             } else {
                 // Unsupported JMS message type
                 String txt = "Unsupported JMS Message type " + msg.getClass().getCanonicalName();
-                stats.add(txt);
+                report.add(txt);
                 LOG.error(txt);
                 throw new XPathException(txt);
             }
@@ -199,18 +198,18 @@ public class MessagingJmsListener implements MessageListener {
             msg.acknowledge();
 
             // Update statistics
-            stats.incMessageCounterOK();
+            report.incMessageCounterOK();
 
         } catch (JMSException ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
 
         } catch (XPathException ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             LOG.error(ex);
 
         } catch (Throwable ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
 
         } finally {
@@ -220,9 +219,9 @@ public class MessagingJmsListener implements MessageListener {
             }
             
             // update statistics
-            stats.incMessageCounterTotal();
-            long endTime = System.currentTimeMillis();
-            stats.addCumulatedProcessingTime(endTime - startTime);
+            report.stop();
+            report.incMessageCounterTotal();
+            report.addCumulatedProcessingTime();
         }
 
     }
@@ -324,7 +323,7 @@ public class MessagingJmsListener implements MessageListener {
 
         } else {
             String txt = String.format("Unable to convert the object %s", obj.toString());
-            stats.add(txt);
+            report.add(txt);
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -369,22 +368,22 @@ public class MessagingJmsListener implements MessageListener {
             }
 
         } catch (SAXException ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
 
         } catch (ParserConfigurationException ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
 
         } catch (IOException ex) {
-            stats.add(ex.getMessage());
+            report.add(ex.getMessage());
             throw new XPathException(ex.getMessage());
         }
 
         return content;
     }
 
-    public JmsStatistics getStatistics() {
-        return stats;
+    public Report getReport() {
+        return report;
     }
 }

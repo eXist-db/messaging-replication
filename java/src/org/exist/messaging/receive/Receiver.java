@@ -49,7 +49,7 @@ import org.exist.memtree.NodeImpl;
 
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.shared.Constants;
-import org.exist.messaging.shared.JmsStatistics;
+import org.exist.messaging.shared.Report;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReference;
@@ -398,7 +398,7 @@ public class Receiver {
             /*
              * Error reproting
              */
-            List<String> listenerErrors = myListener.getStatistics().getErrors();
+            List<String> listenerErrors = myListener.getReport().getErrors();
             if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
                 builder.startElement("", "ErrorMessages", "ErrorMessages", null);
 
@@ -427,7 +427,7 @@ public class Receiver {
             /*
              * Statistics
              */
-            JmsStatistics stats = myListener.getStatistics();
+            Report stats = myListener.getReport();
             builder.startElement("", "Statistics", "Statistics", null);
 
             builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);

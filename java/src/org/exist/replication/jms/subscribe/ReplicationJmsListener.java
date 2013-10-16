@@ -41,6 +41,8 @@ import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Identity;
+import org.exist.messaging.shared.Report;
+import org.exist.messaging.shared.Reporter;
 import org.exist.replication.shared.MessageHelper;
 import org.exist.messaging.shared.eXistMessage;
 import org.exist.security.Account;
@@ -64,13 +66,14 @@ import org.xml.sax.InputSource;
  *
  * @author Dannes Wessels
  */
-public class ReplicationJmsListener implements MessageListener {
+public class ReplicationJmsListener implements MessageListener, Reporter {
 
     private final static Logger LOG = Logger.getLogger(ReplicationJmsListener.class);
     private BrokerPool brokerPool = null;
     private org.exist.security.SecurityManager securityManager = null;
     
-    private String localID=null;
+    private String localID = null;
+    private Report report = new Report();
 
     /**
      * Constructor
@@ -129,6 +132,8 @@ public class ReplicationJmsListener implements MessageListener {
 
     @Override
     public void onMessage(Message msg) {
+
+        report.start();
         
         try {
             // Detect if the sender of the incoming message
@@ -175,6 +180,7 @@ public class ReplicationJmsListener implements MessageListener {
                         LOG.error(errorMessage);
                         throw new MessageReceiveException(errorMessage);
                 }
+                report.incMessageCounterOK();
 
 
 
@@ -184,14 +190,21 @@ public class ReplicationJmsListener implements MessageListener {
             }
 
         } catch (MessageReceiveException ex) {
-            // Thrown by local code. Just make it pass
+            // Thrown by local code. Just make it pass\
+            report.add(ex.getMessage());
             LOG.error(String.format("Could not handle received message: %s", ex.getMessage()), ex);
             throw ex;
 
         } catch (Throwable t) {
             // Something really unexpected happened. Report
+            report.add(t.getMessage());
             LOG.error(t.getMessage(), t);
             throw new MessageReceiveException(String.format("Could not handle received message: %s", t.getMessage()), t);
+        } finally {
+            // update statistics
+            report.stop();
+            report.incMessageCounterTotal();
+            report.addCumulatedProcessingTime();
         }
     }
 
@@ -970,6 +983,11 @@ public class ReplicationJmsListener implements MessageListener {
 
 
         }
+    }
+
+    @Override
+    public Report getReport() {
+        return report;
     }
 
   

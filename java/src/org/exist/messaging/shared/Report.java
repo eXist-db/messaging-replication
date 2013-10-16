@@ -10,7 +10,13 @@ import java.util.List;
  */
 
 
-public class JmsStatistics {
+public class Report {
+
+    /*
+     * Raw times
+     */
+    long startTime = -1;
+    long StopTime = -1;
 
     /**
      * Number of messages
@@ -55,8 +61,8 @@ public class JmsStatistics {
         return messageCounterOK;
     }
 
-    public void addCumulatedProcessingTime(long time) {
-        this.totalTime += time;
+    public void addCumulatedProcessingTime() {
+        this.totalTime += (StopTime - startTime);
     }
     /**
      * @return Total processing time
@@ -74,5 +80,13 @@ public class JmsStatistics {
      */
     public List<String> getErrors() {
         return errors;
+    }
+
+    public void start() {
+        startTime = System.currentTimeMillis();
+    }
+
+    public void stop() {
+        StopTime = System.currentTimeMillis();
     }
 }
