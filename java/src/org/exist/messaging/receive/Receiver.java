@@ -27,6 +27,7 @@ import java.util.UUID;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.Session;
@@ -34,6 +35,7 @@ import javax.jms.Topic;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
@@ -50,6 +52,8 @@ import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Report;
+import org.exist.messaging.shared.eXistMessageListener;
+import org.exist.replication.shared.JmsConnectionExceptionListener;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.FunctionReference;
@@ -76,9 +80,10 @@ public class Receiver {
     };
     private STATE state = STATE.NOT_DEFINED;
     /**
-     * The JMS listener
+     * The JMS listeners
      */
-    private MessagingJmsListener myListener = null; //new MessagingJmsListener();
+    private eXistMessageListener messageListener = null;
+    private ExceptionListener exceptionListener = null;
     /*
      * 
      */
@@ -99,9 +104,12 @@ public class Receiver {
      * @param functionParams Optional function parameters
      * @param context The XQuery context
      */
-    public Receiver(JmsConfiguration config, MessagingJmsListener listener) {
+    public Receiver(JmsConfiguration config, eXistMessageListener listener) {
         this.jmsConfig = config;
-        this.myListener = listener;
+        this.messageListener = listener;
+
+        // Setup exception reporting
+        exceptionListener = new JmsConnectionExceptionListener();
 
         // Uniq ID for Receiver
         id = UUID.randomUUID().toString();
@@ -183,6 +191,9 @@ public class Receiver {
             } else {
                 connection = connectionFactory.createConnection(userName, password);
             }
+
+            // Register error listener
+            connection.setExceptionListener(exceptionListener);
             
             // Set clientId when set and not empty
             String clientId=jmsConfig.getClientID();
@@ -213,8 +224,8 @@ public class Receiver {
                 messageConsumer = session.createConsumer(destination, messageSelector, isNoLocal);
             }
             
-            // Register listeners
-            messageConsumer.setMessageListener(myListener);
+            // Register listener
+            messageConsumer.setMessageListener(messageListener);
 
             LOG.info(String.format("JMS connection is initialized: %s=%s %s=%s %s=%s %s=%s %s=%s",
                     Constants.CLIENT_ID, connection.getClientID(), Constants.MESSAGE_SELECTOR, messageSelector,
@@ -223,6 +234,10 @@ public class Receiver {
             state = STATE.STOPPED;
 
         } catch (Throwable t) {
+            state = STATE.ERROR;
+            
+            closeAllSilently(initialContext, connection, session);
+            
             LOG.error(t.getMessage(), t);
             LOG.debug("" + jmsConfig.toString());
             errors.add(t.getMessage());
@@ -394,11 +409,11 @@ public class Receiver {
         /*
          * Statistics & error reporting 
          */
-        if (myListener != null) {
+        if (messageListener != null) {
             /*
              * Error reproting
              */
-            List<String> listenerErrors = myListener.getReport().getErrors();
+            List<String> listenerErrors = messageListener.getReport().getErrors();
             if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
                 builder.startElement("", "ErrorMessages", "ErrorMessages", null);
 
@@ -427,7 +442,7 @@ public class Receiver {
             /*
              * Statistics
              */
-            Report stats = myListener.getReport();
+            Report stats = messageListener.getReport();
             builder.startElement("", "Statistics", "Statistics", null);
 
             builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
@@ -451,5 +466,49 @@ public class Receiver {
 
         // return result
         return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+    }
+
+    /**
+     * Helper method to give resources back
+     */
+    private void closeAllSilently(Context context, Connection connection, Session session) {
+
+        boolean doLog = LOG.isDebugEnabled();
+
+        if (session != null) {
+            if (doLog) {
+                LOG.debug("Closing session");
+            }
+
+            try {
+                session.close();
+            } catch (JMSException ex) {
+                LOG.error(ex.getMessage());
+            }
+        }
+
+        if (connection != null) {
+            if (doLog) {
+                LOG.debug("Closing connection");
+            }
+
+            try {
+                connection.close();
+            } catch (JMSException ex) {
+                LOG.error(ex.getMessage());
+            }
+        }
+
+        if (context != null) {
+            if (doLog) {
+                LOG.debug("Closing context");
+            }
+
+            try {
+                context.close();
+            } catch (NamingException ex) {
+                LOG.error(ex.getMessage());
+            }
+        }
     }
 }

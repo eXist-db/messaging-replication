@@ -154,7 +154,7 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             try {
                 session.close();
             } catch (JMSException ex) {
-                LOG.error(ex);
+                LOG.error(ex.getMessage());
             }
         }
 
@@ -166,7 +166,7 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             try {
                 connection.close();
             } catch (JMSException ex) {
-                LOG.error(ex);
+                LOG.error(ex.getMessage());
             }
         }
 
@@ -178,7 +178,7 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             try {
                 context.close();
             } catch (NamingException ex) {
-                LOG.error(ex);
+                LOG.error(ex.getMessage());
             }
         }
     }

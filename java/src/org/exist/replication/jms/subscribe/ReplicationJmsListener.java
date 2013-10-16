@@ -73,14 +73,91 @@ public class ReplicationJmsListener implements eXistMessageListener {
     /**
      * Constructor
      *
-     * @param brokerpool Reference to database brokerpool
+     * @param brokerpool Reference to database broker pool
      */
     public ReplicationJmsListener(BrokerPool brokerpool) {
         brokerPool = brokerpool;
-        securityManager = brokerpool.getSecurityManager();
-        
+        securityManager = brokerpool.getSecurityManager(); 
         localID=Identity.getInstance().getIdentity();
     }
+
+    @Override
+    public void onMessage(Message msg) {
+
+        // Start reporting
+        report.start();
+        
+        try {
+            // Detect if the sender of the incoming message is the receiver
+            if (StringUtils.isNotEmpty(localID)) {
+                String remoteID = msg.getStringProperty(Constants.EXIST_INSTANCE_ID);
+                if(localID.equals(remoteID)){
+                    LOG.info("Incoming JMS messsage was sent by this instance. Processing stopped.");
+                    return; // TODO: throw exception? probably not because message does not need to be re-received
+                }
+            }
+                      
+            if (msg instanceof BytesMessage) {
+
+                // Prepare received message
+                eXistMessage em = convertMessage((BytesMessage) msg);
+
+                Enumeration e = msg.getPropertyNames();
+                while (e.hasMoreElements()) {
+                    Object next = e.nextElement();
+                    if (next instanceof String) {
+                        em.getMetadata().put((String) next, msg.getObjectProperty((String) next));
+                    }
+                }
+
+                // Report some details into logging
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(em.getReport());
+                }
+
+                // First step: distinct between update for documents and messsages
+                switch (em.getResourceType()) {
+                    case DOCUMENT:
+                        handleDocument(em);
+                        break;
+                    case COLLECTION:
+                        handleCollection(em);
+                        break;
+                    default:
+                        String errorMessage = String.format("Unknown resource type %s", em.getResourceType());
+                        LOG.error(errorMessage);
+                        throw new MessageReceiveException(errorMessage);
+                }
+                report.incMessageCounterOK();
+
+            } else {
+                // Only ByteMessage objects supported. 
+                throw new MessageReceiveException(String.format("Could not handle message type %s", msg.getClass().getSimpleName()));
+            }
+
+        } catch (MessageReceiveException ex) {
+            // Thrown by local code. Just make it pass\
+            report.add(ex.getMessage());
+            LOG.error(String.format("Could not handle received message: %s", ex.getMessage()), ex);
+            throw ex;
+
+        } catch (Throwable t) {
+            // Something really unexpected happened. Report
+            report.add(t.getMessage());
+            LOG.error(t.getMessage(), t);
+            throw new MessageReceiveException(String.format("Could not handle received message: %s", t.getMessage()), t);
+
+        } finally {
+            // update statistics
+            report.stop();
+            report.incMessageCounterTotal();
+            report.addCumulatedProcessingTime();
+        }
+    }
+
+    //
+    // The code below handles the incoming message ; DW: should be moved to seperate class
+    //
 
     /**
      * Convert JMS ByteMessage into an eXist-db specific message.
@@ -122,86 +199,8 @@ public class ReplicationJmsListener implements eXistMessageListener {
         }
 
         return em;
-
     }
 
-    @Override
-    public void onMessage(Message msg) {
-
-        report.start();
-        
-        try {
-            // Detect if the sender of the incoming message
-            // is the receiver
-            if (StringUtils.isNotEmpty(localID)) {
-                String remoteID = msg.getStringProperty(Constants.EXIST_INSTANCE_ID);
-                if(localID.equals(remoteID)){
-                    LOG.info("Incoming JMS messsage was sent by this instance. Processing stopped.");
-                    return;
-
-                    // TODO: throw exception?
-                }
-            }
-            
-            
-            if (msg instanceof BytesMessage) {
-
-                // Prepare received message
-                eXistMessage em = convertMessage((BytesMessage) msg);
-
-                Enumeration e = msg.getPropertyNames();
-                while (e.hasMoreElements()) {
-                    Object next = e.nextElement();
-                    if (next instanceof String) {
-                        em.getMetadata().put((String) next, msg.getObjectProperty((String) next));
-                    }
-                }
-
-                // Report some details into logging
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(em.getReport());
-                }
-
-                // First step: distinct between update for documents and messsages
-                switch (em.getResourceType()) {
-                    case DOCUMENT:
-                        handleDocument(em);
-                        break;
-                    case COLLECTION:
-                        handleCollection(em);
-                        break;
-                    default:
-                        String errorMessage = String.format("Unknown resource type %s", em.getResourceType());
-                        LOG.error(errorMessage);
-                        throw new MessageReceiveException(errorMessage);
-                }
-                report.incMessageCounterOK();
-
-
-
-            } else {
-                // Only ByteMessage objects supported. 
-                throw new MessageReceiveException(String.format("Could not handle message type %s", msg.getClass().getSimpleName()));
-            }
-
-        } catch (MessageReceiveException ex) {
-            // Thrown by local code. Just make it pass\
-            report.add(ex.getMessage());
-            LOG.error(String.format("Could not handle received message: %s", ex.getMessage()), ex);
-            throw ex;
-
-        } catch (Throwable t) {
-            // Something really unexpected happened. Report
-            report.add(t.getMessage());
-            LOG.error(t.getMessage(), t);
-            throw new MessageReceiveException(String.format("Could not handle received message: %s", t.getMessage()), t);
-        } finally {
-            // update statistics
-            report.stop();
-            report.incMessageCounterTotal();
-            report.addCumulatedProcessingTime();
-        }
-    }
 
     /**
      * Handle operation on documents
