@@ -34,34 +34,34 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
 
     public static final String ID = "id";
     public static final String RECEIVER_ID = "Receiver ID";
+    public static final String START = "start";
+    public static final String STOP = "stop";
+    public static final String CLOSE = "close";
+    public static final String REPORT = "report";
     public final static FunctionSignature signatures[] = {
         new FunctionSignature(
-                new QName("start", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-                "Start receiver",
+        new QName(START, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),                "Start receiver",
                 new SequenceType[]{
             new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),                },
                 new SequenceType(Type.ITEM, Cardinality.EMPTY)
             ),
         
         new FunctionSignature(
-                new QName("stop", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-                "Stop receiver",
+        new QName(STOP, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),                "Stop receiver",
                 new SequenceType[]{
             new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),                },
                 new SequenceType(Type.ITEM, Cardinality.EMPTY)
             ),
         
         new FunctionSignature(
-                new QName("close", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-                "Close receiver",
+        new QName(CLOSE, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),                "Close receiver",
                 new SequenceType[]{
             new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),                },
                 new SequenceType(Type.ITEM, Cardinality.EMPTY)
             ),
         
         new FunctionSignature(
-            new QName("info", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-            "Get details of receiver",
+        new QName(REPORT, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),            "Get details of receiver",
             new SequenceType[]{
             new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),            },
             new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fragment with receiver information")
@@ -99,15 +99,15 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
             // Holder for return values
             Sequence returnValue = Sequence.EMPTY_SEQUENCE;
 
-            if (isCalledAs("start")) {
+            if (isCalledAs(START)) {
                 // Start receiver
                 receiver.start();
 
-            } else if (isCalledAs("stop")) {
+            } else if (isCalledAs(STOP)) {
                 // Stop receiver
                 receiver.stop();
 
-            } else if (isCalledAs("close")) {
+            } else if (isCalledAs(CLOSE)) {
                 // Close and remove receiver
                 try {
                     receiver.close();
@@ -115,7 +115,7 @@ public class StartStopCloseInfoReceiver extends BasicFunction {
                     manager.remove(id);
                 }
 
-            } else if (isCalledAs("info")) {
+            } else if (isCalledAs(REPORT)) {
                 // Return report
                 returnValue = receiver.getReport();
 
