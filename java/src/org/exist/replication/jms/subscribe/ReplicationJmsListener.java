@@ -27,24 +27,20 @@ import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.MessageListener;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.DocumentImpl;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Identity;
 import org.exist.messaging.shared.Report;
-import org.exist.messaging.shared.Reporter;
-import org.exist.replication.shared.MessageHelper;
 import org.exist.messaging.shared.eXistMessage;
+import org.exist.messaging.shared.eXistMessageListener;
+import org.exist.replication.shared.MessageHelper;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.Permission;
@@ -58,7 +54,6 @@ import org.exist.util.MimeType;
 import org.exist.util.VirtualTempFile;
 import org.exist.util.VirtualTempFileInputSource;
 import org.exist.xmldb.XmldbURI;
-
 import org.xml.sax.InputSource;
 
 /**
@@ -66,7 +61,7 @@ import org.xml.sax.InputSource;
  *
  * @author Dannes Wessels
  */
-public class ReplicationJmsListener implements MessageListener, Reporter {
+public class ReplicationJmsListener implements eXistMessageListener {
 
     private final static Logger LOG = Logger.getLogger(ReplicationJmsListener.class);
     private BrokerPool brokerPool = null;

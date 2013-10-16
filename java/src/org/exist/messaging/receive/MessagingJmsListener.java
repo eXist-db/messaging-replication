@@ -65,7 +65,7 @@ import org.exist.xquery.value.ValueSequence;
 
 import static org.exist.messaging.shared.Constants.*;
 import org.exist.messaging.shared.Report;
-import org.exist.messaging.shared.Reporter;
+import org.exist.messaging.shared.eXistMessageListener;
 
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -76,7 +76,7 @@ import org.xml.sax.XMLReader;
  *
  * @author Dannes Wessels
  */
-public class MessagingJmsListener implements MessageListener, Reporter {
+public class MessagingJmsListener implements eXistMessageListener {
 
     private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
     private FunctionReference functionReference;

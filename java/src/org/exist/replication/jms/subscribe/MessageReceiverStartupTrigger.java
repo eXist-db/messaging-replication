@@ -43,50 +43,7 @@ import org.exist.storage.StartupTrigger;
 public class MessageReceiverStartupTrigger implements StartupTrigger {
 
     private final static Logger LOG = Logger.getLogger(MessageReceiverStartupTrigger.class);
-    
-    /**
-     * Helper method to give resources back
-     */
-    private void closeAll(Context context, Connection connection, Session session) {
-        
-        boolean doLog = LOG.isDebugEnabled();
-
-        if (session != null) {
-            if (doLog) {
-                LOG.debug("Closing session");
-            }
-
-            try {
-                session.close();
-            } catch (JMSException ex) {
-                LOG.error(ex);
-            }
-        }
-
-        if (connection != null) {
-            if (doLog) {
-                LOG.debug("Closing connection");
-            }
-            
-            try {
-                connection.close();
-            } catch (JMSException ex) {
-                LOG.error(ex);
-            }
-        }
-
-        if (context != null) {
-            if (doLog) {
-                LOG.debug("Closing context");
-            }
-             
-            try {
-                context.close();
-            } catch (NamingException ex) {
-                LOG.error(ex);
-            }
-        }
-    }
+      
 
     /*
      * Entry point for starting the trigger.
@@ -105,8 +62,7 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             // Get parameters, fill defaults when needed
             parameters.processParameters();
 
-            LOG.info("Starting subscription of '" + parameters.getSubscriberName() 
-                        + "' to '" + parameters.getTopic() + "'");
+            LOG.info(String.format("Starting subscription of '%s' to '%s'", parameters.getSubscriberName(), parameters.getTopic()));
 
             if(LOG.isDebugEnabled()){
                 LOG.debug(parameters.getReport());
@@ -123,7 +79,7 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             // Lookup topic
             Destination destination = (Destination) context.lookup(parameters.getTopic());
             if (!(destination instanceof Topic)) {
-                String errorText = "'" + parameters.getTopic() + "' is not a Topic.";
+                String errorText = String.format("'%s' is not a Topic.", parameters.getTopic());
                 LOG.error(errorText);
                 throw new Exception(errorText); //TODO better exception?
             }
@@ -179,7 +135,51 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             // Close all that has been opened. Always.
             closeAll(context, connection, session);
             
-            LOG.error("Unable to start subscription: " + t.getMessage() + ";  " + parameters.getReport(), t);
+            LOG.error(String.format("Unable to start subscription: %s;  %s", t.getMessage(), parameters.getReport()), t);
+        }
+    }
+
+    /**
+     * Helper method to give resources back
+     */
+    private void closeAll(Context context, Connection connection, Session session) {
+
+        boolean doLog = LOG.isDebugEnabled();
+
+        if (session != null) {
+            if (doLog) {
+                LOG.debug("Closing session");
+            }
+
+            try {
+                session.close();
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+        }
+
+        if (connection != null) {
+            if (doLog) {
+                LOG.debug("Closing connection");
+            }
+
+            try {
+                connection.close();
+            } catch (JMSException ex) {
+                LOG.error(ex);
+            }
+        }
+
+        if (context != null) {
+            if (doLog) {
+                LOG.debug("Closing context");
+            }
+
+            try {
+                context.close();
+            } catch (NamingException ex) {
+                LOG.error(ex);
+            }
         }
     }
 }
