@@ -73,10 +73,10 @@ public class PublisherParameters extends ClientParameters {
         
 
         // Setup destination
-        value = props.getProperty(TOPIC);
+        value = props.getProperty(DESTINATION);
         if (value == null || value.equals("")) {
             value = "dynamicTopics/eXistdb";
-            LOG.info("No " + TOPIC + " set (topic), using default value '" + value
+            LOG.info("No " + DESTINATION + " set (topic), using default value '" + value
                     + "' which is suitable for activeMQ");
         }
         topic = value;
@@ -128,7 +128,7 @@ public class PublisherParameters extends ClientParameters {
         sb.append(Context.PROVIDER_URL).append("='").append(providerUrl).append("'");
         sb.append(" ");
         
-        sb.append(TOPIC).append("='").append(topic).append("'");
+        sb.append(DESTINATION).append("='").append(topic).append("'");
         sb.append(" ");
         
         sb.append(CLIENT_ID).append("='").append(clientId).append("'");

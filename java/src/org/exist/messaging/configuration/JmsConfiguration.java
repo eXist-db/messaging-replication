@@ -28,6 +28,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exist.messaging.shared.Constants;
 import org.exist.replication.jms.publish.PublisherParameters;
+import org.exist.replication.jms.subscribe.SubscriberParameters;
 
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
@@ -75,14 +76,30 @@ public class JmsConfiguration extends MessagingConfiguration {
         }
     }
 
-    public void loadParameters(PublisherParameters params) {
-        setProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
-        setProperty(Constants.DESTINATION, params.getTopic());
+    public void loadPublisherParameters(PublisherParameters params) {
         setProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
         setProperty(Context.PROVIDER_URL, params.getProviderUrl());
+
+        setProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
         setProperty(Constants.CLIENT_ID, params.getClientId());
+        setProperty(Constants.DESTINATION, params.getDestination());
         setProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
         setProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
+    }
+
+    public void loadSubscriberParameters(SubscriberParameters params) {
+        setProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
+        setProperty(Context.PROVIDER_URL, params.getProviderUrl());
+
+        setProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
+        setProperty(Constants.CLIENT_ID, params.getClientId());
+        setProperty(Constants.DESTINATION, params.getDestination());
+        setProperty(Constants.DURABLE, "" + params.isDurable());
+        setProperty(Constants.MESSAGE_SELECTOR, params.getMessageSelector());
+        setProperty(Constants.NO_LOCAL, "" + params.isNoLocal());
+        setProperty(Constants.SUBSCRIBER_NAME, params.getSubscriberName());
+
+        //params.getProps()
     }
 
     

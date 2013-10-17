@@ -40,7 +40,7 @@ public class ReceiversManager {
         // Nop
     }
 
-    public static ReceiversManager getInstance() {
+    public synchronized static ReceiversManager getInstance() {
 
         if (null == instance) {
             LOG.debug("Initializing JMS receiver management");

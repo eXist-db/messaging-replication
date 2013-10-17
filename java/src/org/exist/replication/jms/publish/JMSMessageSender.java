@@ -76,7 +76,7 @@ public class JMSMessageSender implements MessageSender {
             item.setData(em);
 
             JmsConfiguration jmsConfig = new JmsConfiguration();
-            jmsConfig.loadParameters(parameters);
+            jmsConfig.loadPublisherParameters(parameters);
 
             JmsMessageProperties msgMetaProps = new JmsMessageProperties();
             msgMetaProps.loadParameters(parameters);
