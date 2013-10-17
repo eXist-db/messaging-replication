@@ -16,8 +16,6 @@
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- *  $Id$
  */
 package org.exist.replication.jms.subscribe;
 
@@ -53,9 +51,6 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
         SubscriberParameters parameters = new SubscriberParameters();
         parameters.setSingleValueParameters(params);
         
-//        Context context = null;
-//        Connection connection = null;
-//        Session session = null;
         try {
             // Get parameters, fill defaults when needed
             parameters.processParameters();
@@ -72,134 +67,11 @@ public class MessageReceiverStartupTrigger implements StartupTrigger {
             receiver.initialize();
             receiver.start();
 
-
-            //            final String subscriberName = parameters.getSubscriberName();
-//            final String destination = parameters.getDestination();
-//            final String connectionFactory = parameters.getConnectionFactory();
-//            final String clientId = parameters.getClientId();
-//            final boolean durable = parameters.isDurable();
-//            final String messageSelector = parameters.getMessageSelector();
-//            final boolean noLocal = parameters.isNoLocal();
-
-
-//            LOG.info(String.format("Starting subscription of '%s' to '%s'", subscriberName, destination));
-//
-//            if(LOG.isDebugEnabled()){
-//                LOG.debug(parameters.getReport());
-//            }
-
-//            // Setup listeners
-//            ReplicationJmsListener jmsListener = new ReplicationJmsListener(broker.getBrokerPool());
-//            ExceptionListener exceptionListener = new JmsConnectionExceptionListener();
-//        
-//            // Setup context
-//            Properties contextProps = parameters.getInitialContextProps();
-//            context = new InitialContext(contextProps);
-//
-//            // Lookup topic
-//            Destination dest = (Destination) context.lookup(destination);
-//            if (!(dest instanceof Topic)) {
-//                String errorText = String.format("'%s' is not a Topic.", destination);
-//                LOG.error(errorText);
-//                throw new Exception(errorText); //TODO better exception?
-//            }
-//
-//
-//            // Lookup connection factory            
-//            ConnectionFactory cf = (ConnectionFactory) context.lookup(connectionFactory);
-//            
-//            // Set specific properties on the connection factory
-//            JmsConnectionHelper.configureConnectionFactory(cf, parameters);
-//
-//            // Setup connection
-//            connection = cf.createConnection();
-//            
-//            // Register for exceptions
-//            connection.setExceptionListener(exceptionListener);
-//
-//
-//            // Set clientId
-//            connection.setClientID(clientId);
-//
-//            // TODO DW: should this be configurable?
-//            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-//
-//
-//            // Set durable messaging, when required
-//            if (durable) {
-//                // Set subscriber
-//                TopicSubscriber topicSubscriber = session.createDurableSubscriber(
-//                        (Topic) dest, subscriberName, messageSelector, noLocal);
-//
-//                // Register listeners
-//                topicSubscriber.setMessageListener(jmsListener);
-//
-//            } else {
-//                // Create message consumer
-//                MessageConsumer messageConsumer = session.createConsumer(
-//                        dest,
-//                        messageSelector,
-//                        noLocal);
-//
-//
-//                // Register listeners
-//                messageConsumer.setMessageListener(jmsListener);
-//            }
-//
-//            // Start it all
-//            connection.start();
-
             LOG.info("Subscription was successful.");
 
-        } catch (final Throwable t) {
-//            // Close all that has been opened. Always.
-//            closeAll(context, connection, session);
-            
+        } catch (final Throwable t) {            
             LOG.error(String.format("Unable to start subscription: %s", t.getMessage()), t);
         }
     }
 
-//    /**
-//     * Helper method to give resources back
-//     */
-//    private void closeAll(Context context, Connection connection, Session session) {
-//
-//        boolean doLog = LOG.isDebugEnabled();
-//
-//        if (session != null) {
-//            if (doLog) {
-//                LOG.debug("Closing session");
-//            }
-//
-//            try {
-//                session.close();
-//            } catch (JMSException ex) {
-//                LOG.error(ex.getMessage());
-//            }
-//        }
-//
-//        if (connection != null) {
-//            if (doLog) {
-//                LOG.debug("Closing connection");
-//            }
-//
-//            try {
-//                connection.close();
-//            } catch (JMSException ex) {
-//                LOG.error(ex.getMessage());
-//            }
-//        }
-//
-//        if (context != null) {
-//            if (doLog) {
-//                LOG.debug("Closing context");
-//            }
-//
-//            try {
-//                context.close();
-//            } catch (NamingException ex) {
-//                LOG.error(ex.getMessage());
-//            }
-//        }
-//    }
 }
