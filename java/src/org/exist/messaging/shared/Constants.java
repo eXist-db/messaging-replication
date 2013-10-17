@@ -27,6 +27,10 @@ package org.exist.messaging.shared;
 public class Constants {
 
     /*
+     * Authentication group
+     */
+    public static final String JMS_GROUP = "jms";
+    /*
      * eXist-db knows about XML and NON-XML data
      */
     public static final String DATA_TYPE_BINARY = "binary";

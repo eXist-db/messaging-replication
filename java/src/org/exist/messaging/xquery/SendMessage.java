@@ -57,6 +57,14 @@ public class SendMessage extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
+        // User must either be DBA or in the JMS group
+        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(org.exist.messaging.shared.Constants.JMS_GROUP)) {
+            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'", org.exist.messaging.shared.Constants.JMS_GROUP, context.getSubject().getName());
+            XPathException ex = new XPathException(this, txt);
+            LOG.error(txt, ex);
+            throw ex;
+        }
+
         // Get content
         Item content = args[0].itemAt(0);
 

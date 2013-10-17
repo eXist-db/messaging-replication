@@ -21,7 +21,12 @@ package org.exist.messaging.xquery;
 
 import org.exist.dom.QName;
 import org.exist.messaging.receive.ReceiversManager;
-import org.exist.xquery.*;
+import org.exist.messaging.shared.Constants;
+import org.exist.xquery.BasicFunction;
+import org.exist.xquery.Cardinality;
+import org.exist.xquery.FunctionSignature;
+import org.exist.xquery.XPathException;
+import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
 /**
@@ -50,6 +55,14 @@ public class ListReceivers extends BasicFunction {
 
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+
+        // User must either be DBA or in the JMS group
+        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
+            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'", Constants.JMS_GROUP, context.getSubject().getName());
+            XPathException ex = new XPathException(this, txt);
+            LOG.error(txt, ex);
+            throw ex;
+        }
     
         // Get object that manages the receivers
         ReceiversManager manager = ReceiversManager.getInstance();
