@@ -227,9 +227,8 @@ public class Receiver {
             // Register listener
             messageConsumer.setMessageListener(messageListener);
 
-            LOG.info(String.format("JMS connection is initialized: %s=%s %s=%s %s=%s %s=%s %s=%s",
-                    Constants.CLIENT_ID, connection.getClientID(), Constants.MESSAGE_SELECTOR, messageSelector,
-                    Constants.SUBSCRIBER_NAME, subscriberName, Constants.DURABLE, isDurable, Constants.NO_LOCAL, isNoLocal));
+            LOG.info(String.format("JMS connection is initialized: %s=%s %s",
+                    Constants.CLIENT_ID, connection.getClientID(), jmsConfig.toString()));
 
             state = STATE.STOPPED;
 
@@ -346,7 +345,7 @@ public class Receiver {
         /*
          * Internal state
          */
-        builder.startElement("", "State", "State", null);
+        builder.startElement("", "state", "state", null);
         builder.characters("" + state.name());
         builder.endElement();
 
@@ -411,15 +410,22 @@ public class Receiver {
          */
         if (messageListener != null) {
             /*
-             * Error reproting
+             * Context of usage
+             */
+            builder.startElement("", "usage", "usage", null);
+            builder.characters("" + messageListener.getUsageType());
+            builder.endElement();
+
+            /*
+             * Error reporting
              */
             List<String> listenerErrors = messageListener.getReport().getErrors();
             if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
-                builder.startElement("", "ErrorMessages", "ErrorMessages", null);
+                builder.startElement("", "errorMessages", "errorMessages", null);
 
                 if (!listenerErrors.isEmpty()) {
                     for (String error : listenerErrors) {
-                        builder.startElement("", "Error", "Error", null);
+                        builder.startElement("", "error", "error", null);
                         builder.addAttribute(new QName("src", null, null), "listener");
                         builder.characters(error);
                         builder.endElement();
@@ -428,7 +434,7 @@ public class Receiver {
 
                 if (!errors.isEmpty()) {
                     for (String error : errors) {
-                        builder.startElement("", "Error", "Error", null);
+                        builder.startElement("", "error", "error", null);
                         builder.addAttribute(new QName("src", null, null), "receiver");
                         builder.characters(error);
                         builder.endElement();
@@ -443,18 +449,18 @@ public class Receiver {
              * Statistics
              */
             Report stats = messageListener.getReport();
-            builder.startElement("", "Statistics", "Statistics", null);
+            builder.startElement("", "statistics", "statistics", null);
 
-            builder.startElement("", "NrProcessedMessages", "NrProcessedMessages", null);
+            builder.startElement("", "nrProcessedMessages", "nrProcessedMessages", null);
             builder.characters("" + stats.getMessageCounterTotal());
             builder.endElement();
 
-            builder.startElement("", "CumulativeProcessingTime", "CumulativeProcessingTime", null);
+            builder.startElement("", "cumulativeProcessingTime", "cumulativeProcessingTime", null);
             Duration duration = dtFactory.newDuration(stats.getCumulatedProcessingTime());
             builder.characters(duration.toString());
             builder.endElement();
 
-            builder.startElement("", "NrUnprocessedMessages", "NrUnprocessedMessages", null);
+            builder.startElement("", "nrUnprocessedMessages", "nrUnprocessedMessages", null);
             builder.characters("" + stats.getMessageCounterNOK());
             builder.endElement();
 

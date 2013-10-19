@@ -984,5 +984,8 @@ public class ReplicationJmsListener implements eXistMessageListener {
         return report;
     }
 
-  
+    @Override
+    public String getUsageType() {
+        return "replication";
+    }
 }

@@ -9,5 +9,7 @@ import javax.jms.MessageListener;
 public interface eXistMessageListener extends MessageListener {
 
     public Report getReport();
+
+    public String getUsageType();
     
 }
