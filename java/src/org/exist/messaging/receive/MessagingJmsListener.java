@@ -112,6 +112,7 @@ public class MessagingJmsListener implements eXistMessageListener {
 
         // Placeholder for broker
         DBBroker dummyBroker = null;
+        BrokerPool brokerPool = null;
 
         try {
             /*
@@ -119,8 +120,8 @@ public class MessagingJmsListener implements eXistMessageListener {
              * execution of #evalFunction. In the onMessage() method this
              * broker is not being used at all.
              */
-            BrokerPool bp = BrokerPool.getInstance();
-            dummyBroker = bp.getBroker();
+            brokerPool = BrokerPool.getInstance();
+            dummyBroker = brokerPool.getBroker();
 
             // Copy message and jms configuration details into Maptypes
             MapType msgProperties = getMessageProperties(msg, xqueryContext);
@@ -214,8 +215,8 @@ public class MessagingJmsListener implements eXistMessageListener {
 
         } finally {
             // Cleanup resources
-            if (dummyBroker != null) {
-                dummyBroker.release();
+            if (dummyBroker != null && brokerPool != null) {
+                brokerPool.release(dummyBroker);
             }
             
             // update statistics
@@ -385,5 +386,10 @@ public class MessagingJmsListener implements eXistMessageListener {
 
     public Report getReport() {
         return report;
+    }
+
+    @Override
+    public String getUsageType() {
+        return "messaging";
     }
 }
