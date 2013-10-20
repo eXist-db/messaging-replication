@@ -55,9 +55,6 @@ import org.exist.messaging.shared.Report;
 import org.exist.messaging.shared.eXistMessageListener;
 import org.exist.replication.shared.JmsConnectionExceptionListener;
 import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.FunctionReference;
-import org.exist.xquery.value.Sequence;
 
 /**
  * JMS messages receiver, represents a JMS connection.
@@ -99,10 +96,8 @@ public class Receiver {
     /**
      * Constructor
      *
-     * @param ref Reference to the XQuery function
-     * @param config JMSConfiguration parameters
-     * @param functionParams Optional function parameters
-     * @param context The XQuery context
+     * @param config JMS configuration settings
+     * @param listener The generic exist-db message listener
      */
     public Receiver(JmsConfiguration config, eXistMessageListener listener) {
         this.jmsConfig = config;

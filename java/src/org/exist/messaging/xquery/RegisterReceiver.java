@@ -42,11 +42,10 @@ public class RegisterReceiver extends BasicFunction {
             new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
             "Register function to receive JMS messages.",
             new SequenceType[]{
-                new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.ZERO_OR_ONE, "Function called when a JMS message is received"),
-                new FunctionParameterSequenceType("params", Type.ITEM, Cardinality.ZERO_OR_MORE, "Additional function parameters"),
-                new FunctionParameterSequenceType("config", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),         
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
+            new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.EXACTLY_ONE, "Function called when a JMS message is received"),
+            new FunctionParameterSequenceType("parameters", Type.ITEM, Cardinality.ZERO_OR_MORE, "Additional function parameters"),
+            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
+        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
         ),
       
     };

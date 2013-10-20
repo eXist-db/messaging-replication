@@ -44,10 +44,10 @@ public class MessagingModule extends AbstractInternalModule {
         
         new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
 
-        new FunctionDef(StartStopCloseInfoReceiver.signatures[0], StartStopCloseInfoReceiver.class),
-        new FunctionDef(StartStopCloseInfoReceiver.signatures[1], StartStopCloseInfoReceiver.class),
-        new FunctionDef(StartStopCloseInfoReceiver.signatures[2], StartStopCloseInfoReceiver.class),
-        new FunctionDef(StartStopCloseInfoReceiver.signatures[3], StartStopCloseInfoReceiver.class),
+        new FunctionDef(ManageReceivers.signatures[0], ManageReceivers.class),
+        new FunctionDef(ManageReceivers.signatures[1], ManageReceivers.class),
+        new FunctionDef(ManageReceivers.signatures[2], ManageReceivers.class),
+        new FunctionDef(ManageReceivers.signatures[3], ManageReceivers.class),
     };
     
     public final static QName EXCEPTION_QNAME =
