@@ -22,6 +22,7 @@ package org.exist.messaging.configuration;
 import javax.naming.Context;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -77,29 +78,35 @@ public class JmsConfiguration extends MessagingConfiguration {
     }
 
     public void loadPublisherParameters(PublisherParameters params) {
-        setProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
-        setProperty(Context.PROVIDER_URL, params.getProviderUrl());
+        setLocalProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
+        setLocalProperty(Context.PROVIDER_URL, params.getProviderUrl());
 
-        setProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
-        setProperty(Constants.CLIENT_ID, params.getClientId());
-        setProperty(Constants.DESTINATION, params.getDestination());
-        setProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
-        setProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
+        setLocalProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
+        setLocalProperty(Constants.CLIENT_ID, params.getClientId());
+        setLocalProperty(Constants.DESTINATION, params.getDestination());
+        setLocalProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
+        setLocalProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
     }
 
     public void loadSubscriberParameters(SubscriberParameters params) {
-        setProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
-        setProperty(Context.PROVIDER_URL, params.getProviderUrl());
+        setLocalProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
+        setLocalProperty(Context.PROVIDER_URL, params.getProviderUrl());
 
-        setProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
-        setProperty(Constants.CLIENT_ID, params.getClientId());
-        setProperty(Constants.DESTINATION, params.getDestination());
-        setProperty(Constants.DURABLE, "" + params.isDurable());
-        setProperty(Constants.MESSAGE_SELECTOR, params.getMessageSelector());
-        setProperty(Constants.NO_LOCAL, "" + params.isNoLocal());
-        setProperty(Constants.SUBSCRIBER_NAME, params.getSubscriberName());
+        setLocalProperty(Constants.CONNECTION_FACTORY, params.getConnectionFactory());
+        setLocalProperty(Constants.CLIENT_ID, params.getClientId());
+        setLocalProperty(Constants.DESTINATION, params.getDestination());
+        setLocalProperty(Constants.DURABLE, "" + params.isDurable());
+        setLocalProperty(Constants.MESSAGE_SELECTOR, params.getMessageSelector());
+        setLocalProperty(Constants.NO_LOCAL, "" + params.isNoLocal());
+        setLocalProperty(Constants.SUBSCRIBER_NAME, params.getSubscriberName());
 
         //params.getProps()
+    }
+
+    private void setLocalProperty(String key, String value) {
+        if (StringUtils.isNotBlank(key) && value != null) {
+            setProperty(key, value);
+        }
     }
 
     
