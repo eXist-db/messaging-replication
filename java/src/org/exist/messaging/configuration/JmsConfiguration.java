@@ -225,7 +225,19 @@ public class JmsConfiguration extends MessagingConfiguration {
 
     @Override
     public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
+                .append(Context.INITIAL_CONTEXT_FACTORY, getInitialContextFactory())
+                .append(Context.PROVIDER_URL, getProviderURL())
+                .append(Constants.CLIENT_ID, getClientID())
+                .append(Constants.CONNECTION_FACTORY, getConnectionFactory())
+                .append(Constants.JMS_CONNECTION_USERNAME, getConnectionUserName())
+                .append(Constants.DESTINATION, getDestination())
+                .append(Constants.MESSAGE_SELECTOR, getMessageSelector())
+                .append(Constants.PRODUCER_PRIORITY, getPriority())
+                .append(Constants.PRODUCER_TTL, getTimeToLive())
+                .append(Constants.DURABLE, isDurable())
+                .append(Constants.NO_LOCAL, isNoLocal())
+                .toString();
     }
 
 }

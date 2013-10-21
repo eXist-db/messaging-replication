@@ -100,6 +100,9 @@ public class Sender  {
             LOG.error(String.format("An empty value was provided for '%s'", Constants.EXIST_INSTANCE_ID));
         }
 
+        // Set username
+        msgMetaProps.setProperty("exist.user", xqcontext.getSubject().getName());
+
         // Retrieve relevant values
         String initialContextFactory = jmsConfig.getInitialContextFactory();
         String providerURL = jmsConfig.getProviderURL();

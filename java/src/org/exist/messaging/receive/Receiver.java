@@ -222,8 +222,14 @@ public class Receiver {
             // Register listener
             messageConsumer.setMessageListener(messageListener);
 
-            LOG.info(String.format("JMS connection is initialized: %s=%s %s",
-                    Constants.CLIENT_ID, connection.getClientID(), jmsConfig.toString()));
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(String.format("JMS connection is initialized: %s=%s %s",
+                        Constants.CLIENT_ID, connection.getClientID(), jmsConfig.toString()));
+            } else {
+                LOG.info(String.format("JMS connection is initialized: %s=%s",
+                        Constants.CLIENT_ID, connection.getClientID()));
+            }
+
 
             state = STATE.STOPPED;
 
