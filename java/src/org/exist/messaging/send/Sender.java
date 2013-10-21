@@ -65,6 +65,7 @@ public class Sender  {
     private final static Logger LOG = Logger.getLogger(Sender.class);
     
     private XQueryContext xqcontext;
+    private String username;
 
     public Sender() {
     }
@@ -75,6 +76,7 @@ public class Sender  {
      * @param context Xquery context, can be NULL for eXistMessageItem
      */
     public Sender(XQueryContext context) {
+        username = context.getSubject().getName();
         xqcontext = context.copyContext();
     }
 
@@ -101,7 +103,10 @@ public class Sender  {
         }
 
         // Set username
-        msgMetaProps.setProperty("exist.user", xqcontext.getSubject().getName());
+        if (username != null) {
+            msgMetaProps.setProperty("exist.user", username);
+        }
+    
 
         // Retrieve relevant values
         String initialContextFactory = jmsConfig.getInitialContextFactory();
