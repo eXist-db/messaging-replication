@@ -1,67 +1,28 @@
 <!--
-    Ivy module to retrieve the tika jar, including dependancies, excluding duplicate jars
-
-    $Id$
+    Ivy module to retrieve the required jar files
 -->
 <ivy-module version="2.0">
-    <info organisation="org.exist" module="replication"/>
+    
+    <info organisation="org.exist" module="messaging-replication"/>
     <dependencies>
-       
-        <dependency org="org.apache.activemq" name="activemq-all" rev="5.8.0" conf="*->*,!sources,!javadoc">
-            <exclude module="slf4j-api"/>
-            
-            <!-- 
-                Remove the following excludes to enable the new AMQP support
-                http://www.amqp.org
-                http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol
-            -->
-            <exclude module="proton-jms"/>
-            <exclude module="hawtbuf"/>
-            <exclude module="activemq-amqp"/>      
-        </dependency>
-        
-        <!-- Please leave here -->
-        <!-- <dependency org="org.apache.activemq" name="activemq-core" rev="5.6.0"  conf="*->*,!sources,!javadoc">
-            
-            <exclude module="slf4j-api"/>
-            <exclude module="commons-logging"/>
-            <exclude module="kahadb"/>
-            <exclude module="org.osgi.core"/>
-            <exclude module="spring-context"/>
-            <exclude module="commons-net"/>
-            <exclude module="jasypt"/>
-            
 
-            <exclude module="activemq-openwire-generator"/>
-            <exclude module="activemq-protobuf"/>
-            <exclude module="activemq-jmdns_1.0"/>
-            <exclude module="activemq-jaas"/>
-            <exclude module="geronimo-jta_1.0.1B_spec"/>
-            
-            
-            <exclude module="groovy-all"/>
-
-            
-            <exclude module="xbean-spring"/>
-            <exclude module="spring-aop"/>
-            <exclude module="commons-logging"/>
-              
-            <exclude module="commons-pool"/>   
-            <exclude module="xalan"/>
+        <!-- ActiveMQ client -->
+        <dependency org="org.apache.activemq" name="activemq-client" rev="5.9.0" conf="*->*,!sources,!javadoc">
             <exclude module="ant"/>
-            <exclude module="xpp3_min"/>
-            <exclude module="derby"/>
-               
-            <exclude module="aopalliance"/>   
-             
-            <exclude module="xstream"/>
-            <exclude module="stax-api"/>
+            <exclude module="slf4j-api"/>
+            <!--<exclude module="geronimo-j2ee-management_1.1_spec"/>-->
+            <!--<exclude module="geronimo-jms_1.1_spec"/>-->
+            <exclude module="commons-net"/>
+            <exclude module="annogen"/>
+            <exclude module="groovy-all"/>
+            <exclude module="jmdns"/>
             <exclude module="gram"/>
-            <exclude module="jettison"/>
-            <exclude module="geronimo-jacc_1.1_spec"/>
-            <exclude module="geronimo-annotation_1.0_spec"/>
- 
-        </dependency>-->
-        
+            <exclude module="activemq-openwire-generator"/>
+        </dependency>
+
+        <!-- AqtiveMQ pool -->
+        <dependency org="org.apache.activemq" name="activemq-pool" rev="5.9.0" conf="*->*,!sources,!javadoc"
+            transitive="false"/>
+
     </dependencies>
 </ivy-module>
