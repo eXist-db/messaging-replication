@@ -1,6 +1,6 @@
 /*
  *  eXist Open Source Native XML Database
- *  Copyright (C) 2012 The eXist Project
+ *  Copyright (C) 2013 The eXist Project
  *  http://exist-db.org
  *
  *  This program is free software; you can redistribute it and/or
@@ -31,6 +31,7 @@ import java.util.zip.GZIPOutputStream;
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -66,6 +67,7 @@ public class Sender  {
     
     private XQueryContext xqcontext;
     private String username;
+    private static ConnectionFactory pool;
 
     public Sender() {
     }
@@ -110,8 +112,7 @@ public class Sender  {
 
         // Retrieve relevant values
         String initialContextFactory = jmsConfig.getInitialContextFactory();
-        String providerURL = jmsConfig.getProviderURL();
-        String connectionFactory = jmsConfig.getConnectionFactory();
+        String providerURL = jmsConfig.getBrokerURL();  
         String destinationValue = jmsConfig.getDestination();
 
         Connection connection = null;
@@ -122,15 +123,20 @@ public class Sender  {
             props.setProperty(Context.PROVIDER_URL, providerURL);
             javax.naming.Context context = new InitialContext(props);
 
-            // Setup connection
-            ConnectionFactory cf = (ConnectionFactory) context.lookup(connectionFactory);
+            // Get connection factory
+            ConnectionFactory cf = getConnectionFactoryInstance(context, jmsConfig);
+
+            if (cf == null) {
+                throw new XPathException("Unable to create connection factory");
+            }
             
             // Setup username/password when required
             String userName = jmsConfig.getConnectionUserName();
             String password = jmsConfig.getConnectionPassword();
             
-            connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) 
-                    ?  cf.createConnection(): cf.createConnection(userName, password); 
+            connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password))
+                    ? cf.createConnection()
+                    : cf.createConnection(userName, password);
             
             // Set clientId when set and not empty
             String clientId=jmsConfig.getClientID();
@@ -174,9 +180,11 @@ public class Sender  {
             // Return report
             return createReport(message, producer, jmsConfig);
 
+
         } catch (Throwable ex) {
+            ex.printStackTrace();
             LOG.error(ex);
-            throw new XPathException(ex.getMessage());
+            throw new XPathException(ex);
 
         } finally {
             try {
@@ -189,6 +197,35 @@ public class Sender  {
             }
         }
     }
+
+    /**
+     * Get connection factory
+     */
+    private ConnectionFactory getConnectionFactoryInstance(javax.naming.Context context, JmsConfiguration jmsConfig) throws NamingException {
+
+        ConnectionFactory retVal = null;
+ 
+        // check if Pooling is needed
+        String poolValue = jmsConfig.getProperty("exist.connection.pool");
+        if (StringUtils.isNotBlank(poolValue)) {
+
+            // Get URL to broker
+            String providerURL = jmsConfig.getBrokerURL();
+
+            // Get ConnectionFactory
+            retVal = SenderConnectionFactory.getConnectionFactoryInstance(providerURL, poolValue);
+
+        } else {
+            // Get name of connection factory
+            String connectionFactory = jmsConfig.getConnectionFactory();
+
+            // Get connection factory, the context already contains the brokerURL.
+            retVal = (ConnectionFactory) context.lookup(connectionFactory);
+        }
+
+        return retVal;
+    }
+
 
     private Message createMessageFromItem(Session session, Item item, JmsMessageProperties mdd, XQueryContext xqcontext) throws JMSException, XPathException {
 
@@ -325,6 +362,7 @@ public class Sender  {
         return message;
     }
 
+
     private Message createMessageFromExistMessage(Session session, eXistMessageItem emi, JmsMessageProperties msgMetaProps) throws JMSException {
 
         // Create bytes message
@@ -360,8 +398,8 @@ public class Sender  {
             compressionValue = COMPRESSION_TYPE_GZIP;
             mdd.setProperty(EXIST_DOCUMENT_COMPRESSION, COMPRESSION_TYPE_GZIP);
         }
-        boolean isCompressed = COMPRESSION_TYPE_GZIP.equals(compressionValue);
-        return isCompressed;
+
+        return COMPRESSION_TYPE_GZIP.equals(compressionValue);
     }
 
     private void setMessagePropertiesFromMap(JmsMessageProperties msgMetaProps, Message message) throws JMSException {
@@ -479,7 +517,7 @@ public class Sender  {
             builder.endElement();
 
             builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
-            builder.characters(config.getProviderURL());
+            builder.characters(config.getBrokerURL());
             builder.endElement();
 
             builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);

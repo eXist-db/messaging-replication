@@ -121,8 +121,14 @@ public class JmsConfiguration extends MessagingConfiguration {
     public String getInitialContextFactory(){
         return getProperty(Context.INITIAL_CONTEXT_FACTORY);
     }
-    
-    public String getProviderURL(){
+
+    /**
+     * Get URL to broker.
+     *
+     * @see Context.PROVIDER_URL
+     * @return URL
+     */
+    public String getBrokerURL() {
         return getProperty(Context.PROVIDER_URL);
     }
     
@@ -184,7 +190,7 @@ public class JmsConfiguration extends MessagingConfiguration {
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.INITIAL_CONTEXT_FACTORY));
         }
         
-        String providerURL = getProviderURL();
+        String providerURL = getBrokerURL();
         if(providerURL==null){
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.PROVIDER_URL));
         }
@@ -234,7 +240,7 @@ public class JmsConfiguration extends MessagingConfiguration {
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append(Context.INITIAL_CONTEXT_FACTORY, getInitialContextFactory())
-                .append(Context.PROVIDER_URL, getProviderURL())
+                .append(Context.PROVIDER_URL, getBrokerURL())
                 .append(Constants.CLIENT_ID, getClientID())
                 .append(Constants.CONNECTION_FACTORY, getConnectionFactory())
                 .append(Constants.JMS_CONNECTION_USERNAME, getConnectionUserName())

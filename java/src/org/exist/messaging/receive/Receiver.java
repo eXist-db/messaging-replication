@@ -172,7 +172,7 @@ public class Receiver {
             // Setup Context
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, jmsConfig.getInitialContextFactory());
-            props.setProperty(Context.PROVIDER_URL, jmsConfig.getProviderURL());
+            props.setProperty(Context.PROVIDER_URL, jmsConfig.getBrokerURL());
             initialContext = new InitialContext(props);
 
             // Setup connection
@@ -358,7 +358,7 @@ public class Receiver {
         builder.endElement();
 
         builder.startElement("", Context.PROVIDER_URL, Context.PROVIDER_URL, null);
-        builder.characters(jmsConfig.getProviderURL());
+        builder.characters(jmsConfig.getBrokerURL());
         builder.endElement();
 
         builder.startElement("", Constants.CONNECTION_FACTORY, Constants.CONNECTION_FACTORY, null);
