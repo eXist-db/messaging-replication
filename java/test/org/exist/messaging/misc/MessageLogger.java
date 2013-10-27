@@ -32,6 +32,8 @@ public class MessageLogger {
         BasicConfigurator.resetConfiguration();
         BasicConfigurator.configure();
 
+        final String testDestination = "dynamicQueues/eXistdbTest";
+
         try {
             // Setup listener
             MyJMSListener myListener = new MyJMSListener();
@@ -45,12 +47,13 @@ public class MessageLogger {
             // Setup connection
             ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");
             Connection connection = connectionFactory.createConnection();
+            connection.setExceptionListener(new MyExceptionListener());
             
             // Setup session
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Setup destination
-            Destination destination = (Destination) context.lookup("dynamicTopics/eXistdbTest");
+            Destination destination = (Destination) context.lookup(testDestination);
             LOG.info("Destination=" + destination);
 
             // Setup consumer

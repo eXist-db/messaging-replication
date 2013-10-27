@@ -3,6 +3,7 @@ package org.exist.messaging.misc;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Enumeration;
+import javax.jms.BytesMessage;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -28,6 +29,7 @@ public class MyJMSListener implements MessageListener {
 
     private final static Logger LOG = Logger.getLogger(MyJMSListener.class);
 
+    @Override
     public void onMessage(Message msg) {
 
         try {
@@ -38,6 +40,11 @@ public class MyJMSListener implements MessageListener {
             if (msg instanceof TextMessage) {
                 LOG.info("TextMessage");
                 content = ((TextMessage) msg).getText();
+
+            } else if (msg instanceof BytesMessage) {
+                BytesMessage bm = (BytesMessage) msg;
+                LOG.info("nrbytes" + bm.getBodyLength());
+                content = "muted";
 
             } else if (msg instanceof ObjectMessage) {
                 Object obj = ((ObjectMessage) msg).getObject();
@@ -73,13 +80,13 @@ public class MyJMSListener implements MessageListener {
             }
             LOG.info(String.format("content='%s' type='%s'", content, msg.getJMSType()));
 
-            // Log properties
-            Enumeration props = msg.getPropertyNames();
-            while (props.hasMoreElements()) {
-                String elt = (String) props.nextElement();
-                String value = msg.getStringProperty(elt);
-                LOG.info(String.format("'%s'='%s'", elt, value));
-            }
+//            // Log properties
+//            Enumeration props = msg.getPropertyNames();
+//            while (props.hasMoreElements()) {
+//                String elt = (String) props.nextElement();
+//                String value = msg.getStringProperty(elt);
+//                LOG.info(String.format("'%s'='%s'", elt, value));
+//            }
 
         } catch (JMSException ex) {
             LOG.error(ex);
