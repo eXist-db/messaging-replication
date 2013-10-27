@@ -2,16 +2,14 @@
     Ivy module to retrieve the required jar files
 -->
 <ivy-module version="2.0">
-    
+
     <info organisation="org.exist" module="messaging-replication"/>
     <dependencies>
 
         <!-- ActiveMQ client -->
-        <dependency org="org.apache.activemq" name="activemq-client" rev="5.9.0" conf="*->*,!sources,!javadoc">
+        <dependency org="org.apache.activemq" name="activemq-client" rev="5.9.0" conf="*->*">
             <exclude module="ant"/>
             <exclude module="slf4j-api"/>
-            <!--<exclude module="geronimo-j2ee-management_1.1_spec"/>-->
-            <!--<exclude module="geronimo-jms_1.1_spec"/>-->
             <exclude module="commons-net"/>
             <exclude module="annogen"/>
             <exclude module="groovy-all"/>
@@ -20,9 +18,12 @@
             <exclude module="activemq-openwire-generator"/>
         </dependency>
 
-        <!-- AqtiveMQ pool -->
-        <dependency org="org.apache.activemq" name="activemq-pool" rev="5.9.0" conf="*->*,!sources,!javadoc"
-            transitive="false"/>
+        <!-- ActiveMQ pool -->
+        <dependency org="org.apache.activemq" name="activemq-pool" rev="5.9.0" conf="*->*" transitive="false"/>
 
+        <!-- ActiveMQ jms pool -->
+        <dependency org="org.apache.activemq" name="activemq-jms-pool" rev="5.9.0" conf="*->*" transitive="false"/>
+        
     </dependencies>
+    
 </ivy-module>

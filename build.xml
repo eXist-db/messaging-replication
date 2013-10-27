@@ -52,7 +52,7 @@
 
     <target name="download" description="Download 3d party JAR files"
         xmlns:ivy="antlib:org.apache.ivy.ant">
-        <ivy:retrieve sync="true" pattern="${java.libs}/[artifact]-[revision].[ext]"/>
+        <ivy:retrieve sync="true" pattern="${java.libs}/[artifact]-[revision](-[classifier]).[ext]"/>
     </target>
 
     <target name="prepare" description="Create empty directories">
@@ -103,7 +103,11 @@
         <!-- create library -->
         <zip destfile="${dist.dir}/${project.name}-lib-${project.version}.xar">
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="jms-lib"/>
-            <zipfileset dir="${java.libs}" includes="*.jar" prefix="jms-lib"/>
+            <zipfileset dir="${java.libs}" prefix="jms-lib">
+                <include name="*.jar"/>
+                <exclude name="*-javadoc.jar"/>
+                <exclude name="*-sources.jar"/>
+            </zipfileset>
             <zipfileset dir="${config.dir}/library" includes="*.xml"/>
         </zip>       
     </target>
@@ -112,7 +116,7 @@
         <copy file="${build.dir}/exist-${project.name}-${project.version}.jar" todir="${exist.dir}/lib/user"/>
         
         <copy todir="${exist.dir}/lib/user">
-            <fileset dir="${java.libs}" includes="*.jar"/>
+            <fileset dir="${java.libs}" includes="*.jar" excludes="*sources*,*javadoc*"/>
         </copy>
     </target>
 
