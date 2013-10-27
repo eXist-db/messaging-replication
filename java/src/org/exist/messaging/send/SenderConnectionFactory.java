@@ -22,10 +22,9 @@ package org.exist.messaging.send;
 import java.util.HashMap;
 import java.util.Map;
 import javax.jms.ConnectionFactory;
-import javax.naming.NamingException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Helper class for creating and buffering ConnectionFactory instances.
@@ -67,13 +66,13 @@ class SenderConnectionFactory {
                 ConnectionFactory cf = (ConnectionFactory) object;
 
                 // Store newly created factory
-                connectionFactories.put(brokerURL, retVal);
+                connectionFactories.put(brokerURL, cf);
 
                 // Return to requester
-                retVal = (ConnectionFactory) cf;
+                retVal =  cf;
 
-            } catch (Exception ex) {
-                LOG.error(ex);
+            } catch (Throwable t) {
+                LOG.error(t);
             }
 
         } else {
