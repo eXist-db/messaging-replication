@@ -369,7 +369,7 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 LOG.error(errorMessage);
                 
                 // Create collection anyway
-                createCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
+                collection = createCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
             }
             
         } catch (Throwable t){
@@ -400,6 +400,7 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 GZIPInputStream gis = new GZIPInputStream(byteInputStream);
                 InputSource inputsource = new InputSource(gis);
 
+                // DW: collection can be null?
                 IndexInfo info = collection.validateXMLResource(txn, broker, docURI, inputsource);
                 doc = info.getDocument();
                 doc.getMetadata().setMimeType(mimeType);
@@ -419,6 +420,7 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 ByteArrayInputStream bais = new ByteArrayInputStream(payload);
                 GZIPInputStream gis = new GZIPInputStream(bais);
                 BufferedInputStream bis = new BufferedInputStream(gis);
+                // DW: collectionollectin can be null
                 doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
                 bis.close();
             }
@@ -702,7 +704,6 @@ public class ReplicationJmsListener implements eXistMessageListener {
         if (account == null) {
             String errorText = String.format("Username %s does not exist.", userName);
             LOG.error(errorText);
-            //throw new MessageReceiveException(errorText);
             
             account = securityManager.getSystemSubject();
             userName = account.getName();
@@ -719,7 +720,7 @@ public class ReplicationJmsListener implements eXistMessageListener {
         if (group == null) {
             String errorText = String.format("Group %s does not exist.", groupName);
             LOG.error(errorText);
-            //throw new MessageReceiveException(errorText);
+  
             group = securityManager.getSystemSubject().getDefaultGroup();
             groupName = group.getName();
         }
@@ -734,9 +735,9 @@ public class ReplicationJmsListener implements eXistMessageListener {
         createCollection(sourcePath, userName, groupName, mode);
     }
     
-      private boolean createCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
+    private Collection createCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
         DBBroker broker = null;
-        Collection collection = null;
+        Collection newCollection = null;
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         txn.setOriginId(this.getClass().getName());
@@ -745,17 +746,20 @@ public class ReplicationJmsListener implements eXistMessageListener {
             // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
             // TODO ... consider to swallow situation transparently
-            collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
+            Collection collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
             if (collection != null) {
                 String errorText = String.format("Collection %s already exists", sourcePath);
                 LOG.error(errorText);
+
+                collection.release(Lock.WRITE_LOCK);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorText);
-                // silently ignore
-                return false;
+
+                // Just return the existent collection
+                return collection;
             }
+
             // Create collection
-            Collection newCollection = broker.getOrCreateCollection(txn, sourcePath);
+            newCollection = broker.getOrCreateCollection(txn, sourcePath);
             // Set owner,group and permissions
             Permission permission = newCollection.getPermissions();
             if (userName != null) {
@@ -769,6 +773,7 @@ public class ReplicationJmsListener implements eXistMessageListener {
             }
             broker.saveCollection(txn, newCollection);
             broker.flush();
+
             // Commit change
             txnManager.commit(txn);
             
@@ -785,13 +790,13 @@ public class ReplicationJmsListener implements eXistMessageListener {
 
        } finally {
             // TODO: check if can be done earlier
-            if (collection != null) {
-                collection.release(Lock.WRITE_LOCK);
+            if (newCollection != null) {
+                newCollection.release(Lock.WRITE_LOCK);
             }
             txnManager.close(txn);
             brokerPool.release(broker);
         }
-        return true;
+        return newCollection;
     }
       
 
@@ -827,7 +832,6 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 String errorMessage = String.format("Collection not found: %s", sourceColURI);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorMessage);
                 
                 // be silent
                 return;
@@ -839,7 +843,6 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 String errorMessage = String.format("No resource found for path: %s", sourcePath);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorMessage);
                 
                 // be silent
                 return;
@@ -851,7 +854,6 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorMessage);
                 
                 // be silent
                 return;
@@ -924,7 +926,6 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 String errorMessage = String.format("Collection %s does not exist.", sourcePath);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorMessage);
                 
                 // be silent
                 return;
@@ -937,7 +938,6 @@ public class ReplicationJmsListener implements eXistMessageListener {
                 String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorMessage);
                 
                 // be silent
                 return;

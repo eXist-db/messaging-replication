@@ -9,14 +9,17 @@ import java.util.List;
  * @author wessels
  */
 
-
+/**
+ *
+ * @author wessels
+ */
 public class Report {
 
     /*
      * Raw times
      */
     long startTime = -1;
-    long StopTime = -1;
+    long stopTime = -1;
 
     /**
      * Number of messages
@@ -62,7 +65,7 @@ public class Report {
     }
 
     public void addCumulatedProcessingTime() {
-        this.totalTime += (StopTime - startTime);
+        this.totalTime += (stopTime - startTime);
     }
     /**
      * @return Total processing time
@@ -87,6 +90,6 @@ public class Report {
     }
 
     public void stop() {
-        StopTime = System.currentTimeMillis();
+        stopTime = System.currentTimeMillis();
     }
 }

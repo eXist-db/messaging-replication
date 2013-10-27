@@ -28,8 +28,6 @@ import java.util.Set;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.exist.messaging.shared.Constants;
-import org.exist.messaging.shared.Identity;
 
 /**
  * Container class for clustering messages.
@@ -94,6 +92,9 @@ public class eXistMessage {
     }
     
     /**
+     * Set resource operation
+     *
+     * @param type Name of resource operation
      * @throws IllegalArgumentException When argument cannot be converted to enum value.
      */
     public void setResourceOperation(String type) {
@@ -109,6 +110,9 @@ public class eXistMessage {
     }
     
     /**
+     * Set Resource type.
+     *
+     * @param type resource type.
      * @throws IllegalArgumentException When argument cannot be converted to enum value.
      */
     public void setResourceType(String type) {
@@ -161,6 +165,7 @@ public class eXistMessage {
     
     /**
      * Get one-liner report of message, including the JMS properties.
+     * @return Report of message
      */
     public String getReport() {
         StringBuilder sb = new StringBuilder();

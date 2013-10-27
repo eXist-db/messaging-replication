@@ -66,7 +66,7 @@ import org.exist.xquery.XPathException;
 public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
-    private List<String> errors = new ArrayList<String>();
+    private final List<String> errors = new ArrayList<String>();
     private DatatypeFactory dtFactory = null;
 
     /**

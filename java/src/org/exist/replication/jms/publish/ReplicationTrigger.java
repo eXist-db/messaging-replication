@@ -28,7 +28,6 @@ import org.apache.log4j.Logger;
 
 import org.exist.collections.Collection;
 import org.exist.collections.triggers.CollectionTrigger;
-import org.exist.collections.triggers.DocumentTrigger;
 import org.exist.collections.triggers.FilteringTrigger;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.DocumentImpl;
@@ -45,7 +44,7 @@ import org.exist.xmldb.XmldbURI;
  *
  * @author Dannes Wessels (dannes@exist-db.org)
  */
-public class ReplicationTrigger extends FilteringTrigger implements DocumentTrigger, CollectionTrigger {
+public class ReplicationTrigger extends FilteringTrigger implements /* DocumentTrigger,*/ CollectionTrigger {
 
     private final static Logger LOG = Logger.getLogger(ReplicationTrigger.class);
     

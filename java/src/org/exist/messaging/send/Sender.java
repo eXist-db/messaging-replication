@@ -67,7 +67,6 @@ public class Sender  {
     
     private XQueryContext xqcontext;
     private String username;
-    private static ConnectionFactory pool;
 
     public Sender() {
     }
@@ -154,9 +153,9 @@ public class Sender  {
             MessageProducer producer = session.createProducer(destination);
 
             // Create message, depending on incoming object type
-            boolean isExistMessage = (content instanceof eXistMessageItem);
-            Message message = isExistMessage
-                    ? createMessageFromExistMessage(session, (eXistMessageItem) content, msgMetaProps)
+            boolean isExistMessageItem = (content instanceof eXistMessageItem);
+            Message message = isExistMessageItem
+                    ? createMessageFromExistMessageItem(session, (eXistMessageItem) content, msgMetaProps)
                     : createMessageFromItem(session, content, msgMetaProps, xqcontext);
 
             // Set Message properties from user provided data
@@ -180,11 +179,9 @@ public class Sender  {
             // Return report
             return createReport(message, producer, jmsConfig);
 
-
         } catch (Throwable ex) {
-            ex.printStackTrace();
             LOG.error(ex);
-            throw new XPathException(ex);
+            throw new XPathException(ex.getMessage());
 
         } finally {
             try {
@@ -206,7 +203,7 @@ public class Sender  {
         ConnectionFactory retVal = null;
  
         // check if Pooling is needed
-        String poolValue = jmsConfig.getProperty("exist.connection.pool");
+        String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL);
         if (StringUtils.isNotBlank(poolValue)) {
 
             // Get URL to broker
@@ -226,23 +223,35 @@ public class Sender  {
         return retVal;
     }
 
+    private static final String EXIST_CONNECTION_POOL = "exist.connection.pool";
 
-    private Message createMessageFromItem(Session session, Item item, JmsMessageProperties mdd, XQueryContext xqcontext) throws JMSException, XPathException {
+    /**
+     * Convert messaging-function originated data into a JMS message.
+     *
+     * @param session The JMS session
+     * @param item The XQuery item containing data
+     * @param jmp JMS message properties
+     * @param xqcontext The XQuery context form the original query
+     * @return JMS message
+     * @throws JMSException When a problem occurs in the JMS domain
+     * @throws XPathException When an other issue occurs
+     */
+    private Message createMessageFromItem(Session session, Item item, JmsMessageProperties jmp, XQueryContext xqcontext) throws JMSException, XPathException {
 
         Message message = null;
 
-        mdd.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
-        boolean isCompressed = isCompressedDocumentRequired(mdd);
+        jmp.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
+        boolean isCompressed = isCompressedDocumentRequired(jmp);
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
             
-            mdd.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
+            jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
 
             if (item instanceof NodeProxy) {
                 NodeProxy np = (NodeProxy) item;
-                mdd.setProperty(EXIST_DOCUMENT_URI, np.getDocument().getBaseURI());
-                mdd.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDocument().getMetadata().getMimeType());
+                jmp.setProperty(EXIST_DOCUMENT_URI, np.getDocument().getBaseURI());
+                jmp.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDocument().getMetadata().getMimeType());
             }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -280,14 +289,14 @@ public class Sender  {
             
             LOG.debug("Streaming base64 binary");
 
-            mdd.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
+            jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
 
             if (item instanceof Base64BinaryDocument) {
                 Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
                 String uri = b64doc.getUrl();
 
                 LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
-                mdd.setProperty(EXIST_DOCUMENT_URI, uri);
+                jmp.setProperty(EXIST_DOCUMENT_URI, uri);
                 
             }
 
@@ -362,8 +371,16 @@ public class Sender  {
         return message;
     }
 
-
-    private Message createMessageFromExistMessage(Session session, eXistMessageItem emi, JmsMessageProperties msgMetaProps) throws JMSException {
+    /**
+     * Convert replication originated data into a JMS message.
+      *
+     * @param session JMS session
+     * @param emi The data
+     * @param msgMetaProps Additional JMS message properties
+     * @return JMS Message
+     * @throws JMSException When an issue happens
+     */
+    private Message createMessageFromExistMessageItem(Session session, eXistMessageItem emi, JmsMessageProperties msgMetaProps) throws JMSException {
 
         // Create bytes message
         BytesMessage message = session.createBytesMessage();

@@ -56,11 +56,14 @@ public abstract class ClientParameters {
      */
     public void setMultiValueParameters(Map<String, List<?>> params) {
 
-        for(final String key : params.keySet()) {
+        // Iterate over parameters
+        for (Map.Entry<String, List<?>> entry : params.entrySet()) {
 
-            List<?> values = params.get(key);
+            // Get key, values
+            String key = entry.getKey();
+            List<?> values = entry.getValue();
+
             if (values != null && !values.isEmpty()) {
-
                 // Only get first value
                 Object value = values.get(0);
                 if (value instanceof String) {
@@ -75,8 +78,7 @@ public abstract class ClientParameters {
      *  Get all JMS settings from supplied parameters.
      * 
      * @param params Single valued parameters.
-     * 
-     * @return  Values as properties.
+
      */
     public void setSingleValueParameters(final Map<String, List<? extends Object>> params) {
 
@@ -123,17 +125,13 @@ public abstract class ClientParameters {
         if (props.getProperty(Context.INITIAL_CONTEXT_FACTORY) == null) {
             String defaultValue = "org.apache.activemq.jndi.ActiveMQInitialContextFactory";
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, defaultValue);
-            LOG.info("No value set for '" + Context.INITIAL_CONTEXT_FACTORY + "', "
-                    + "using default value '" + defaultValue + "' "
-                    + "which is suitable for activeMQ");
+            LOG.info(String.format("No value set for '%s', using default value '%s' which is suitable for activeMQ", Context.INITIAL_CONTEXT_FACTORY, defaultValue));
         }
 
         if (props.getProperty(Context.PROVIDER_URL) == null) {
             String defaultValue = "tcp://localhost:61616";
             props.setProperty(Context.PROVIDER_URL, defaultValue);
-            LOG.info("No value set for '" + Context.PROVIDER_URL
-                    + "', using default value '" + defaultValue + "' "
-                    + "which is suitable for activeMQ");
+            LOG.info(String.format("No value set for '%s', using default value '%s' which is suitable for activeMQ", Context.PROVIDER_URL, defaultValue));
         }
 
     }
@@ -142,6 +140,8 @@ public abstract class ClientParameters {
      *  Retrieve initial context properties, e.g. {@link Context.INITIAL_CONTEXT_FACTORY}
      * and {@link Context.PROVIDER_URL}. Only properties with key starting with
      * ".java" are added to the result.
+     *
+     * @return Initial context properties
      */
     public Properties getInitialContextProps(){
         Properties contextProps = new Properties();

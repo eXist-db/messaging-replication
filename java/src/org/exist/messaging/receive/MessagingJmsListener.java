@@ -79,11 +79,11 @@ import org.xml.sax.XMLReader;
 public class MessagingJmsListener implements eXistMessageListener {
 
     private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
-    private FunctionReference functionReference;
-    private XQueryContext xqueryContext;
-    private Sequence functionParams;
+    private final FunctionReference functionReference;
+    private final XQueryContext xqueryContext;
+    private final Sequence functionParams;
     
-    private Report report = new Report();
+    private final Report report = new Report();
 
     public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
@@ -174,7 +174,7 @@ public class MessagingJmsListener implements eXistMessageListener {
 
             } else {
                 // Unsupported JMS message type
-                String txt = "Unsupported JMS Message type " + msg.getClass().getCanonicalName();
+                String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
                 report.add(txt);
                 LOG.error(txt);
                 throw new XPathException(txt);
@@ -363,7 +363,7 @@ public class MessagingJmsListener implements eXistMessageListener {
             if (report.isValid()) {
                 content = (DocumentImpl) adapter.getDocument();
             } else {
-                String txt = "Received document is not valid: " + report.toString();
+                String txt = String.format("Received document is not valid: %s", report.toString());
                 LOG.debug(txt);
                 throw new XPathException(txt);
             }

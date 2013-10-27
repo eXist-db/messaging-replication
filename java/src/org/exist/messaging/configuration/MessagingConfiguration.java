@@ -49,7 +49,6 @@ public class MessagingConfiguration extends Properties {
      * Load data from XQuery map-type.
      *
      * @param map The XQuery map
-     * @return The converted map
      * @throws XPathException Something bad happened.
      */
     public void loadConfiguration(AbstractMapType map) throws XPathException {

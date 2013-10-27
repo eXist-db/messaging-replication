@@ -54,7 +54,6 @@ public class ReceiversManager {
      * Register receiver, a new unique kID is assigned..
      *
      * @param receiver The receiver class
-     * @return The identification assigned to the receiver.
      *
      * @throws IllegalArgumentException When the argument has value NULL.
      */
@@ -82,6 +81,7 @@ public class ReceiversManager {
      * Retrieve receiver by id.
      *
      * @param id Identification of receiver
+     * @return The receiver
      */
     public Receiver get(String id) {
         return receivers.get(id);

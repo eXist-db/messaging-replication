@@ -52,7 +52,6 @@ public class JmsConfiguration extends MessagingConfiguration {
      * Load data from XQuery map-type and convert the data into String key/value pairs.
      *
      * @param map The XQuery map
-     * @return The converted map
      * @throws XPathException Something bad happened.
      */
     @Override

@@ -107,7 +107,7 @@ public class MessageHelper {
             } catch (SAXException e) {
                 payload = new byte[0];
                 LOG.error(e);
-                throw new IOException("Error while serializing XML document: " + e.getMessage(), e);
+                throw new IOException(String.format("Error while serializing XML document: %s", e.getMessage()), e);
 
             } catch (Throwable e) {
                 payload = new byte[0];
@@ -120,6 +120,7 @@ public class MessageHelper {
             // Stream NON-XML document
 
             try {
+                // DW: check classtype before using
                 broker.readBinaryResource((BinaryDocument) document, gos);
                 gos.flush();
                 gos.close();
