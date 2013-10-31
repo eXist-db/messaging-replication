@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="span9">
+        <h1>Messaging: Reporting</h1>
+        <div class="alert">
+            <strong>Warning!</strong> For this function the user must be 'dba' or he must be in the 'jms' group.
+        </div>
+        <section>
+            <pre class="demo:display-source">(: 
+ : Example: show information about all receivers
+ :)
+xquery version "3.0";
+
+import module namespace jms="http://exist-db.org/xquery/messaging" 
+                        at "java:org.exist.messaging.xquery.MessagingModule";
+                        
+for $id in jms:list()
+return
+    jms:report($id)</pre>
+        </section>
+    </div>
+    <div class="span3"/>
+</div>

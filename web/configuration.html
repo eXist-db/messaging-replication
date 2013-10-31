@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="span12">
+        <h1>Messaging: configuration</h1>
+        <section>
+            <table class="table table-hover table-striped table-bordered">
+                <caption>Mandatory configuration properties</caption>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>connection-factory</td>
+                        <td>The name of the connection factory.</td>
+                        <td>ConnectionFactory</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/InitialContext.html#lookup(java.lang.String)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>destination</td>
+                        <td>The name of the (JMS) Queue or Topic.</td>
+                        <td>dynamicQueues/eXistdbTest</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Destination.html">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>java.naming.factory.initial</td>
+                        <td>The initial context factory to use. The value must be the fully qualified class name of the factory class that will create an initial context.</td>
+                        <td>org.apache.activemq.jndi.ActiveMQInitialContextFactory</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javase/7/docs/api/javax/naming/spi/InitialContextFactory.html">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>java.naming.provider.url</td>
+                        <td>The service provider to use. The value of the property should contain a URL string.</td>
+                        <td>tcp://myserver.local:61616</td>
+                        <td>
+                            <a href="http://activemq.apache.org/uri-protocols.html">ActiveMQ</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-hover table-striped table-bordered">
+                <caption>Optional configuration properties</caption>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>connection.client-id</td>
+                        <td>Sets the client identifier for new connection. The ID must be unique for all connections and is optional.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Connection.html#setClientID(java.lang.String)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>connection.password</td>
+                        <td>Password for creating a new connection. Username is required.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/ConnectionFactory.html#createConnection(java.lang.String,%20java.lang.String)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>connection.username</td>
+                        <td>Username for creating a new connection, Password is required.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/ConnectionFactory.html#createConnection(java.lang.String,%20java.lang.String)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>consumer.message-selector</td>
+                        <td>Only messages with properties matching the message selector expression are delivered. No value or an empty string indicates that there is no message selector for the message consumer.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/cd/E19798-01/821-1841/bncer/index.html">JEE tutorial</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>producer.priority</td>
+                        <td>Priority of a message. Value ranged 0-9, default is 4.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/MessageProducer.html#setPriority(int)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>producer.time-to-live</td>
+                        <td>Maximum time to live for a message.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/MessageProducer.html#setTimeToLive(long)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>subscriber.durable</td>
+                        <td>Set to 'true' to create durable subscriber to a Topic. Default is 'true', set to 'false' to create a normal consumer to a topic.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Session.html#createDurableSubscriber(javax.jms.Topic,%20java.lang.String,%20java.lang.String,%20boolean)">Javadoc</a>
+                        </td>
+                    </tr>
+                    <!--tr>
+                        <td>subscriber.nolocal</td>
+                        <td>If true, and the destination is a topic, inhibits the delivery of messages published by its own connection. The behavior for NoLocal is not specified if the destination is a queue.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Session.html#createConsumer(javax.jms.Destination,%20java.lang.String,%20boolean)">Javadoc</a>
+                        </td>
+                    </tr-->
+                    <tr>
+                        <td>subscriber.name</td>
+                        <td>Name used to identify this subscription, required for Topics.</td>
+                        <td>
+                            <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Session.html#createDurableSubscriber(javax.jms.Topic,%20java.lang.String,%20java.lang.String,%20boolean)">Javadoc</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</div>

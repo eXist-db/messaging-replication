@@ -6,6 +6,7 @@
         <meta data-template="config:app-meta"/>
         <link rel="shortcut icon" href="resources/images/favicon.ico"/>
         <link rel="stylesheet" type="text/css" href="resources/css/exist.css"/>
+        <link rel="stylesheet" type="text/css" href="resources/css/style.css"/>
         <script type="text/javascript" src="$shared/resources/scripts/jquery/jquery-1.7.1.min.js"/>
         <script type="text/javascript" src="$shared/resources/scripts/bootstrap.min.js"/>
         <script type="text/javascript" src="$shared/resources/scripts/loadsource.js"/>
@@ -35,6 +36,34 @@
                                                 <li>
                                                     <a href="index.html">Home</a>
                                                 </li>
+                                                <li>
+                                                    <a href="configuration.html">Configuration</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown" id="functions">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Messaging</a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a href="messaging-register.html">Register receiver</a>
+                                                </li>
+                                                <li>
+                                                    <a href="messaging-send.html">Send message</a>
+                                                </li>
+                                                <li>
+                                                    <a href="messaging-manage.html">Reporting</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li class="dropdown" id="functions">
+                                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Replication</a>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <a href="replication-producer.html">Producer</a>
+                                                </li>
+                                                <li>
+                                                    <a href="replication-consumer.html">Consumer</a>
+                                                </li>
                                             </ul>
                                         </li>
                                     </ul>
@@ -50,6 +79,20 @@
             <div id="copyright">
                 <p>Copyright eXist-db Project 2013</p>
             </div>
+        </div>
+        <div data-template="templates:unless-model-key-equals" data-template-key="noscript" data-template-value="yes">
+            <script type="text/javascript" src="$shared/resources/scripts/ace/ace.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/mode-javascript.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/mode-text.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/mode-xquery.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/mode-java.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/mode-css.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/mode-xml.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/theme-tomorrow_night.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/ace/theme-dawn.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/highlight.js"/>
+            <script type="text/javascript" src="$shared/resources/scripts/loadsource.js"/>
+            <script type="text/javascript" src="resources/scripts/demo.js"/>
         </div>
     </body>
 </html>

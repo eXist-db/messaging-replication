@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="span9">
+        <h1>Messaging: Register JMS receiver</h1>
+        <div class="alert">
+            <strong>Warning!</strong> For this function the user must be 'dba' or he must be in the 'jms' group.
+        </div>
+        <section>
+            <pre class="demo:display-source">(: 
+ : Example: register receiver with additional parameters 
+ :)
+xquery version "3.0";
+
+
+import module namespace jms="http://exist-db.org/xquery/messaging" 
+                        at "java:org.exist.messaging.xquery.MessagingModule";
+
+(: 
+ : A (callback) function is required to have 4 parameters. This function
+ : logs incoming data to "standard out".
+ : 
+ : $content The actual data of the messages
+ : $params  Additional parameters set when registerering the callback function
+ : $messageProperties JMS message properties, contains data of sender and 
+ :                    the eXist-db database
+ : $jmsConfig Detals about the JMS configuration (for debugging) 
+ :)
+declare function local:handleMessage($content as item(), $params as item()*, 
+                            $messageProperties as map(), $jmsConfig as map() )
+{
+    ( 
+        util:log-system-out( util:get-sequence-type($content) 
+                             || "-&gt;" || data($content) ), 
+        
+        util:log-system-out( for $param in $params
+                             return util:get-sequence-type($param) 
+                             || "-&gt;" || $param || " ;  " ), 
+        
+        util:log-system-out( 
+            for $key in map:keys($messageProperties)
+            let $value := map:get($messageProperties, $key) 
+            return util:get-sequence-type($value) || "--&gt;" || $key 
+                    || "=" ||  $value || " ;  " ), 
+            
+        util:log-system-out( for $key in map:keys($jmsConfig)
+            let $value := map:get($jmsConfig, $key) 
+            return util:get-sequence-type($value) || "--&gt;" 
+                    || $key || "=" ||  $value || " ;  " )
+    )
+};
+
+(: Configuration for setting-up an JMS connection :)
+let $jmsConfiguration :=
+    map {
+        "java.naming.factory.initial" 
+            := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+        "java.naming.provider.url" := "tcp://myserver.local:61616",
+        "destination" := "dynamicQueues/eXistdbTest",
+        "connection-factory" := "ConnectionFactory"
+    }
+    
+(: Define HoF callback function, with 4 parameters :)
+let $callback := local:handleMessage#4 
+
+(: Additional (optional) data to parameterize the callback function :)
+let $additionalParameters := (1, "2" , xs:float(3.0))
+    
+return
+    (: Register the function to the JMS broker :)
+    jms:register( $callback , $additionalParameters, $jmsConfiguration)
+      </pre>
+        </section>
+    </div>
+    <div class="span3"/>
+</div>

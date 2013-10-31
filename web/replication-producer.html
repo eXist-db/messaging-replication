@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="span12">
+        <h1>Replication: Producer</h1>
+        <section>
+        collection.xconf
+        <div class="code" data-language="xml">&lt;collection xmlns="http://exist-db.org/collection-config/1.0"&gt;
+    &lt;triggers&gt;
+        &lt;trigger class="org.exist.replication.jms.publish.ReplicationTrigger"&gt;
+
+            &lt;!-- 
+                Class name of the initial context provider, default value 
+                for ActiveMQ
+                see javax.naming.Context#INITIAL_CONTEXT_FACTORY
+            --&gt;
+            &lt;parameter name="java.naming.factory.initial" 
+                value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/&gt;
+
+            &lt;!-- 
+                URL of the message broker, default value for ActiveMQ 
+                see javax.naming.Context#PROVIDER_URL
+            --&gt; 
+            &lt;parameter name="java.naming.provider.url" 
+                          value="tcp://myserver.local:61616"/&gt;
+
+            &lt;!-- 
+                Lookup connection factory
+                see javax.naming.InitialContext#lookup(String) 
+            --&gt;
+            &lt;parameter name="connection-factory" value="ConnectionFactory"/&gt;
+
+            &lt;!--
+                Lookup destination (topic)
+                see javax.naming.InitialContext#lookup(String) 
+            --&gt;
+            &lt;parameter name="destination" value="dynamicTopics/eXistdb"/&gt;
+
+        &lt;/trigger&gt;
+    &lt;/triggers&gt;
+&lt;/collection&gt;
+</div>
+        </section>
+    </div>
+</div>
