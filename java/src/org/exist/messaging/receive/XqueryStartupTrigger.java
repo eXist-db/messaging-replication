@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.exist.security.xacml.AccessContext;
@@ -109,14 +110,11 @@ public class XqueryStartupTrigger implements StartupTrigger {
      * Execute xquery on path
      *
      * @param broker eXist database broker
-     * @param path path to query, gromatted as xmldb:exist:///db///
+     * @param path path to query, formatted as xmldb:exist:///db/...
      */
     private void executeQuery(DBBroker broker, String path) {
         XQueryContext context = null;
         try {
-            XQuery service = broker.getXQueryService();
-            context = service.newContext(AccessContext.TRIGGER);
-
             // Get path to xquery
             Source source = SourceFactory.getSource(broker, null, path, false);
 
@@ -124,10 +122,21 @@ public class XqueryStartupTrigger implements StartupTrigger {
                 LOG.info(String.format("No Xquery found at '%s'", path));
 
             } else {
+                // Setup xquery service
+                XQuery service = broker.getXQueryService();
+                context = service.newContext(AccessContext.TRIGGER);
+
+                // Allow use of modules with relative paths
+                String moduleLoadPath = StringUtils.substringBeforeLast(path, "/");
+                context.setModuleLoadPath(moduleLoadPath);
+
                 // Compile query
                 CompiledXQuery compiledQuery = service.compile(context, source);
 
                 LOG.info(String.format("Starting Xquery at '%s'", path));
+
+                // Finish preparation
+                context.prepareForExecution();
 
                 // Execute
                 Sequence result = service.execute(compiledQuery, null);
