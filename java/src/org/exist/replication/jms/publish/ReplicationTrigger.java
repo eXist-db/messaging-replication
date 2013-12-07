@@ -358,14 +358,14 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     /*
      * ****** unused methods follow ******
      */
-    @Override
+    //@Override
     @Deprecated
     public void prepare(int event, DBBroker broker, Txn transaction,
             XmldbURI documentPath, DocumentImpl existingDocument) throws TriggerException {
         // Ignored
     }
 
-    @Override
+    //@Override
     @Deprecated
     public void finish(int event, DBBroker broker, Txn transaction,
             XmldbURI documentPath, DocumentImpl document) {
@@ -407,14 +407,14 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
         // Ignored
     }
 
-    @Override
+    //@Override
     @Deprecated
     public void prepare(int event, DBBroker broker, Txn transaction, Collection collection,
             Collection newCollection) throws TriggerException {
         // Ignored
     }
 
-    @Override
+    //@Override
     @Deprecated
     public void finish(int event, DBBroker broker, Txn transaction, Collection collection,
             Collection newCollection) {
