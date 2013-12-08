@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://exist-db.org/ns/expath-pkg">
-    <jar>activemq-all-5.8.0.jar</jar>
-    <jar>exist-messaging-replication-1.0.jar</jar>
+    <jar>exist-messaging-replication-0.2.jar</jar>
+    <jar>activemq-client-5.9.0.jar</jar>
+    <jar>activemq-jms-pool-5.9.0.jar</jar>
+    <jar>activemq-pool-5.9.0.jar</jar>
+    <jar>geronimo-j2ee-management_1.1_spec-1.0.1.jar</jar>
+    <jar>geronimo-jms_1.1_spec-1.1.1.jar</jar>
+    <jar>hawtbuf-1.9.jar</jar>
     <java>
         <namespace>http://exist-db.org/xquery/messaging</namespace>
         <class>org.exist.messaging.xquery.MessagingModule</class>
