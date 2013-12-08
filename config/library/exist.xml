@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://exist-db.org/ns/expath-pkg">
-    <jar>exist-messaging-replication-0.2.jar</jar>
+    <jar>exist-messaging-replication-0.3.jar</jar>
     <jar>activemq-client-5.9.0.jar</jar>
     <jar>activemq-jms-pool-5.9.0.jar</jar>
     <jar>activemq-pool-5.9.0.jar</jar>
