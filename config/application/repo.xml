@@ -10,31 +10,4 @@
     <target>messaging-replication</target>
     <prepare>pre-install.xql</prepare>
     <finish/>
-</meta><?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://exist-db.org/ns/expath-pkg">
-    <jar>exist-messaging-replication-0.3.jar</jar>
-    <jar>activemq-client-5.9.0.jar</jar>
-    <jar>activemq-jms-pool-5.9.0.jar</jar>
-    <jar>activemq-pool-5.9.0.jar</jar>
-    <jar>geronimo-j2ee-management_1.1_spec-1.0.1.jar</jar>
-    <jar>geronimo-jms_1.1_spec-1.1.1.jar</jar>
-    <jar>hawtbuf-1.9.jar</jar>
-    <java>
-        <namespace>http://exist-db.org/xquery/messaging</namespace>
-        <class>org.exist.messaging.xquery.MessagingModule</class>
-    </java>
-</package>
-<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://expath.org/ns/pkg" name="http://exist-db.org/messaging-replication-lib" abbrev="jms-lib" version="0.4" spec="1.0">
-    <title>Messaging - JMS libraries</title>
-</package>
-<?xml version="1.0" encoding="UTF-8"?>
-<meta xmlns="http://exist-db.org/xquery/repo">
-    <description>JMS libraries</description>
-    <author>Dannes Wessels</author>
-    <website>http://www.exist-db.org</website>
-    <status>alpha</status>
-    <license>GNU-LGPL</license>
-    <copyright>true</copyright>
-    <type>library</type>
 </meta>
