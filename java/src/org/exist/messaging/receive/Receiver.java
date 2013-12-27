@@ -22,7 +22,6 @@ package org.exist.messaging.receive;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -91,7 +90,14 @@ public class Receiver {
     private Destination destination = null;
     private MessageConsumer messageConsumer = null;
     private Connection connection = null;
-    private String id;
+
+    private Integer id = 0;
+    private static volatile Integer lastId = 0;
+
+    private static synchronized Integer createNewId() {
+        lastId++;
+        return lastId;
+    }
 
     /**
      * Constructor
@@ -107,7 +113,7 @@ public class Receiver {
         exceptionListener = new JmsConnectionExceptionListener();
 
         // Uniq ID for Receiver
-        id = UUID.randomUUID().toString();
+        id = createNewId();
 
         // Initialing XML datafactory
         try {
@@ -122,7 +128,7 @@ public class Receiver {
      *
      * @return
      */
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -339,9 +345,8 @@ public class Receiver {
 
         // start root element
         int nodeNr = builder.startElement("", "Receiver", "Receiver", null);
-        if (id != null) {
-            builder.addAttribute(new QName("id", null, null), id);
-        }
+        builder.addAttribute(new QName("id", null, null), "" + id);
+
 
         /*
          * Internal state

@@ -43,25 +43,25 @@ public class ManageReceivers extends BasicFunction {
         new FunctionSignature(
         new QName(START, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX), "Start receiver",
         new SequenceType[]{
-            new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
+            new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
         new SequenceType(Type.ITEM, Cardinality.EMPTY)
         ),
         new FunctionSignature(
         new QName(STOP, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX), "Stop receiver",
         new SequenceType[]{
-            new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
+            new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
         new SequenceType(Type.ITEM, Cardinality.EMPTY)
         ),
         new FunctionSignature(
         new QName(CLOSE, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX), "Close receiver",
         new SequenceType[]{
-            new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
+            new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
         new SequenceType(Type.ITEM, Cardinality.EMPTY)
         ),
         new FunctionSignature(
         new QName(REPORT, MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX), "Get details of receiver",
         new SequenceType[]{
-            new FunctionParameterSequenceType(ID, Type.STRING, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
+            new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
         new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fragment with receiver information")
         ),
         new FunctionSignature(
@@ -69,7 +69,7 @@ public class ManageReceivers extends BasicFunction {
         "Retrieve sequence of receiver IDs",
         new SequenceType[]{ // no params              
         },
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of receiver IDs")
+        new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ZERO_OR_MORE, "Sequence of receiver IDs")
         ),};
 
     public ManageReceivers(XQueryContext context, FunctionSignature signature) {
@@ -90,7 +90,7 @@ public class ManageReceivers extends BasicFunction {
         ReceiversManager manager = ReceiversManager.getInstance();
 
         // Get receiver by ID
-        String id = args[0].getStringValue();
+        Integer id = args[0].toJavaObject(Integer.class);
         Receiver receiver = manager.get(id);
 
         // Verify if receiver is available

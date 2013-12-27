@@ -19,6 +19,7 @@
  */
 package org.exist.messaging.xquery;
 
+import java.math.BigInteger;
 import org.exist.messaging.receive.Receiver;
 import org.exist.dom.QName;
 import org.exist.messaging.configuration.JmsConfiguration;
@@ -92,7 +93,7 @@ public class RegisterReceiver extends BasicFunction {
             receiver.start();
 
             // Return identification
-            return new StringValue(receiver.getId());
+            return new IntegerValue(receiver.getId());
 
         } catch (XPathException ex) {
             LOG.error(ex.getMessage());

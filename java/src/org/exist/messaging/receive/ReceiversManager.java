@@ -33,7 +33,7 @@ public class ReceiversManager {
 
     private final static Logger LOG = Logger.getLogger(ReceiversManager.class);
 
-    private Map<String, Receiver> receivers = new HashMap<String, Receiver>();
+    private final Map<Integer, Receiver> receivers = new HashMap<Integer, Receiver>();
     private static ReceiversManager instance;
 
     private ReceiversManager() {
@@ -51,7 +51,7 @@ public class ReceiversManager {
     }
 
     /**
-     * Register receiver, a new unique kID is assigned..
+     * Register receiver, a new unique ID is assigned..
      *
      * @param receiver The receiver class
      *
@@ -72,7 +72,7 @@ public class ReceiversManager {
      *
      * @param id Identification of receiver
      */
-    public void remove(String id) {
+    public void remove(Integer id) {
         LOG.info(String.format("Remove receiver %s", id));
         receivers.remove(id);
     }
@@ -83,7 +83,7 @@ public class ReceiversManager {
      * @param id Identification of receiver
      * @return The receiver
      */
-    public Receiver get(String id) {
+    public Receiver get(Integer id) {
         return receivers.get(id);
     }
 
@@ -92,7 +92,7 @@ public class ReceiversManager {
      *
      * @return Receiver IDs.
      */
-    public Set<String> getIds() {
+    public Set<Integer> getIds() {
         return receivers.keySet();
     }
 

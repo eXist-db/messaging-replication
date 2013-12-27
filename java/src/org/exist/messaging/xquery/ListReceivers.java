@@ -71,8 +71,8 @@ public class ListReceivers extends BasicFunction {
         ValueSequence returnSequence = new ValueSequence();
         
         // Collect IDs
-        for(String id : manager.getIds()){
-            returnSequence.add( new StringValue(id) );
+        for (Integer id : manager.getIds()) {
+            returnSequence.add(new IntegerValue(id));
         }
         
         // Return IDs
