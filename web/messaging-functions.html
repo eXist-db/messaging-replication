@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
+    <div class="span12">
+        <h1>Messaging: XQuery functions</h1>
+        <p>For more details on the functions please consult the <a href="https://github.com/eXist-db/messaging-replication/wiki/Messaging">wiki</a>.</p>
+        <section>
+            <h2>Send Message</h2>
+            An example can be found <a href="messaging-send.html">here</a>.
+            <div class="code" data-language="xquery">
+(: Send message :)
+jms:send(
+        $content as item(), $jmsMessageProperties as map(*)?, 
+        $jmsConfiguration as map(*)
+    )</div>
+        </section>
+        <section>
+            <h2>Register Receiver</h2>
+             An example can be found <a href="messaging-register.html">here</a>.
+            <div class="code" data-language="xquery">
+(: Register and start receiver :)
+jms:register(
+            $callback as function(*), $additionalParameters as item()*, 
+            $jmsConfiguration as map(*)
+        )</div>
+            <div class="code" data-language="xquery">
+(: Blue print for HoF for processing incoming messages :)
+handleMessage(
+            $content as item(), $additionalParameters as item()*,  
+            $messageProperties as map(*), $jmsConfiguration as map(*)
+        )</div>
+        </section>
+        <section>
+            <h2>Management Functions</h2>
+            An example can be found <a href="messaging-manage.html">here</a>.
+            <div class="code" data-language="xquery">
+(: List all receivers :)
+jms:list() as xs:integer*</div>
+            <div class="code" data-language="xquery">
+(: Get detailed information of a receiver :)            
+jms:report($id as xs:integer) as node()</div>
+            <div class="code" data-language="xquery">
+(: Start a receiver :)  
+jms:start($id as xs:integer)</div>
+            <div class="code" data-language="xquery">
+(: Stop a receiver :)  
+jms:stop($id as xs:integer)</div>
+            <div class="code" data-language="xquery">
+(: Close a receiver :)  
+jms:close($id as xs:integer)</div>
+        </section>
+    </div>
+</div>

@@ -3,38 +3,29 @@
     <div class="span9">
         <h1 data-template="config:app-title">Generated page</h1>
         <section>
-            This extension provides messaging and document replication functions for the eXist XML database.<br/>
+            <p>This extension provides messaging functions and a document replication feature for the eXist XML database.</p>
             <ul>
-                <li>The messaging xquery extension functions alows to send and asynchronously receive JMS messages to/from a message broker.</li>
-                <li>The document replication feature asynchronously copies and transports documents to other eXist-db instances.</li>
+                <li>With the messaging xquery extension functions it is possible to send to a message broker and (asynchronously) receive messages from a message broker.</li>
+                <li>The document replication feature can asynchronously copy and transport documents from one eXist-db instance to one or more other eXist-db instances.</li>
             </ul>
-            Both features use the <a href="http://en.wikipedia.org/wiki/Java_Message_Service">Java Messaging Services</a> standard to send and receive data.
+            The features rely on the <a href="http://en.wikipedia.org/wiki/Java_Message_Service">Java Messaging Services</a> (JMS) technology and have been developed using the <a href="http://activemq.apache.org">ActiveMQ</a> message broker.
+        </section>
+        <img src="resources/images/activemq-logo.png"/>
+        <section>
         </section>
         <section>
-            <h2>Register Receiver</h2>
-            <div class="code" data-language="xquery">jms:register(
-            $callback as function(*), $additionalParameters as item()*, 
-            $jmsConfiguration as map(*)
-        )</div>
-            <div class="code" data-language="xquery">handleMessage(
-            $content as item(), $additionalParameters as item()*,  
-            $messageProperties as map(*), $jmsConfiguration as map(*)
-        )</div>
-        </section>
-        <section>
-            <h2>Send Message</h2>
-            <div class="code" data-language="xquery">jms:send(
-        $content as item(), $jmsMessageProperties as map(*)?, 
-        $jmsConfiguration as map(*)
-    )</div>
-        </section>
-        <section>
-            <h2>Other Functions</h2>
-            <div class="code" data-language="xquery">jms:list() as xs:string*</div>
-            <div class="code" data-language="xquery">jms:report($id as xs:string) as node()</div>
-            <div class="code" data-language="xquery">jms:start($id as xs:string)</div>
-            <div class="code" data-language="xquery">jms:stop($id as xs:string)</div>
-            <div class="code" data-language="xquery">jms:close($id as xs:string)</div>
+            <p>The <a href="messaging-functions.html">XQuery messaging functions</a> can be used from xquery code. A number of examples are provided under the Messaging menu item.</p>
+            <p>Document replication is implemented using two types of triggers:
+        <ul>
+                    <li>
+        Replication triggers are fired when a document is stored or updated. These triggers are defined per collection using a <a href="replication-producer.html">collection.xconf</a> document. </li>
+                    <li>A startup trigger starts a JMS listener in order to receive replicated documents. This trigger must be defined in the <a href="replication-consumer.html">conf.xml</a> configuration file.</li>
+                </ul>
+
+        The messaging functions and the replication feature share the same <a href="configuration.html">configuration</a> parameters.
+        </p>
+            <p>Documentation can be found on the <a href="https://github.com/eXist-db/messaging-replication/wiki">GitHub wiki</a>
+                <i class="icon-info-sign"/>.</p>
         </section>
     </div>
     <div class="span3"/>

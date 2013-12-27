@@ -101,3 +101,7 @@ table .following {
     margin-left: 30px;
     display: none;
 }
+
+/* scrollable table */
+.bodycontainer { max-height: 200px; width: 100%; margin: 0; overflow-y: auto; }
+.table-scrollable { margin: 0; padding: 0; }

@@ -3,6 +3,9 @@
     <div class="span12">
         <h1>Messaging: configuration</h1>
         <section>
+            <p>
+        The following configuration parameters are used by the messaging functions and the replication feature.
+        </p>
             <table class="table table-hover table-striped table-bordered">
                 <caption>Mandatory configuration properties</caption>
                 <thead>
@@ -115,7 +118,8 @@
                         </td>
                     </tr-->
                     <tr>
-                        <td>subscriber.name</td>
+                        <td>subscriber.name <i class="icon-exclamation-sign"/>
+                        </td>
                         <td>Name used to identify this subscription, required for Topics.</td>
                         <td>
                             <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Session.html#createDurableSubscriber(javax.jms.Topic,%20java.lang.String,%20java.lang.String,%20boolean)">Javadoc</a>
