@@ -54,8 +54,26 @@
         xmlns:ivy="antlib:org.apache.ivy.ant">
         <ivy:retrieve sync="true" pattern="${java.libs}/[artifact]-[revision](-[classifier]).[ext]"/>
     </target>
+	
+    <target name="process" description="Process template files">
+		<copy file="config/application/expath-pkg.xml.tmpl" tofile="config/application/expath-pkg.xml">
+			<filterset>
+			      <filter token="VERSION" value="${project.version}"/>
+			 </filterset>
+		</copy>
+		<copy file="config/library/expath-pkg.xml.tmpl" tofile="config/library/expath-pkg.xml">
+			<filterset>
+			      <filter token="VERSION" value="${project.version}"/>
+			 </filterset>
+		</copy>
+		<copy file="config/library/exist.xml.tmpl" tofile="config/library/exist.xml">
+			<filterset>
+			      <filter token="VERSION" value="${project.version}"/>
+			 </filterset>
+		</copy>
+    </target>
 
-    <target name="prepare" description="Create empty directories">
+    <target name="prepare" depends="process" description="Create empty directories">
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.libs}"/>
         <mkdir dir="${java.classes}"/>

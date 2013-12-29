@@ -3,7 +3,7 @@
     <description>Messaging and Replication - JMS libraries</description>
     <author>Dannes Wessels</author>
     <website>https://github.com/eXist-db/messaging-replication</website>
-    <status>alpha</status>
+    <status>beta</status>
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>library</type>
