@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>Description</description>
+    <description>Messaging and Replication</description>
     <author>Dannes Wessels</author>
-    <website>http://www.exist-db.org</website>
+    <website>https://github.com/eXist-db/messaging-replication</website>
     <status>alpha</status>
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
