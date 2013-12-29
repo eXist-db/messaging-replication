@@ -1,3 +1,5 @@
 build
 dist
 java/lib
+config/application/expath-pkg.xml
+config/library/exist.xml
