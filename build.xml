@@ -74,6 +74,7 @@
     </target>
 
     <target name="prepare" depends="process" description="Create empty directories">
+		<tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.libs}"/>
         <mkdir dir="${java.classes}"/>
@@ -96,10 +97,11 @@
 
     <target name="compile" depends="prepare,download" description="Compile java sources">
         <javac srcdir="${java.src}" destdir="${java.classes}" optimize="true" debug="true"
-            target="1.6" source="1.6" includeantruntime="false">
+            target="${javac.target}" source="${javac.source}" includeantruntime="false">
             <classpath>
                 <path refid="classpath"/>
             </classpath>
+			<!-- <compilerarg value="-Xlint"/> -->
         </javac>
     </target>
 
