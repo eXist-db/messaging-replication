@@ -21,6 +21,8 @@
  */
 package org.exist.replication.shared;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import org.apache.log4j.Logger;
@@ -34,8 +36,22 @@ public class JmsConnectionExceptionListener implements ExceptionListener {
     
     private final static Logger LOG = Logger.getLogger(JmsConnectionExceptionListener.class);
 
+    private final List<JMSException> exceptions = new ArrayList<JMSException>();
+
+    /**
+     * Return all available exceptions
+     *
+     * @return List of JMSExceptions.
+     */
+    public List<JMSException> getExceptions() {
+        return exceptions;
+    }
+
     @Override
     public void onException(JMSException jmse) {
+
+        // Store exception for reporting
+        exceptions.add(jmse);
         
         // Report exception
         StringBuilder sb = new StringBuilder();

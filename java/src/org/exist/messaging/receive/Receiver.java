@@ -79,7 +79,7 @@ public class Receiver {
      * The JMS listeners
      */
     private eXistMessageListener messageListener = null;
-    private ExceptionListener exceptionListener = null;
+    private JmsConnectionExceptionListener exceptionListener = null;
     /*
      * 
      */
@@ -426,7 +426,9 @@ public class Receiver {
              * Error reporting
              */
             List<String> listenerErrors = messageListener.getReport().getErrors();
-            if (!listenerErrors.isEmpty() || !errors.isEmpty()) {
+            List<JMSException> jmsConnectionExceptions = exceptionListener.getExceptions();
+
+            if (!listenerErrors.isEmpty() || !errors.isEmpty() || !jmsConnectionExceptions.isEmpty()) {
                 builder.startElement("", "errorMessages", "errorMessages", null);
 
                 if (!listenerErrors.isEmpty()) {
@@ -447,6 +449,23 @@ public class Receiver {
                     }
 
                 }
+
+                if (!jmsConnectionExceptions.isEmpty()) {
+                    for (JMSException ex : jmsConnectionExceptions) {
+                        builder.startElement("", "error", "error", null);
+                        builder.addAttribute(new QName("src", null, null), "connection");
+
+                        String msg = ex.getMessage();
+                        if (ex.getErrorCode() != null) {
+                            msg = msg + " (code=" + ex.getErrorCode() + ")";
+                        }
+
+                        builder.characters(msg);
+                        builder.endElement();
+                    }
+
+                }
+
 
                 builder.endElement();
             }
