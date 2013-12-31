@@ -6,6 +6,9 @@
             <p>
         The following configuration parameters are used by the messaging functions and the replication feature.
         </p>
+            <h2>Mandatory configuration properties</h2>
+            <p>
+            The following properties need to be set for each connection: messaging and replication, by producer (master) and consumer (slave).</p>
             <table class="table table-hover table-striped table-bordered">
                 <caption>Mandatory configuration properties</caption>
                 <thead>
@@ -51,6 +54,10 @@
                     </tr>
                 </tbody>
             </table>
+            <p/>
+            <h2>Optional configuration properties</h2>
+            <p>
+            The following properties are optional and can be used to fine-tune the connection. Note that 'subscriber.name' is required when connecting to a Topic.</p>
             <table class="table table-hover table-striped table-bordered">
                 <caption>Optional configuration properties</caption>
                 <thead>
@@ -123,6 +130,28 @@
                         <td>Name used to identify this subscription, required for Topics.</td>
                         <td>
                             <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Session.html#createDurableSubscriber(javax.jms.Topic,%20java.lang.String,%20java.lang.String,%20boolean)">Javadoc</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <p/>
+            <h2>Advanced configuration properties</h2>
+            <p>Use the following properties with care.</p>
+            <table class="table table-hover table-striped table-bordered">
+                <caption>Advanced options</caption>
+                <thead>
+                    <tr>
+                        <th>Parameter</th>
+                        <th>Description</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>exist.connection.pool</td>
+                        <td>Enable connection pooling and reuse JMS objects. Valid value is "yes" or "true". For ActiveMQ only.</td>
+                        <td>
+                            <a href="http://activemq.apache.org/maven/apidocs/org/apache/activemq/pool/PooledConnectionFactory.html">Javadoc</a>
                         </td>
                     </tr>
                 </tbody>
