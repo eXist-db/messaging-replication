@@ -58,17 +58,32 @@
     <target name="process" description="Process template files">
 		<copy file="config/application/expath-pkg.xml.tmpl" tofile="config/application/expath-pkg.xml">
 			<filterset>
-			      <filter token="VERSION" value="${project.version}"/>
+			      <filter token="VERSION" value="${module.version}"/>
+				  <filter token="TITLE" value="${module.title}"/>
+			 </filterset>
+		</copy>
+		<copy file="config/application/repo.xml.tmpl" tofile="config/application/repo.xml">
+			<filterset>
+			      <filter token="VERSION" value="${module.version}"/>
+				  <filter token="TITLE" value="${module.title}"/>
 			 </filterset>
 		</copy>
 		<copy file="config/library/expath-pkg.xml.tmpl" tofile="config/library/expath-pkg.xml">
 			<filterset>
-			      <filter token="VERSION" value="${project.version}"/>
+			      <filter token="VERSION" value="${module.version}"/>
+				  <filter token="TITLE" value="${module.title}"/>
 			 </filterset>
 		</copy>
 		<copy file="config/library/exist.xml.tmpl" tofile="config/library/exist.xml">
 			<filterset>
-			      <filter token="VERSION" value="${project.version}"/>
+			      <filter token="VERSION" value="${module.version}"/>
+				  <filter token="TITLE" value="${module.title}"/>
+			 </filterset>
+		</copy>
+		<copy file="config/library/repo.xml.tmpl" tofile="config/library/repo.xml">
+			<filterset>
+			      <filter token="VERSION" value="${module.version}"/>
+				  <filter token="TITLE" value="${module.title}"/>
 			 </filterset>
 		</copy>
     </target>
@@ -85,9 +100,8 @@
         <delete dir="${build.dir}" includes="*.jar"/>
         <delete dir="${build.dir}/classes"/>
         <delete dir="${dist.dir}"/>
-		<delete file="config/application/expath-pkg.xml"/>
-		<delete file="config/library/exist.xml"/>
-		<delete file="config/library/expath-pkg.xml"/>
+		<delete dir="config/application" includes="*.xml"/>
+		<delete dir="library/application" includes="*.xml"/>
     </target>
 
     <target name="clean-all" depends="clean" description="Reset to clean state">
@@ -106,10 +120,10 @@
     </target>
 
     <target name="jar" depends="compile" description="Create JAR file">
-        <jar basedir="${java.classes}" jarfile="${build.dir}/exist-${project.name}-${project.version}.jar">
+        <jar basedir="${java.classes}" jarfile="${build.dir}/exist-${module.name}-${module.version}.jar">
             <manifest>
-                <attribute name="Project-Name" value="${project.name}"/>
-                <attribute name="Project-Version" value="${project.version}"/>
+                <attribute name="Project-Name" value="${module.name}"/>
+                <attribute name="Project-Version" value="${module.version}"/>
                 <attribute name="Project-Build" value="${DSTAMP}"/>
             </manifest>
         </jar>
@@ -118,13 +132,13 @@
     <target name="xar" depends="jar" description="Create XAR files">
         
         <!-- create web application -->
-        <zip destfile="${dist.dir}/${project.name}-${project.version}.xar">
+        <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
             <fileset dir="${web.dir}"/>
             <zipfileset dir="${config.dir}/application" includes="*.xml"/>
         </zip>
         
         <!-- create library -->
-        <zip destfile="${dist.dir}/${project.name}-lib-${project.version}.xar">
+        <zip destfile="${dist.dir}/${module.name}-lib-${module.version}.xar">
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="jms-lib"/>
             <zipfileset dir="${java.libs}" prefix="jms-lib">
                 <include name="*.jar"/>
@@ -136,7 +150,7 @@
     </target>
     
     <target name="install" description="Install jar files into ${exist.dir}/lib/extensions">
-        <copy file="${build.dir}/exist-${project.name}-${project.version}.jar" todir="${exist.dir}/lib/user"/>
+        <copy file="${build.dir}/exist-${module.name}-${module.version}.jar" todir="${exist.dir}/lib/user"/>
         
         <copy todir="${exist.dir}/lib/user">
             <fileset dir="${java.libs}" includes="*.jar" excludes="*sources*,*javadoc*"/>
