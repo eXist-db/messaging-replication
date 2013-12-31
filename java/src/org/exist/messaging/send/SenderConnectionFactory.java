@@ -49,7 +49,8 @@ class SenderConnectionFactory {
         // Get CF
         ConnectionFactory retVal = connectionFactories.get(brokerURL);
 
-        if (StringUtils.isBlank(className) || "yes".equals(className) || "activemq".equals(className)) {
+        if (StringUtils.isBlank(className) || "yes".equalsIgnoreCase(className)
+                || "true".equalsIgnoreCase(className) || "activemq".equalsIgnoreCase(className)) {
             className = ACTIVEMQ_POOLED_CONNECTION_FACTORY;
         }
 
