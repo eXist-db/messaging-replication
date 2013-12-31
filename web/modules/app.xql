@@ -21,7 +21,7 @@ declare function app:test($node as node(), $model as map(*)) {
 };
 
 declare function app:show($node as node(), $model as map(*)) {
-    <div class="bodycontainer scrollable">
+
     <table id="manageTable" class="table table-striped table-hoover table-bordered table-condensed tablesorter table-scrollable">
     <thead>
         <tr>
@@ -32,6 +32,7 @@ declare function app:show($node as node(), $model as map(*)) {
     {                    
         for $id in jms:list()
         let $report := jms:report($id)
+        let $nrErrors := count($report/errorMessages/error)
         return
             <tr>
             <td>{data($report/@id)}</td>
@@ -43,19 +44,18 @@ declare function app:show($node as node(), $model as map(*)) {
             <td>{data($report/statistics/nrProcessedMessages)}</td>
             <td>{data($report/statistics/nrUnprocessedMessages)}</td>
             
-            <td>{ 
-                let $nrErrors := count($report/errorMessages/error)
-                return
+            <td style="{ if($nrErrors eq 0) then '' else  'background-color:#f2dede;'}">{ 
+
                 if($nrErrors eq 0) 
                 then
                    $nrErrors 
                 else
-                    <div><a id="error" href="#" data-html="true" data-toggle="tooltip" title="{data($report/errorMessages/error)}">{$nrErrors}bbb</a></div>
+                    <a id="error" href="#" data-html="true" data-toggle="tooltip" title="{data($report/errorMessages/error)}">{$nrErrors}</a>
             }</td>
             <td><i class="icon-info-sign"/></td>
             </tr>
     } 
     </tbody>
     </table>
-    </div>
+
 };
