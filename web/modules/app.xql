@@ -25,11 +25,11 @@ declare function app:executeAction($node as node(), $model as map(*), $action as
     <div>{ 
         
         try {
-        switch ($action) 
-           case "start" return jms:start($receiver)
-           case "stop"  return jms:stop($receiver)
-           case "close" return jms:close($receiver)
-           default return "unknown action"
+            switch ($action) 
+               case "start" return jms:start($receiver)
+               case "stop"  return jms:stop($receiver)
+               case "close" return jms:close($receiver)
+               default return "unknown action"
         } catch * {
             <div class="alert alert-error">
             {$err:description}
@@ -43,10 +43,13 @@ declare function app:executeAction($node as node(), $model as map(*), $action as
 declare function app:showReport($node as node(), $model as map(*), $show as xs:string, $receiver as xs:int) {
     
     <div>{ 
-        
+        try {
         let $report := jms:report($receiver)
         return 
             <div>
+                <!--div>                    <a title="Start Receiver" href="?action=start&amp;receiver={$receiver}&amp;show=report"><i class="icon-play"/></a> 
+                    <a title="Stop Receiver" href="?action=stop&amp;receiver={$receiver}&amp;show=report"><i class="icon-pause"/></a>  
+                    <<a title="Close Receiver" href="?action=close&amp;receiver={$receiver}&amp;show=report"><i class="icon-ban-circle"/></a>  </div-->
                 
             <table id="manageTable" class="table table-striped table-hoover table-bordered table-condensed tablesorter table-scrollable">
             <caption>JMS configuration</caption>
@@ -109,6 +112,11 @@ declare function app:showReport($node as node(), $model as map(*), $show as xs:s
                 
                  
         </div>
+        } catch * {
+            <div class="alert alert-error">
+            {$err:description}
+            </div> 
+        }
         }</div>
 };
 
