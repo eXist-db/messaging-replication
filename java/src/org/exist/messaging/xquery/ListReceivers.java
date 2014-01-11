@@ -58,9 +58,9 @@ public class ListReceivers extends BasicFunction {
 
         // User must either be DBA or in the JMS group
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'", Constants.JMS_GROUP, context.getSubject().getName());
+            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'", context.getSubject().getName(), Constants.JMS_GROUP);
             XPathException ex = new XPathException(this, txt);
-            LOG.error(txt, ex);
+            LOG.error(txt);
             throw ex;
         }
     
