@@ -4,14 +4,11 @@ package org.exist.messaging.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- *
- * @author wessels
- */
 
 /**
- *
- * @author wessels
+ * Reporting class
+ * 
+ * @author Dannes Wessels
  */
 public class Report {
 
