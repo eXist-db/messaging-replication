@@ -321,7 +321,10 @@ System.out.println("ack");
             } else {             
                 String value = msg.getStringProperty(key);
                 addStringKV(map, key, value);
-                LOG.debug(String.format("Unable to convert '%s'/'%s' into a map. Falling back to String value", key, value));
+                
+                if(LOG.isDebugEnabled()){
+                    LOG.debug(String.format("Unable to convert '%s'/'%s' into a map. Falling back to String value", key, value));
+                }
             }
 
         }
