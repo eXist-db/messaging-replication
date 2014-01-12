@@ -26,25 +26,38 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
-
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.ObjectMessage;
+import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-
 import org.apache.log4j.Logger;
 
+import org.exist.EXistException;
 import org.exist.Namespaces;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
+
+import static org.exist.messaging.shared.Constants.COMPRESSION_TYPE_GZIP;
+import static org.exist.messaging.shared.Constants.DATA_TYPE_XML;
+import static org.exist.messaging.shared.Constants.EXIST_DATA_TYPE;
+import static org.exist.messaging.shared.Constants.EXIST_DOCUMENT_COMPRESSION;
+import static org.exist.messaging.shared.Constants.JMS_CORRELATION_ID;
+import static org.exist.messaging.shared.Constants.JMS_EXPIRATION;
+import static org.exist.messaging.shared.Constants.JMS_MESSAGE_ID;
+import static org.exist.messaging.shared.Constants.JMS_PRIORITY;
+import static org.exist.messaging.shared.Constants.JMS_TIMESTAMP;
+import static org.exist.messaging.shared.Constants.JMS_TYPE;
+
+import org.exist.messaging.shared.Report;
+import org.exist.messaging.shared.eXistMessageListener;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.validation.ValidationReport;
@@ -62,11 +75,6 @@ import org.exist.xquery.value.IntegerValue;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.StringValue;
 import org.exist.xquery.value.ValueSequence;
-
-import static org.exist.messaging.shared.Constants.*;
-import org.exist.messaging.shared.Report;
-import org.exist.messaging.shared.eXistMessageListener;
-
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -84,6 +92,12 @@ public class MessagingJmsListener implements eXistMessageListener {
     private final Sequence functionParams;
     
     private final Report report = new Report();
+    
+    private Session session;
+    
+    public void setSession(Session session){
+        this.session=session;
+    }
 
     public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
@@ -188,7 +202,10 @@ public class MessagingJmsListener implements eXistMessageListener {
             params[3] = jmsProperties;
 
             // Execute callback function
+            LOG.info("Eval");
+System.out.println("callEval----");
             Sequence result = functionReference.evalFunction(null, null, params);
+System.out.println("callEval done " + result);
 
             // Done
             if (LOG.isDebugEnabled()) {
@@ -196,6 +213,7 @@ public class MessagingJmsListener implements eXistMessageListener {
             }
 
             // Acknowledge processing
+System.out.println("ack");
             msg.acknowledge();
 
             // Update statistics
@@ -204,14 +222,52 @@ public class MessagingJmsListener implements eXistMessageListener {
         } catch (JMSException ex) {
             report.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (JMSException ex1) {
+                System.out.println(ex1.getMessage());
+            }
+//            throw new RuntimeException(ex.getMessage());
 
         } catch (XPathException ex) {
             report.add(ex.getMessage());
             LOG.error(ex);
+            try {
+                session.close();
+            } catch (JMSException ex1) {
+                System.out.println(ex1.getMessage());
+            }
+//            throw new RuntimeException(ex.getMessage());
 
-        } catch (Throwable ex) {
+        } catch (IOException ex) {
             report.add(ex.getMessage());
             LOG.error(ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (JMSException ex1) {
+                System.out.println(ex1.getMessage());
+            }
+//            throw new RuntimeException(ex.getMessage());
+
+       
+        } catch (EXistException ex) {
+            report.add(ex.getMessage());
+            LOG.error(ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (JMSException ex1) {
+                System.out.println(ex1.getMessage());
+            }
+//            throw new RuntimeException(ex.getMessage());
+} catch (Throwable ex) {
+            report.add(ex.getMessage());
+            LOG.error(ex.getMessage(), ex);
+            try {
+                session.close();
+            } catch (JMSException ex1) {
+                System.out.println(ex1.getMessage());
+            }
+//            throw new RuntimeException(ex.getMessage());
 
         } finally {
             // Cleanup resources

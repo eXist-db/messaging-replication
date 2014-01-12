@@ -30,6 +30,7 @@ import java.util.zip.GZIPInputStream;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.jms.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
@@ -987,5 +988,10 @@ public class ReplicationJmsListener implements eXistMessageListener {
     @Override
     public String getUsageType() {
         return "replication";
+    }
+
+    @Override
+    public void setSession(Session session) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

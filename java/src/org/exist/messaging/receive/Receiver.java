@@ -203,7 +203,7 @@ public class Receiver {
             }
 
             // Setup session
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
             // Setup destination
             destination = (Destination) initialContext.lookup(jmsConfig.getDestination());
@@ -226,6 +226,7 @@ public class Receiver {
             }
             
             // Register listener
+            messageListener.setSession(session);
             messageConsumer.setMessageListener(messageListener);
 
             if (LOG.isDebugEnabled()) {
@@ -485,7 +486,7 @@ public class Receiver {
             builder.characters(duration.toString());
             builder.endElement();
 
-            builder.startElement("", "nrUnprocessedMessages", "nrUnprocessedMessages", null);
+            builder.startElement("", "nrFailedMessages", "nrFailedMessages", null);
             builder.characters("" + stats.getMessageCounterNOK());
             builder.endElement();
 
