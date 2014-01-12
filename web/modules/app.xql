@@ -85,9 +85,9 @@ declare function app:showReport($node as node(), $model as map(*), $show as xs:s
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><th>nrProcessedMessages</th><td>{data($report/statistics/nrProcessedMessages)}</td></tr>
-                    <tr><th>nrUnprocessedMessages</th><td>{data($report/statistics/nrUnprocessedMessages)}</td></tr>
-                    <tr><th>cumulativeProcessingTime</th><td>{data($report/statistics/cumulativeProcessingTime)}</td></tr>
+                    <tr><th>Number of messages</th><td>{data($report/statistics/nrProcessedMessages)}</td></tr>
+                    <tr><th>Nr of failed messages</th><td>{data($report/statistics/nrFailedMessages)}</td></tr>
+                    <tr><th>Cumulative processing time</th><td>{data($report/statistics/cumulativeProcessingTime)}</td></tr>
                 </tbody>
                 </table>
             <p/>
@@ -127,7 +127,7 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
         <table id="manageTable" class="table table-striped table-hoover table-bordered table-condensed tablesorter table-scrollable">
         <thead>
             <tr>
-                <th>Id</th><th>State</th><th>Action</th><th>URL</th><th>Destination</th><th>Client-id</th><th>P</th><th>F</th><th>E</th>
+                <th>Id</th><th>State</th><th>Action</th><th>URL</th><th>Destination</th><th>Client-id</th><th title="Number of messages">#</th><th title="Number of failed messages">F</th><th title="Number of errors">E</th>
             </tr>
         </thead>
         <tbody>
@@ -151,7 +151,7 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
                 <td>{data($report/destination)}</td>
                 <td>{data($report/connection.client-id)}</td>
                 <td>{data($report/statistics/nrProcessedMessages)}</td>
-                <td>{data($report/statistics/nrUnprocessedMessages)}</td>
+                <td>{data($report/statistics/nrFailedMessages)}</td>
                 
                 <td style="{ if($nrErrors eq 0) then '' else  'background-color:#f2dede;'}">{ 
     
