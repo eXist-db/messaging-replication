@@ -994,4 +994,9 @@ public class ReplicationJmsListener implements eXistMessageListener {
     public void setSession(Session session) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public void setIdentification(String id) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

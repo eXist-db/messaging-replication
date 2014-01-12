@@ -114,6 +114,8 @@ public class Receiver {
 
         // Uniq ID for Receiver
         id = createNewId();
+        
+        listener.setIdentification(""+id);
 
         // Initialing XML datafactory
         try {

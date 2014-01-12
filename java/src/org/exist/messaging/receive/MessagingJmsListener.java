@@ -94,9 +94,14 @@ public class MessagingJmsListener implements eXistMessageListener {
     private final Report report = new Report();
     
     private Session session;
+    private String id="?";
     
     public void setSession(Session session){
         this.session=session;
+    }
+    
+    public void setIdentification(String id){
+        this.id=id;
     }
 
     public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
@@ -108,20 +113,22 @@ public class MessagingJmsListener implements eXistMessageListener {
 
     @Override
     public void onMessage(Message msg) {
-
+        
+        String logString=String.format("{%s} ", id);
+        
         report.start();
 
         // Log incoming message
         try {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Received message: ID=%s JavaType=%s", msg.getJMSMessageID(), msg.getClass().getSimpleName()));
+                LOG.debug(String.format("%sReceived message: messageId=%s javaClass=%s", logString, msg.getJMSMessageID(), msg.getClass().getSimpleName()));
             } else {
-                LOG.info(String.format("Received message: ID=%s", msg.getJMSMessageID()));
+                LOG.info(String.format("%sReceived message: messageId=%s", logString, msg.getJMSMessageID()));
             }
 
         } catch (JMSException ex) {
             report.add(ex.getMessage());
-            LOG.error(ex.getMessage());
+            LOG.error(logString + ex.getMessage());
         }
 
         // Placeholder for broker
@@ -140,59 +147,9 @@ public class MessagingJmsListener implements eXistMessageListener {
             // Copy message and jms configuration details into Maptypes
             MapType msgProperties = getMessageProperties(msg, xqueryContext);
             MapType jmsProperties = getJmsProperties(msg, xqueryContext);
-
-            // This sequence shall contain the actual conten that will be passed
-            // to the callback function
-            Sequence content = null;
-
-            // Switch based on incoming
-            if (msg instanceof TextMessage) {
-
-                // xs:string values are passed as regular Text messages
-                content = new StringValue(((TextMessage) msg).getText());
-
-            } else if (msg instanceof ObjectMessage) {
-
-                // the supported other types are wrapped into a corresponding
-                // Java object inside the ObjectMessage
-                content = handleObjectMessage((ObjectMessage) msg);
-
-            } else if (msg instanceof BytesMessage) {
-
-                // XML nodes and base64 (binary) data are sent as an array of bytes
-                BytesMessage bm = (BytesMessage) msg;
-
-                // Read data into byte buffer
-                byte[] data = new byte[(int) bm.getBodyLength()];
-                bm.readBytes(data);
-
-                String value = msg.getStringProperty(EXIST_DOCUMENT_COMPRESSION);
-                boolean isCompressed = (StringUtils.isNotBlank(value) && COMPRESSION_TYPE_GZIP.equals(value));
-
-                // Serialize data
-                if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
-                    // XML(fragment)
-                    content = processXML(data, isCompressed);
-
-                } else {
-                    // Binary data
-                    InputStream is = new ByteArrayInputStream(data);
-
-                    if (isCompressed) {
-                        is = new GZIPInputStream(is);
-                    }
-                    BinaryValue bv = Base64BinaryDocument.getInstance(xqueryContext, is);
-                    content = bv;
-                    IOUtils.closeQuietly(is);
-                }
-
-            } else {
-                // Unsupported JMS message type
-                String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
-                report.add(txt);
-                LOG.error(txt);
-                throw new XPathException(txt);
-            }
+            
+            // Retrieve content of message
+            Sequence content = getContent(msg, logString);
 
             // Setup parameters callback function
             Sequence params[] = new Sequence[4];
@@ -202,72 +159,32 @@ public class MessagingJmsListener implements eXistMessageListener {
             params[3] = jmsProperties;
 
             // Execute callback function
-            LOG.info("Eval");
-System.out.println("callEval----");
+            LOG.debug(logString + "call evalFunction");
             Sequence result = functionReference.evalFunction(null, null, params);
-System.out.println("callEval done " + result);
 
             // Done
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("Function returned %s", result.getStringValue()));
+                LOG.debug(String.format("$sFunction returned %s", logString, result.getStringValue()));
             }
 
             // Acknowledge processing
-System.out.println("ack");
+            LOG.debug(logString + "call acknowledge");
             msg.acknowledge();
 
             // Update statistics
             report.incMessageCounterOK();
 
-        } catch (JMSException ex) {
+        } catch (Throwable ex) {
             report.add(ex.getMessage());
-            LOG.error(ex.getMessage(), ex);
+            LOG.error(logString + ex.getMessage());
             try {
                 session.close();
             } catch (JMSException ex1) {
-                System.out.println(ex1.getMessage());
+                 LOG.error(logString + ex1.getMessage());
             }
-//            throw new RuntimeException(ex.getMessage());
-
-        } catch (XPathException ex) {
-            report.add(ex.getMessage());
-            LOG.error(ex);
-            try {
-                session.close();
-            } catch (JMSException ex1) {
-                System.out.println(ex1.getMessage());
-            }
-//            throw new RuntimeException(ex.getMessage());
-
-        } catch (IOException ex) {
-            report.add(ex.getMessage());
-            LOG.error(ex.getMessage(), ex);
-            try {
-                session.close();
-            } catch (JMSException ex1) {
-                System.out.println(ex1.getMessage());
-            }
-//            throw new RuntimeException(ex.getMessage());
-
-       
-        } catch (EXistException ex) {
-            report.add(ex.getMessage());
-            LOG.error(ex.getMessage(), ex);
-            try {
-                session.close();
-            } catch (JMSException ex1) {
-                System.out.println(ex1.getMessage());
-            }
-//            throw new RuntimeException(ex.getMessage());
-} catch (Throwable ex) {
-            report.add(ex.getMessage());
-            LOG.error(ex.getMessage(), ex);
-            try {
-                session.close();
-            } catch (JMSException ex1) {
-                System.out.println(ex1.getMessage());
-            }
-//            throw new RuntimeException(ex.getMessage());
+            
+            // DW: Not needed anymore?
+            // throw new RuntimeException(ex.getMessage());
 
         } finally {
             // Cleanup resources
@@ -283,7 +200,80 @@ System.out.println("ack");
 
     }
 
+    /**
+     *  Convert JMS message into a sequence of data.
+     * 
+     * @param msg The JMS message object
+     * @param logString Additional information used in logging
+     * @return Sequence representing the JMS message
+     * 
+     * @throws IOException    An internal IO error occurred.
+     * @throws XPathException An eXist-db object could not be  handled.
+     * @throws JMSException   A problem occurred handling an JMS object.
+     */
+    private Sequence getContent(Message msg, String logString) throws IOException, XPathException, JMSException {
+        // This sequence shall contain the actual conten that will be passed
+        // to the callback function
+        Sequence content = null;
+        
+        // Switch based on type incoming object
+        if (msg instanceof TextMessage) {
+            
+            // xs:string values are passed as regular Text messages
+            content = new StringValue(((TextMessage) msg).getText());
+            
+        } else if (msg instanceof ObjectMessage) {
+            
+            // the supported other types are wrapped into a corresponding
+            // Java object inside the ObjectMessage
+            content = handleObjectMessage((ObjectMessage) msg);
+            
+        } else if (msg instanceof BytesMessage) {
+            
+            // XML nodes and base64 (binary) data are sent as an array of bytes
+            BytesMessage bm = (BytesMessage) msg;
+            
+            // Read data into byte buffer
+            byte[] data = new byte[(int) bm.getBodyLength()];
+            bm.readBytes(data);
+            
+            String value = msg.getStringProperty(EXIST_DOCUMENT_COMPRESSION);
+            boolean isCompressed = (StringUtils.isNotBlank(value) && COMPRESSION_TYPE_GZIP.equals(value));
+            
+            // Serialize data
+            if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
+                // XML(fragment)
+                content = processXML(data, isCompressed);
+                
+            } else {
+                // Binary data
+                InputStream is = new ByteArrayInputStream(data);
+                
+                if (isCompressed) {
+                    is = new GZIPInputStream(is);
+                }
+                BinaryValue bv = Base64BinaryDocument.getInstance(xqueryContext, is);
+                content = bv;
+                IOUtils.closeQuietly(is);
+            }
+            
+        } else {
+            // Unsupported JMS message type
+            String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
+            report.add(txt);
+            LOG.error(logString + txt);
+            throw new XPathException(txt);
+        }
+        return content;
+    }
 
+    /**
+     *  Convert JMS message properties into an eXist-db map.
+     * 
+     * @param msg The JMS message
+     * @param xqueryContext eXist-db query context
+     * @return eXist-db map containing the properties
+     */
     private MapType getMessageProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
         // Copy property values into Maptype
         MapType map = new MapType(xqueryContext);
@@ -331,6 +321,13 @@ System.out.println("ack");
         return map;
     }
 
+    /**
+     *  Convert JMS connection properties into an eXist-db map.
+     * 
+     * @param msg The JMS message
+     * @param xqueryContext eXist-db query context
+     * @return eXist-db map containing the properties
+     */
     private MapType getJmsProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
         // Copy property values into Maptype
         MapType map = new MapType(xqueryContext);
@@ -345,12 +342,30 @@ System.out.println("ack");
         return map;
     }
 
+     /**
+     *  Add key-value pair to map.
+     * 
+     * @param map Target for key-value data.
+     * @param key The key value to retrieve the data.
+     * @param value Data corresponding to the key.
+     * 
+     * @throws XPathException A map operation failed.
+     */
     private void addStringKV(MapType map, String key, String value) throws XPathException {
         if (map != null && key != null && !key.isEmpty() && value != null) {
             map.add(new StringValue(key), new ValueSequence(new StringValue(value)));
         }
     }
     
+    /**
+     *  Add key-value pair to map.
+     * 
+     * @param map Target for key-value data.
+     * @param key The key value to retrieve the data.
+     * @param valueSequence Data corresponding to the key.
+     * 
+     * @throws XPathException A map operation failed.
+     */
     private void addKV(MapType map, String key, ValueSequence valueSequence) throws XPathException {
         if (map != null && StringUtils.isNotBlank(key) && valueSequence != null) {
             map.add(new StringValue(key), valueSequence);    
@@ -358,6 +373,8 @@ System.out.println("ack");
     }
 
     /**
+     * Convert JMS' objectmessage into an Xquery sequence with one value.
+     * 
      * @throws JMSException if the JMS provider fails to set the object due to some internal error.
      * @throws XPathException Object type is not supported.
      */
@@ -390,6 +407,16 @@ System.out.println("ack");
         return content;
     }
 
+    /**
+     * Parse an byte-array containing (compressed) XML data into
+     * an eXist-db document.
+     * 
+     * @param data      Byte array containg the XML data.
+     * @param isGzipped Set TRUE is data is in GZIP format
+     * @return  Sequence containing the XML as DocumentImpl
+     * 
+     * @throws XPathException Something bad happened.
+     */
     private Sequence processXML(byte[] data, boolean isGzipped) throws XPathException {
 
         Sequence content = null;
@@ -402,7 +429,7 @@ System.out.println("ack");
                 is = new GZIPInputStream(is);
             }
 
-            final ValidationReport report = new ValidationReport();
+            final ValidationReport validationReport = new ValidationReport();
             final SAXAdapter adapter = new SAXAdapter(xqueryContext);
             final SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -410,7 +437,7 @@ System.out.println("ack");
             final SAXParser parser = factory.newSAXParser();
             XMLReader xr = parser.getXMLReader();
 
-            xr.setErrorHandler(report);
+            xr.setErrorHandler(validationReport);
             xr.setContentHandler(adapter);
             xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
 
@@ -419,10 +446,10 @@ System.out.println("ack");
             // Cleanup
             IOUtils.closeQuietly(is);
 
-            if (report.isValid()) {
+            if (validationReport.isValid()) {
                 content = (DocumentImpl) adapter.getDocument();
             } else {
-                String txt = String.format("Received document is not valid: %s", report.toString());
+                String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);
                 throw new XPathException(txt);
             }
@@ -443,6 +470,7 @@ System.out.println("ack");
         return content;
     }
 
+    @Override
     public Report getReport() {
         return report;
     }

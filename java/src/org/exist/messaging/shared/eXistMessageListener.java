@@ -50,4 +50,11 @@ public interface eXistMessageListener extends MessageListener {
      */
     public void setSession(Session session);
     
+    /**
+     *  Set human-friendly identifier, handy for debugging.
+     * 
+     * @param id Identifier
+     */
+    public void setIdentification(String id);
+    
 }
