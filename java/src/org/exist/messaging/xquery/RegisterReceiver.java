@@ -19,7 +19,6 @@
  */
 package org.exist.messaging.xquery;
 
-import java.math.BigInteger;
 import org.exist.messaging.receive.Receiver;
 import org.exist.dom.QName;
 import org.exist.messaging.configuration.JmsConfiguration;

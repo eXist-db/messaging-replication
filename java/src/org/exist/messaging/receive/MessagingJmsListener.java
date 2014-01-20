@@ -40,7 +40,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import org.exist.EXistException;
 import org.exist.Namespaces;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.SAXAdapter;
