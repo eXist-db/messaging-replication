@@ -101,7 +101,7 @@
         <delete dir="${build.dir}/classes"/>
         <delete dir="${dist.dir}"/>
 		<delete dir="config/application" includes="*.xml"/>
-		<delete dir="library/application" includes="*.xml"/>
+		<delete dir="config/library" includes="*.xml"/>
     </target>
 
     <target name="clean-all" depends="clean" description="Reset to clean state">
