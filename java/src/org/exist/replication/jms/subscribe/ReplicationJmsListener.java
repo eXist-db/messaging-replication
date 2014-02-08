@@ -990,13 +990,14 @@ public class ReplicationJmsListener implements eXistMessageListener {
         return "replication";
     }
 
-    @Override
+    private Session session;
+    private String id = "?";
+
     public void setSession(Session session) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.session = session;
     }
 
-    @Override
     public void setIdentification(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.id = id;
     }
 }
