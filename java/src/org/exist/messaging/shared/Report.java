@@ -22,6 +22,7 @@ package org.exist.messaging.shared;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.xpath.XPathException;
 
 
 /**
@@ -49,7 +50,7 @@ public class Report {
     /**
      * Storage for errors
      */
-    private List<String> errors = new ArrayList<String>();
+    private List<ReportItem> errors = new ArrayList<ReportItem>();
 
     public void incMessageCounterTotal() {
         messageCounterTotal++;
@@ -90,14 +91,28 @@ public class Report {
         return totalTime;
     }
 
-    public void add(String error) {
-        errors.add(error);
+    public void add(Throwable error) {
+        errors.add(new ReportItem(error));
+    }
+
+    @Deprecated
+    public void add(String errorText) {
+        XPathException xe = new XPathException(errorText);
+        errors.add(new ReportItem(xe));
     }
 
     /**
-     * @return List of problems
+     * @return List tests of all problems
      */
-    public List<String> getErrors() {
+    public List<String> getErrorMessages() {
+        List<String> errorMessages = new ArrayList<String>();
+        for (ReportItem t : errors) {
+            errorMessages.add(t.getMessage());
+        }
+        return errorMessages;
+    }
+
+    public final List<ReportItem> getReportItems() {
         return errors;
     }
 

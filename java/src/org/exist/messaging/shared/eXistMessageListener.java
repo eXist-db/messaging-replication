@@ -20,6 +20,7 @@
  */
 package org.exist.messaging.shared;
 
+import javax.jms.ExceptionListener;
 import javax.jms.MessageListener;
 import javax.jms.Session;
 
@@ -27,7 +28,7 @@ import javax.jms.Session;
  * Interface definition 
  * @author wessels
  */
-public interface eXistMessageListener extends MessageListener {
+public interface eXistMessageListener extends MessageListener /*, ExceptionListener */ {
 
     /**
      *  Get report of the JMS listener.

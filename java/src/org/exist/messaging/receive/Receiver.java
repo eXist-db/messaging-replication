@@ -50,6 +50,7 @@ import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Report;
+import org.exist.messaging.shared.ReportItem;
 import org.exist.messaging.shared.eXistMessageListener;
 import org.exist.replication.shared.JmsConnectionExceptionListener;
 import org.exist.xquery.XPathException;
@@ -427,17 +428,18 @@ public class Receiver {
             /*
              * Error reporting
              */
-            List<String> listenerErrors = messageListener.getReport().getErrors();
+            List<ReportItem> listenerErrors = messageListener.getReport().getReportItems();
             List<JMSException> jmsConnectionExceptions = exceptionListener.getExceptions();
 
             if (!listenerErrors.isEmpty() || !errors.isEmpty() || !jmsConnectionExceptions.isEmpty()) {
                 builder.startElement("", "errorMessages", "errorMessages", null);
 
                 if (!listenerErrors.isEmpty()) {
-                    for (String error : listenerErrors) {
+                    for (ReportItem ri : listenerErrors) {
                         builder.startElement("", "error", "error", null);
                         builder.addAttribute(new QName("src", null, null), "listener");
-                        builder.characters(error);
+                        builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
+                        builder.characters(ri.getMessage());
                         builder.endElement();
                     }
                 }
