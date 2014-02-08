@@ -126,7 +126,7 @@ public class MessagingJmsListener implements eXistMessageListener {
             }
 
         } catch (JMSException ex) {
-            report.add(ex.getMessage());
+            report.addListenerError(ex.getMessage());
             LOG.error(logString + ex.getMessage());
         }
 
@@ -174,7 +174,7 @@ public class MessagingJmsListener implements eXistMessageListener {
             report.incMessageCounterOK();
 
         } catch (Throwable ex) {
-            report.add(ex.getMessage());
+            report.addListenerError(ex);
             LOG.error(logString + ex.getMessage());
             try {
                 session.close();
@@ -259,7 +259,7 @@ public class MessagingJmsListener implements eXistMessageListener {
         } else {
             // Unsupported JMS message type
             String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
-            report.add(txt);
+            report.addListenerError(txt);
             LOG.error(logString + txt);
             throw new XPathException(txt);
         }
@@ -399,7 +399,7 @@ public class MessagingJmsListener implements eXistMessageListener {
 
         } else {
             String txt = String.format("Unable to convert the object %s", obj.toString());
-            report.add(txt);
+            report.addListenerError(txt);
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -454,15 +454,15 @@ public class MessagingJmsListener implements eXistMessageListener {
             }
 
         } catch (SAXException ex) {
-            report.add(ex.getMessage());
+            report.addListenerError(ex);
             throw new XPathException(ex.getMessage());
 
         } catch (ParserConfigurationException ex) {
-            report.add(ex.getMessage());
+            report.addListenerError(ex);
             throw new XPathException(ex.getMessage());
 
         } catch (IOException ex) {
-            report.add(ex.getMessage());
+            report.addListenerError(ex);
             throw new XPathException(ex.getMessage());
         }
 

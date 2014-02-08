@@ -65,7 +65,7 @@ import org.exist.xquery.XPathException;
 public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
-    private final List<String> errors = new ArrayList<String>();
+    //private final List<String> receiverErrors = new ArrayList<String>();
     private DatatypeFactory dtFactory = null;
 
     /**
@@ -159,7 +159,8 @@ public class Receiver {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            errors.add(ex.getMessage());
+            //receiverErrors.add(ex.getMessage());
+            messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
     }
@@ -249,7 +250,8 @@ public class Receiver {
             
             LOG.error(t.getMessage(), t);
             LOG.debug("" + jmsConfig.toString());
-            errors.add(t.getMessage());
+            //receiverErrors.add(t.getMessage());
+            messageListener.getReport().addReceiverError(t);
             throw new XPathException(t.getMessage());
         }
 
@@ -280,7 +282,8 @@ public class Receiver {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            errors.add(ex.getMessage());
+            //receiverErrors.add(ex.getMessage());
+            messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
     }
@@ -306,7 +309,8 @@ public class Receiver {
                 connection.stop();
             } catch (JMSException ex) {
                 LOG.error(ex);
-                errors.add(ex.getMessage());
+                messageListener.getReport().addReceiverError(ex);
+                //receiverErrors.add(ex.getMessage());
             }
         }
 
@@ -333,7 +337,8 @@ public class Receiver {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            errors.add(ex.getMessage());
+            //receiverErrors.add(ex.getMessage());
+            messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
     }
@@ -428,51 +433,51 @@ public class Receiver {
             /*
              * Error reporting
              */
-            List<ReportItem> listenerErrors = messageListener.getReport().getReportItems();
+
+            builder.startElement("", "errorMessages", "errorMessages", null);
+            
+            messageListener.getReport().write(builder);
+
+//            List<ReportItem> listenerErrors = messageListener.getReport().getReportItems();
+//            if (!listenerErrors.isEmpty()) {
+//                for (ReportItem ri : listenerErrors) {
+//                    builder.startElement("", "error", "error", null);
+//                    builder.addAttribute(new QName("src", null, null), "listener");
+//                    builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
+//                    builder.characters(ri.getMessage());
+//                    builder.endElement();
+//                }
+//            }
+
+//            if (!receiverErrors.isEmpty()) {
+//                for (String error : receiverErrors) {
+//                    builder.startElement("", "error", "error", null);
+//                    builder.addAttribute(new QName("src", null, null), "receiver");
+//                    builder.characters(error);
+//                    builder.endElement();
+//                }
+//
+//            }
+
             List<JMSException> jmsConnectionExceptions = exceptionListener.getExceptions();
+            if (!jmsConnectionExceptions.isEmpty()) {
+                for (JMSException ex : jmsConnectionExceptions) {
+                    builder.startElement("", "error", "error", null);
+                    builder.addAttribute(new QName("src", null, null), "connection");
 
-            if (!listenerErrors.isEmpty() || !errors.isEmpty() || !jmsConnectionExceptions.isEmpty()) {
-                builder.startElement("", "errorMessages", "errorMessages", null);
-
-                if (!listenerErrors.isEmpty()) {
-                    for (ReportItem ri : listenerErrors) {
-                        builder.startElement("", "error", "error", null);
-                        builder.addAttribute(new QName("src", null, null), "listener");
-                        builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
-                        builder.characters(ri.getMessage());
-                        builder.endElement();
-                    }
-                }
-
-                if (!errors.isEmpty()) {
-                    for (String error : errors) {
-                        builder.startElement("", "error", "error", null);
-                        builder.addAttribute(new QName("src", null, null), "receiver");
-                        builder.characters(error);
-                        builder.endElement();
+                    String msg = ex.getMessage();
+                    if (ex.getErrorCode() != null) {
+                        msg = msg + " (code=" + ex.getErrorCode() + ")";
                     }
 
+                    builder.characters(msg);
+                    builder.endElement();
                 }
 
-                if (!jmsConnectionExceptions.isEmpty()) {
-                    for (JMSException ex : jmsConnectionExceptions) {
-                        builder.startElement("", "error", "error", null);
-                        builder.addAttribute(new QName("src", null, null), "connection");
-
-                        String msg = ex.getMessage();
-                        if (ex.getErrorCode() != null) {
-                            msg = msg + " (code=" + ex.getErrorCode() + ")";
-                        }
-
-                        builder.characters(msg);
-                        builder.endElement();
-                    }
-
-                }
-
-
-                builder.endElement();
             }
+
+            builder.endElement();
+            
 
             /*
              * Statistics

@@ -29,16 +29,21 @@ import org.apache.commons.lang3.time.DateFormatUtils;
  */
 public class ReportItem {
 
+    public enum CONTEXT {
+        RECEIVER, LISTENER, CONNECTION, NOTDEFINED
+    };
+
     public ReportItem() {
         timestamp = new Date();
     }
 
-    public ReportItem(Throwable throwable) {
+    public ReportItem(Throwable throwable, CONTEXT context) {
         this();
         this.throwable = throwable;
     }
 
     private Throwable throwable = new Throwable("EMPTY");
+    private CONTEXT context = CONTEXT.NOTDEFINED;
 
     private Date timestamp;
 
@@ -58,4 +63,7 @@ public class ReportItem {
         return throwable.getMessage();
     }
 
+    public String getContextName() {
+        return context.toString().toLowerCase();
+    }
 }

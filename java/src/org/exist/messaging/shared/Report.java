@@ -23,6 +23,9 @@ package org.exist.messaging.shared;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.xpath.XPathException;
+import org.exist.dom.QName;
+import org.exist.memtree.MemTreeBuilder;
+import org.exist.messaging.shared.ReportItem.CONTEXT;
 
 
 /**
@@ -91,14 +94,28 @@ public class Report {
         return totalTime;
     }
 
-    public void add(Throwable error) {
-        errors.add(new ReportItem(error));
+//    public void add(Throwable error, CONTEXT context) {
+//        errors.add(new ReportItem(error, context));
+//    }
+
+    public void addListenerError(Throwable error) {
+        errors.add(new ReportItem(error, CONTEXT.LISTENER));
     }
 
+    public void addReceiverError(Throwable error) {
+        errors.add(new ReportItem(error, CONTEXT.RECEIVER));
+    }
+
+//    @Deprecated
+//    public void add(String errorText, CONTEXT context) {
+//        XPathException xe = new XPathException(errorText);
+//        errors.add(new ReportItem(xe, context));
+//    }
+
     @Deprecated
-    public void add(String errorText) {
+    public void addListenerError(String errorText) {
         XPathException xe = new XPathException(errorText);
-        errors.add(new ReportItem(xe));
+        errors.add(new ReportItem(xe, CONTEXT.LISTENER));
     }
 
     /**
@@ -122,5 +139,20 @@ public class Report {
 
     public void stop() {
         stopTime = System.currentTimeMillis();
+    }
+
+    public void write(MemTreeBuilder builder) {
+
+        List<ReportItem> listenerErrors = getReportItems();
+        if (!listenerErrors.isEmpty()) {
+            for (ReportItem ri : listenerErrors) {
+                builder.startElement("", "error", "error", null);
+                builder.addAttribute(new QName("src", null, null), ri.getContextName());
+                builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
+                builder.characters(ri.getMessage());
+                builder.endElement();
+            }
+        }
+
     }
 }

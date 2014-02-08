@@ -138,13 +138,13 @@ public class ReplicationJmsListener implements eXistMessageListener {
 
         } catch (MessageReceiveException ex) {
             // Thrown by local code. Just make it pass\
-            report.add(ex.getMessage());
+            report.addListenerError(ex);
             LOG.error(String.format("Could not handle received message: %s", ex.getMessage()), ex);
             throw ex;
 
         } catch (Throwable t) {
             // Something really unexpected happened. Report
-            report.add(t.getMessage());
+            report.addListenerError(t);
             LOG.error(t.getMessage(), t);
             throw new MessageReceiveException(String.format("Could not handle received message: %s", t.getMessage()), t);
 
