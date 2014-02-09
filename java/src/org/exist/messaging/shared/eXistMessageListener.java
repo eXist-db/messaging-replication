@@ -28,7 +28,7 @@ import javax.jms.Session;
  * Interface definition 
  * @author wessels
  */
-public interface eXistMessageListener extends MessageListener /*, ExceptionListener */ {
+public interface eXistMessageListener extends MessageListener, ExceptionListener {
 
     /**
      *  Get report of the JMS listener.

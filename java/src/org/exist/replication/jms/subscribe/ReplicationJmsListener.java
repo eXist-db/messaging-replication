@@ -1000,4 +1000,28 @@ public class ReplicationJmsListener implements eXistMessageListener {
     public void setIdentification(String id) {
         this.id = id;
     }
+
+    @Override
+    public void onException(JMSException jmse) {
+        
+        getReport().addConnectionError(jmse);
+
+        // Report exception
+        StringBuilder sb = new StringBuilder();
+        sb.append(jmse.getMessage());
+        
+        String txt = jmse.getErrorCode();
+        if (txt != null) {
+            sb.append(" (").append(txt).append(") ");
+        }
+        
+        LOG.error(sb.toString(), jmse);
+
+        // If there is a linked exception, report it too
+        Exception linkedException = jmse.getLinkedException();
+        if (linkedException != null) {
+            LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
+        }
+        
+    }
 }

@@ -22,6 +22,7 @@ package org.exist.messaging.shared;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.jms.JMSException;
 import javax.xml.xpath.XPathException;
 import org.exist.dom.QName;
 import org.exist.memtree.MemTreeBuilder;
@@ -106,6 +107,10 @@ public class Report {
         errors.add(new ReportItem(error, CONTEXT.RECEIVER));
     }
 
+    public void addConnectionError(Throwable error) {
+        errors.add(new ReportItem(error, CONTEXT.CONNECTION));
+    }
+
 //    @Deprecated
 //    public void add(String errorText, CONTEXT context) {
 //        XPathException xe = new XPathException(errorText);
@@ -143,16 +148,33 @@ public class Report {
 
     public void write(MemTreeBuilder builder) {
 
+        builder.startElement("", "errorMessages", "errorMessages", null);
+
         List<ReportItem> listenerErrors = getReportItems();
         if (!listenerErrors.isEmpty()) {
             for (ReportItem ri : listenerErrors) {
                 builder.startElement("", "error", "error", null);
                 builder.addAttribute(new QName("src", null, null), ri.getContextName());
                 builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
-                builder.characters(ri.getMessage());
+                builder.addAttribute(new QName("exception", null, null), ri.getThowable().getClass().getSimpleName());
+
+                String msg = ri.getMessage();
+                if (ri.getThowable() instanceof JMSException) {
+
+                    JMSException jmse = (JMSException) ri.getThowable();
+                    if (jmse.getErrorCode() != null) {
+                        msg = msg + " (code=" + jmse.getErrorCode() + ")";
+                    }
+
+                }
+
+                builder.characters(msg);
                 builder.endElement();
             }
         }
+
+        builder.endElement();
+
 
     }
 }

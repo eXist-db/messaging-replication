@@ -19,7 +19,6 @@
  */
 package org.exist.messaging.receive;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -50,9 +49,7 @@ import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Report;
-import org.exist.messaging.shared.ReportItem;
 import org.exist.messaging.shared.eXistMessageListener;
-import org.exist.replication.shared.JmsConnectionExceptionListener;
 import org.exist.xquery.XPathException;
 
 /**
@@ -79,7 +76,7 @@ public class Receiver {
      * The JMS listeners
      */
     private eXistMessageListener messageListener = null;
-    private JmsConnectionExceptionListener exceptionListener = null;
+
     /*
      * 
      */
@@ -108,9 +105,6 @@ public class Receiver {
     public Receiver(JmsConfiguration config, eXistMessageListener listener) {
         this.jmsConfig = config;
         this.messageListener = listener;
-
-        // Setup exception reporting
-        exceptionListener = new JmsConnectionExceptionListener();
 
         // Uniq ID for Receiver
         id = createNewId();
@@ -197,7 +191,7 @@ public class Receiver {
             }
 
             // Register error listener
-            connection.setExceptionListener(exceptionListener);
+            connection.setExceptionListener(messageListener);
             
             // Set clientId when set and not empty
             String clientId=jmsConfig.getClientID();
@@ -433,50 +427,10 @@ public class Receiver {
             /*
              * Error reporting
              */
-
-            builder.startElement("", "errorMessages", "errorMessages", null);
-            
             messageListener.getReport().write(builder);
 
-//            List<ReportItem> listenerErrors = messageListener.getReport().getReportItems();
-//            if (!listenerErrors.isEmpty()) {
-//                for (ReportItem ri : listenerErrors) {
-//                    builder.startElement("", "error", "error", null);
-//                    builder.addAttribute(new QName("src", null, null), "listener");
-//                    builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
-//                    builder.characters(ri.getMessage());
-//                    builder.endElement();
-//                }
-//            }
 
-//            if (!receiverErrors.isEmpty()) {
-//                for (String error : receiverErrors) {
-//                    builder.startElement("", "error", "error", null);
-//                    builder.addAttribute(new QName("src", null, null), "receiver");
-//                    builder.characters(error);
-//                    builder.endElement();
-//                }
-//
-//            }
-
-            List<JMSException> jmsConnectionExceptions = exceptionListener.getExceptions();
-            if (!jmsConnectionExceptions.isEmpty()) {
-                for (JMSException ex : jmsConnectionExceptions) {
-                    builder.startElement("", "error", "error", null);
-                    builder.addAttribute(new QName("src", null, null), "connection");
-
-                    String msg = ex.getMessage();
-                    if (ex.getErrorCode() != null) {
-                        msg = msg + " (code=" + ex.getErrorCode() + ")";
-                    }
-
-                    builder.characters(msg);
-                    builder.endElement();
-                }
-
-            }
-
-            builder.endElement();
+           
             
 
             /*
