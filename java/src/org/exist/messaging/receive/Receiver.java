@@ -19,7 +19,6 @@
  */
 package org.exist.messaging.receive;
 
-import java.util.List;
 import java.util.Properties;
 
 import javax.jms.Connection;
@@ -49,7 +48,7 @@ import org.exist.memtree.NodeImpl;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Report;
-import org.exist.messaging.shared.eXistMessageListener;
+import org.exist.messaging.shared.eXistMessagingListener;
 import org.exist.xquery.XPathException;
 
 /**
@@ -62,7 +61,7 @@ import org.exist.xquery.XPathException;
 public class Receiver {
 
     private final static Logger LOG = Logger.getLogger(Receiver.class);
-    //private final List<String> receiverErrors = new ArrayList<String>();
+
     private DatatypeFactory dtFactory = null;
 
     /**
@@ -75,7 +74,7 @@ public class Receiver {
     /**
      * The JMS listeners
      */
-    private eXistMessageListener messageListener = null;
+    private eXistMessagingListener messageListener = null;
 
     /*
      * 
@@ -102,7 +101,7 @@ public class Receiver {
      * @param config JMS configuration settings
      * @param listener The generic exist-db message listener
      */
-    public Receiver(JmsConfiguration config, eXistMessageListener listener) {
+    public Receiver(JmsConfiguration config, eXistMessagingListener listener) {
         this.jmsConfig = config;
         this.messageListener = listener;
 
@@ -153,7 +152,6 @@ public class Receiver {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            //receiverErrors.add(ex.getMessage());
             messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
@@ -244,7 +242,7 @@ public class Receiver {
             
             LOG.error(t.getMessage(), t);
             LOG.debug("" + jmsConfig.toString());
-            //receiverErrors.add(t.getMessage());
+
             messageListener.getReport().addReceiverError(t);
             throw new XPathException(t.getMessage());
         }
@@ -276,7 +274,7 @@ public class Receiver {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            //receiverErrors.add(ex.getMessage());
+
             messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
@@ -304,7 +302,7 @@ public class Receiver {
             } catch (JMSException ex) {
                 LOG.error(ex);
                 messageListener.getReport().addReceiverError(ex);
-                //receiverErrors.add(ex.getMessage());
+
             }
         }
 
@@ -331,7 +329,7 @@ public class Receiver {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            //receiverErrors.add(ex.getMessage());
+     
             messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
@@ -428,10 +426,6 @@ public class Receiver {
              * Error reporting
              */
             messageListener.getReport().write(builder);
-
-
-           
-            
 
             /*
              * Statistics

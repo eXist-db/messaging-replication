@@ -56,7 +56,7 @@ import static org.exist.messaging.shared.Constants.JMS_TIMESTAMP;
 import static org.exist.messaging.shared.Constants.JMS_TYPE;
 
 import org.exist.messaging.shared.Report;
-import org.exist.messaging.shared.eXistMessageListener;
+import org.exist.messaging.shared.eXistMessagingListener;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.validation.ValidationReport;
@@ -83,35 +83,38 @@ import org.xml.sax.XMLReader;
  *
  * @author Dannes Wessels
  */
-public class MessagingJmsListener implements eXistMessageListener {
+public class MessagingJmsListener extends eXistMessagingListener {
 
     private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
     private final FunctionReference functionReference;
     private final XQueryContext xqueryContext;
     private final Sequence functionParams;
     
-    private final Report report = new Report();
+    private  Report report = null;
     
     private Session session;
     private String id="?";
     
-    public void setSession(Session session){
-        this.session=session;
-    }
-    
-    public void setIdentification(String id){
-        this.id=id;
-    }
+//    public void setSession(Session session){
+//        this.session=session;
+//    }
+//    
+//    public void setIdentification(String id){
+//        this.id=id;
+//    }
 
     public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
         this.xqueryContext = xqueryContext;
         this.functionParams = functionParams;
+        this.report = getReport();
     }
 
     @Override
     public void onMessage(Message msg) {
+
+        id = getIdentification();
         
         String logString=String.format("{%s} ", id);
         
@@ -469,36 +472,36 @@ public class MessagingJmsListener implements eXistMessageListener {
         return content;
     }
 
-    @Override
-    public Report getReport() {
-        return report;
-    }
+//    @Override
+//    public Report getReport() {
+//        return report;
+//    }
 
     @Override
     public String getUsageType() {
         return "messaging";
     }
 
-    @Override
-    public void onException(JMSException jmse) {
-
-        getReport().addConnectionError(jmse);
-
-        // Report exception
-        StringBuilder sb = new StringBuilder();
-        sb.append(jmse.getMessage());
-
-        String txt = jmse.getErrorCode();
-        if (txt != null) {
-            sb.append(" (").append(txt).append(") ");
-        }
-
-        LOG.error(sb.toString(), jmse);
-
-        // If there is a linked exception, report it too
-        Exception linkedException = jmse.getLinkedException();
-        if (linkedException != null) {
-            LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
-        }
-    }
+//    @Override
+//    public void onException(JMSException jmse) {
+//
+//        getReport().addConnectionError(jmse);
+//
+//        // Report exception
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(jmse.getMessage());
+//
+//        String txt = jmse.getErrorCode();
+//        if (txt != null) {
+//            sb.append(" (").append(txt).append(") ");
+//        }
+//
+//        LOG.error(sb.toString(), jmse);
+//
+//        // If there is a linked exception, report it too
+//        Exception linkedException = jmse.getLinkedException();
+//        if (linkedException != null) {
+//            LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
+//        }
+//    }
 }

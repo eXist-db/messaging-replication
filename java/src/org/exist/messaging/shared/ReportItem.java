@@ -20,10 +20,13 @@
 package org.exist.messaging.shared;
 
 import java.util.Date;
+import javax.jms.JMSException;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.exist.dom.QName;
+import org.exist.memtree.MemTreeBuilder;
 
 /**
- * Container for reporting a problem
+ * Container for reporting a problem with some meta data.
  *
  * @author Dannes Wessels
  */
@@ -33,13 +36,11 @@ public class ReportItem {
         RECEIVER, LISTENER, CONNECTION, NOTDEFINED
     };
 
-    public ReportItem() {
-        timestamp = new Date();
-    }
 
     public ReportItem(Throwable throwable, CONTEXT context) {
-        this();
+        this.timestamp = new Date();
         this.throwable = throwable;
+        this.context = context;
     }
 
     private Throwable throwable = new Throwable("EMPTY");
@@ -65,5 +66,25 @@ public class ReportItem {
 
     public String getContextName() {
         return context.toString().toLowerCase();
+    }
+
+    public void writeError(MemTreeBuilder builder) {
+        builder.startElement("", "error", "error", null);
+        builder.addAttribute(new QName("src", null, null), getContextName());
+        builder.addAttribute(new QName("timestamp", null, null), getTimeStamp());
+        builder.addAttribute(new QName("exception", null, null), getThowable().getClass().getSimpleName());
+
+        String msg = getMessage();
+        if (getThowable() instanceof JMSException) {
+
+            JMSException jmse = (JMSException) getThowable();
+            if (jmse.getErrorCode() != null) {
+                msg = msg + " (code=" + jmse.getErrorCode() + ")";
+            }
+
+        }
+
+        builder.characters(msg);
+        builder.endElement();
     }
 }

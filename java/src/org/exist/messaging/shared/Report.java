@@ -153,23 +153,7 @@ public class Report {
         List<ReportItem> listenerErrors = getReportItems();
         if (!listenerErrors.isEmpty()) {
             for (ReportItem ri : listenerErrors) {
-                builder.startElement("", "error", "error", null);
-                builder.addAttribute(new QName("src", null, null), ri.getContextName());
-                builder.addAttribute(new QName("timestamp", null, null), ri.getTimeStamp());
-                builder.addAttribute(new QName("exception", null, null), ri.getThowable().getClass().getSimpleName());
-
-                String msg = ri.getMessage();
-                if (ri.getThowable() instanceof JMSException) {
-
-                    JMSException jmse = (JMSException) ri.getThowable();
-                    if (jmse.getErrorCode() != null) {
-                        msg = msg + " (code=" + jmse.getErrorCode() + ")";
-                    }
-
-                }
-
-                builder.characters(msg);
-                builder.endElement();
+                ri.writeError(builder);
             }
         }
 

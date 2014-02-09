@@ -30,7 +30,6 @@ import java.util.zip.GZIPInputStream;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.Session;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
@@ -40,7 +39,7 @@ import org.exist.messaging.shared.Constants;
 import org.exist.messaging.shared.Identity;
 import org.exist.messaging.shared.Report;
 import org.exist.messaging.shared.eXistMessage;
-import org.exist.messaging.shared.eXistMessageListener;
+import org.exist.messaging.shared.eXistMessagingListener;
 import org.exist.replication.shared.MessageHelper;
 import org.exist.security.Account;
 import org.exist.security.Group;
@@ -62,14 +61,14 @@ import org.xml.sax.InputSource;
  *
  * @author Dannes Wessels
  */
-public class ReplicationJmsListener implements eXistMessageListener {
+public class ReplicationJmsListener extends eXistMessagingListener {
 
     private final static Logger LOG = Logger.getLogger(ReplicationJmsListener.class);
     private BrokerPool brokerPool = null;
     private org.exist.security.SecurityManager securityManager = null;
     
     private String localID = null;
-    private Report report = new Report();
+    private Report report = null;
 
     /**
      * Constructor
@@ -79,7 +78,8 @@ public class ReplicationJmsListener implements eXistMessageListener {
     public ReplicationJmsListener(BrokerPool brokerpool) {
         brokerPool = brokerpool;
         securityManager = brokerpool.getSecurityManager(); 
-        localID=Identity.getInstance().getIdentity();
+        localID = Identity.getInstance().getIdentity();
+        report = getReport();
     }
 
     @Override
@@ -980,48 +980,12 @@ public class ReplicationJmsListener implements eXistMessageListener {
         }
     }
 
-    @Override
-    public Report getReport() {
-        return report;
-    }
+
 
     @Override
     public String getUsageType() {
         return "replication";
     }
 
-    private Session session;
-    private String id = "?";
 
-    public void setSession(Session session) {
-        this.session = session;
-    }
-
-    public void setIdentification(String id) {
-        this.id = id;
-    }
-
-    @Override
-    public void onException(JMSException jmse) {
-        
-        getReport().addConnectionError(jmse);
-
-        // Report exception
-        StringBuilder sb = new StringBuilder();
-        sb.append(jmse.getMessage());
-        
-        String txt = jmse.getErrorCode();
-        if (txt != null) {
-            sb.append(" (").append(txt).append(") ");
-        }
-        
-        LOG.error(sb.toString(), jmse);
-
-        // If there is a linked exception, report it too
-        Exception linkedException = jmse.getLinkedException();
-        if (linkedException != null) {
-            LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
-        }
-        
-    }
 }
