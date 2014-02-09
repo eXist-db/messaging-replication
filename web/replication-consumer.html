@@ -33,13 +33,20 @@
         Lookup destination (topic)
         see javax.naming.InitialContext#lookup(String) 
     --&gt;
-    &lt;parameter name="destination" value="dynamicTopics/eXistdb"/&gt;
+    &lt;parameter name="destination" 
+                  value="dynamicTopics/eXistdb-replication-demo"/&gt;
     
     &lt;!-- 
         Set the name used to identify this subscription
         see JMS javax.jms.TopicSession#createDurableSubscriber(Topic,String) 
     --&gt;
     &lt;parameter name="subscriber.name" value="SubscriptionId"/&gt;
+    
+    &lt;!-- 
+        Set the client identifier for the connection
+        see JMS javax.jms.Connection#setClientID(String) 
+    --&gt;
+    &lt;parameter name="connection.client-id" value="ClientId"/&gt;
     
 &lt;/trigger&gt;
 </pre>

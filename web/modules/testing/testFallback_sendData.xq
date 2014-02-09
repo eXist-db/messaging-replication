@@ -12,7 +12,7 @@ let $jmsConfiguration :=
         "java.naming.factory.initial" 
             := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
         "java.naming.provider.url" := "tcp://miniserver.local:61616",
-        "destination" := "dynamicQueues/eXistdbTest",
+        "destination" := "dynamicQueues/eXistdb-test",
         "connection-factory" := "ConnectionFactory",
         "exist.connection.pool" := "yes"
     }

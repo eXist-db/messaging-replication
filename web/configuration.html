@@ -57,7 +57,7 @@
             <p/>
             <h2>Optional configuration properties</h2>
             <p>
-            The following properties are optional and can be used to fine-tune the connection. Note that 'subscriber.name' is required when connecting to a Topic.</p>
+            The following properties are optional and can be used to fine-tune the connection. Note that 'subscriber.name' and 'connection.client-id' are  required when connecting to a (durable) Topic.</p>
             <table class="table table-hover table-striped table-bordered">
                 <caption>Optional configuration properties</caption>
                 <thead>
@@ -69,8 +69,9 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>connection.client-id</td>
-                        <td>Sets the client identifier for new connection. The ID must be unique for all connections and is optional.</td>
+                        <td>connection.client-id <i class="icon-exclamation-sign"/>
+                        </td>
+                        <td>Sets the client identifier for new connection. The ID must be unique for all connections and is required for Topics.</td>
                         <td>
                             <a href="http://docs.oracle.com/javaee/6/api/javax/jms/Connection.html#setClientID(java.lang.String)">Javadoc</a>
                         </td>
