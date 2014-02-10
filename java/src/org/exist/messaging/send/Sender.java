@@ -241,7 +241,7 @@ public class Sender  {
         Message message = null;
 
         jmp.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
-        boolean isCompressed = isCompressedDocumentRequired(jmp);
+        boolean isCompressed = isDataCompressionRequired(jmp);
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
@@ -408,7 +408,7 @@ public class Sender  {
      * @return TRUE if not set or has value 'gzip' else FALSE.
      *
      */
-    private boolean isCompressedDocumentRequired(JmsMessageProperties mdd) {
+    private boolean isDataCompressionRequired(JmsMessageProperties mdd) {
         // 
         String compressionValue = mdd.getProperty(EXIST_DOCUMENT_COMPRESSION);
         if (StringUtils.isBlank(compressionValue)) {
