@@ -57,6 +57,7 @@ import static org.exist.messaging.shared.Constants.JMS_TYPE;
 
 import org.exist.messaging.shared.Report;
 import org.exist.messaging.shared.eXistMessagingListener;
+import org.exist.security.Subject;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.validation.ValidationReport;
@@ -86,6 +87,8 @@ import org.xml.sax.XMLReader;
 public class MessagingJmsListener extends eXistMessagingListener {
 
     private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
+    
+    private Subject subject;
     private final FunctionReference functionReference;
     private final XQueryContext xqueryContext;
     private final Sequence functionParams;
@@ -94,6 +97,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     
     private Session session;
     private String id="?";
+
     
 //    public void setSession(Session session){
 //        this.session=session;
@@ -103,12 +107,13 @@ public class MessagingJmsListener extends eXistMessagingListener {
 //        this.id=id;
 //    }
 
-    public MessagingJmsListener(FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
+    public MessagingJmsListener(Subject subject, FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
         this.xqueryContext = xqueryContext;
         this.functionParams = functionParams;
         this.report = getReport();
+        this.subject =subject;
     }
 
     @Override
@@ -144,7 +149,14 @@ public class MessagingJmsListener extends eXistMessagingListener {
              * broker is not being used at all.
              */
             brokerPool = BrokerPool.getInstance();
-            dummyBroker = brokerPool.getBroker();
+            
+            // Actually the subject in the next line influences the subject used 
+            // executing the callback function. Must be same userid in which
+            // the query was started.
+            if (subject == null) {
+                subject = brokerPool.getSecurityManager().getGuestSubject();
+            }
+            dummyBroker = brokerPool.get(subject);             
 
             // Copy message and jms configuration details into Maptypes
             MapType msgProperties = getMessageProperties(msg, xqueryContext);
