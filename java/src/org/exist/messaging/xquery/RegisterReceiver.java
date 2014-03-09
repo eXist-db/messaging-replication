@@ -64,8 +64,9 @@ public class RegisterReceiver extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
 
         // User must either be DBA or in the JMS group
-        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(org.exist.messaging.shared.Constants.JMS_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'", org.exist.messaging.shared.Constants.JMS_GROUP, context.getSubject().getName());
+        if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
+            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+                    context.getSubject().getName(), Constants.JMS_GROUP);
             XPathException ex = new XPathException(this, txt);
             LOG.error(txt, ex);
             throw ex;
@@ -86,8 +87,8 @@ public class RegisterReceiver extends BasicFunction {
             JmsConfiguration config = new JmsConfiguration();
             config.loadConfiguration(configMap);
 
-            // Setup listener
-            MessagingJmsListener myListener = new MessagingJmsListener(reference, functionParams, context);
+            // Setup listener, pass correct User object
+            MessagingJmsListener myListener = new MessagingJmsListener(context.getRealUser(), reference, functionParams, context);
 
             // Create receiver
             Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
