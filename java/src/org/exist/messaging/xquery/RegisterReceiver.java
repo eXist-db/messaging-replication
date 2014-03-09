@@ -24,7 +24,13 @@ import org.exist.dom.QName;
 import org.exist.messaging.configuration.JmsConfiguration;
 import org.exist.messaging.receive.MessagingJmsListener;
 import org.exist.messaging.receive.ReceiversManager;
-import org.exist.xquery.*;
+import org.exist.messaging.shared.Constants;
+import org.exist.xquery.BasicFunction;
+import org.exist.xquery.Cardinality;
+import org.exist.xquery.FunctionSignature;
+import org.exist.xquery.XPathException;
+import org.exist.xquery.XQueryContext;
+
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
