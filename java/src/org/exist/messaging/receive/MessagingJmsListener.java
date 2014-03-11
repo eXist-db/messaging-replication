@@ -134,7 +134,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             }
 
         } catch (JMSException ex) {
-            report.addListenerError(ex.getMessage());
+            report.addListenerError(ex);
             LOG.error(logString + ex.getMessage());
         }
 
@@ -274,9 +274,11 @@ public class MessagingJmsListener extends eXistMessagingListener {
         } else {
             // Unsupported JMS message type
             String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
-            report.addListenerError(txt);
-            LOG.error(logString + txt);
-            throw new XPathException(txt);
+
+            XPathException ex = new XPathException(txt);
+            report.addListenerError(ex);
+            LOG.error(txt);
+            throw ex;
         }
         return content;
     }
@@ -414,9 +416,11 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
         } else {
             String txt = String.format("Unable to convert the object %s", obj.toString());
-            report.addListenerError(txt);
+
+            XPathException ex = new XPathException(txt);
+            report.addListenerError(ex);
             LOG.error(txt);
-            throw new XPathException(txt);
+            throw ex;
         }
         return content;
     }
