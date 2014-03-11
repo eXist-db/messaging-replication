@@ -18,13 +18,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301  USA
  */
+
 package org.exist.messaging.shared;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.jms.JMSException;
-import javax.xml.xpath.XPathException;
-import org.exist.dom.QName;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.messaging.shared.ReportItem.CONTEXT;
 
@@ -56,6 +54,9 @@ public class Report {
      */
     private List<ReportItem> errors = new ArrayList<ReportItem>();
 
+    /**
+     * Increase the nr of total received messages
+     */
     public void incMessageCounterTotal() {
         messageCounterTotal++;
     }
@@ -74,6 +75,9 @@ public class Report {
         return (messageCounterTotal - messageCounterOK);
     }
 
+    /**
+     * Increase the number of correctly processed messages
+     */
     public void incMessageCounterOK() {
         messageCounterOK++;
     }
@@ -85,6 +89,9 @@ public class Report {
         return messageCounterOK;
     }
 
+    /**
+     * Add the current processing time to the total processing time
+     */
     public void addCumulatedProcessingTime() {
         this.totalTime += (stopTime - startTime);
     }
@@ -95,32 +102,31 @@ public class Report {
         return totalTime;
     }
 
-//    public void add(Throwable error, CONTEXT context) {
-//        errors.add(new ReportItem(error, context));
-//    }
-
+    /**
+     * Add an Listener error to the report
+     *
+     * @param error The Listener error
+     */
     public void addListenerError(Throwable error) {
         errors.add(new ReportItem(error, CONTEXT.LISTENER));
     }
 
+    /**
+     * Add an Receiver error
+     *
+     * @param error The Receiver error
+     */
     public void addReceiverError(Throwable error) {
         errors.add(new ReportItem(error, CONTEXT.RECEIVER));
     }
 
+    /**
+     * Add an Connection error
+     *
+     * @param error The connection error
+     */
     public void addConnectionError(Throwable error) {
         errors.add(new ReportItem(error, CONTEXT.CONNECTION));
-    }
-
-//    @Deprecated
-//    public void add(String errorText, CONTEXT context) {
-//        XPathException xe = new XPathException(errorText);
-//        errors.add(new ReportItem(xe, context));
-//    }
-
-    @Deprecated
-    public void addListenerError(String errorText) {
-        XPathException xe = new XPathException(errorText);
-        errors.add(new ReportItem(xe, CONTEXT.LISTENER));
     }
 
     /**
@@ -134,18 +140,34 @@ public class Report {
         return errorMessages;
     }
 
+    /**
+     * Get all report items
+     *
+     * @return All report items
+     */
     public final List<ReportItem> getReportItems() {
         return errors;
     }
 
+    /**
+     * Set start time
+     */
     public void start() {
         startTime = System.currentTimeMillis();
     }
 
+    /**
+     * Set stop time
+     */
     public void stop() {
         stopTime = System.currentTimeMillis();
     }
 
+    /**
+     * Write all error messages to XML report.
+     *
+     * @param builder The builder to create the XML report.
+     */
     public void write(MemTreeBuilder builder) {
 
         builder.startElement("", "errorMessages", "errorMessages", null);
@@ -158,7 +180,5 @@ public class Report {
         }
 
         builder.endElement();
-
-
     }
 }
