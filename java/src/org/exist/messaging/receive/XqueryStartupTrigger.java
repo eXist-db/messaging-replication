@@ -64,7 +64,7 @@ public class XqueryStartupTrigger implements StartupTrigger {
     private List<String> getParameters(Map<String, List<? extends Object>> params) {
 
         // Return values
-        List<String> paths = new ArrayList<String>();
+        List<String> paths = new ArrayList<>();
 
         // The complete data map
         Set<Map.Entry<String, List<? extends Object>>> data = params.entrySet();

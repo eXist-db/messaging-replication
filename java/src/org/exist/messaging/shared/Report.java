@@ -52,7 +52,7 @@ public class Report {
     /**
      * Storage for errors
      */
-    private List<ReportItem> errors = new ArrayList<ReportItem>();
+    private final List<ReportItem> errors = new ArrayList<>();
 
     /**
      * Increase the nr of total received messages
@@ -133,7 +133,7 @@ public class Report {
      * @return List tests of all problems
      */
     public List<String> getErrorMessages() {
-        List<String> errorMessages = new ArrayList<String>();
+        List<String> errorMessages = new ArrayList<>();
         for (ReportItem t : errors) {
             errorMessages.add(t.getMessage());
         }

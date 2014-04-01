@@ -64,7 +64,7 @@ public class eXistMessage {
     private String destination;
     private byte[] payload;
     
-    private Map<String, Object> metaData = new HashMap<String, Object>();
+    private Map<String, Object> metaData = new HashMap<>();
 
     /**
      * Atomic operations on resources

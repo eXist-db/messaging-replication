@@ -96,10 +96,10 @@ public class MessageHelper {
             try {
                 serializer.setProperties(OUTPUT_PROPERTIES);
 
-                Writer w = new OutputStreamWriter(gos, "UTF-8");
-                serializer.serialize(document, w);
-                w.flush();
-                w.close();
+                try (Writer w = new OutputStreamWriter(gos, "UTF-8")) {
+                    serializer.serialize(document, w);
+                    w.flush();
+                }
 
                 payload = baos.toByteArray();
 

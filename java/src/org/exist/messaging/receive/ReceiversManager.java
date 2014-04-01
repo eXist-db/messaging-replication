@@ -33,7 +33,7 @@ public class ReceiversManager {
 
     private final static Logger LOG = Logger.getLogger(ReceiversManager.class);
 
-    private final Map<Integer, Receiver> receivers = new HashMap<Integer, Receiver>();
+    private final Map<Integer, Receiver> receivers = new HashMap<>();
     private static ReceiversManager instance;
 
     private ReceiversManager() {

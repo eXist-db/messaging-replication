@@ -45,7 +45,7 @@ public class JMSMessageSender implements MessageSender {
 
     private final static Logger LOG = Logger.getLogger(JMSMessageSender.class);
     
-    private PublisherParameters parameters = new PublisherParameters();
+    private final PublisherParameters parameters = new PublisherParameters();
 
     /**
      * Constructor

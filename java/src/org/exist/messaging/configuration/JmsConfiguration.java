@@ -46,7 +46,7 @@ import org.exist.xquery.value.SequenceIterator;
  */
 public class JmsConfiguration extends MessagingConfiguration {
     
-    public static final String CONFIG_ERROR_MSG = "Missing configuration item '%s'";
+    private static final String CONFIG_ERROR_MSG = "Missing configuration item '%s'";
     
     /**
      * Load data from XQuery map-type and convert the data into String key/value pairs.

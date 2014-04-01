@@ -35,7 +35,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
     private final static Logger LOG = Logger.getLogger(eXistMessagingListener.class);
 
 
-    private Report report = new Report();
+    private final Report report = new Report();
 
 
     /**
