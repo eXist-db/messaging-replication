@@ -36,6 +36,6 @@ public interface MessageSender {
      * @param em the message that needs to be sent
      * @throws TransportException when something bad happens.
      */
-    public void sendMessage(eXistMessage em) throws TransportException;
+    void sendMessage(eXistMessage em) throws TransportException;
     
 }

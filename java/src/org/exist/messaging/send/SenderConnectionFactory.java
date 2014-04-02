@@ -35,7 +35,7 @@ class SenderConnectionFactory {
 
     private final static Logger LOG = Logger.getLogger(SenderConnectionFactory.class);
 
-    private static final Map<String, ConnectionFactory> connectionFactories = new HashMap<String, ConnectionFactory>();
+    private static final Map<String, ConnectionFactory> connectionFactories = new HashMap<>();
 
     /**
      * Get Connection Factory. Return existing factory or create new one if not existent.

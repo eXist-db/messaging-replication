@@ -19,6 +19,7 @@
  */
 package org.exist.messaging.shared;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 import org.exist.dom.StoredNode;
@@ -59,7 +60,7 @@ public class eXistMessageItem implements Item {
     @Override
     public String getStringValue() throws XPathException {
         if (data != null) {
-            return data.getPayload().toString();
+            return Arrays.toString(data.getPayload());
         }
         return null;
     }

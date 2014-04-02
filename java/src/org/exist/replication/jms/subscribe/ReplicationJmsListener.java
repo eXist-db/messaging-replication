@@ -420,10 +420,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 byte[] payload = em.getPayload();
                 ByteArrayInputStream bais = new ByteArrayInputStream(payload);
                 GZIPInputStream gis = new GZIPInputStream(bais);
-                BufferedInputStream bis = new BufferedInputStream(gis);
-                // DW: collectionollectin can be null
-                doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
-                bis.close();
+  
+                try (BufferedInputStream bis = new BufferedInputStream(gis)) {
+                    // DW: collection can be null
+                    doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
+                }
             }
 
             // Set owner,group and permissions

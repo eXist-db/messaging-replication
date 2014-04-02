@@ -472,17 +472,10 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 throw new XPathException(txt);
             }
 
-        } catch (SAXException ex) {
+        } catch (SAXException | ParserConfigurationException | IOException ex) {
             report.addListenerError(ex);
             throw new XPathException(ex.getMessage());
 
-        } catch (ParserConfigurationException ex) {
-            report.addListenerError(ex);
-            throw new XPathException(ex.getMessage());
-
-        } catch (IOException ex) {
-            report.addListenerError(ex);
-            throw new XPathException(ex.getMessage());
         }
 
         return content;
