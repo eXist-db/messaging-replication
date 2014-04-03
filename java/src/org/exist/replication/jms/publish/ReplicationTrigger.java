@@ -23,17 +23,16 @@ package org.exist.replication.jms.publish;
 
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-
 import org.exist.collections.Collection;
 import org.exist.collections.triggers.CollectionTrigger;
 import org.exist.collections.triggers.FilteringTrigger;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.DocumentImpl;
+import org.exist.messaging.shared.eXistMessage;
 import org.exist.replication.shared.MessageHelper;
 import org.exist.replication.shared.TransportException;
-import org.exist.messaging.shared.eXistMessage;
 import org.exist.storage.DBBroker;
 import org.exist.storage.txn.Txn;
 import org.exist.xmldb.XmldbURI;
@@ -53,6 +52,49 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     
     private Map<String, List<?>> parameters;
 
+    private boolean isOriginIdAvailable = false;
+
+    /**
+     * Constructor.
+     *
+     * Verifies if new-enough version of eXist-db is used.
+     *
+     */
+    public ReplicationTrigger() {
+
+        super();
+
+        try {
+            // Verify if method does exist
+            Txn tx = new Txn(0);
+            tx.getOriginId();
+
+            // Yes :-)
+            isOriginIdAvailable = true;
+
+        } catch (java.lang.NoSuchMethodError error) {
+
+            // Running an old version of eXist-db
+            LOG.error("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
+        }
+
+    }
+
+    /**
+     * Verify if the transaction is started by the JMX extension
+     *
+     * @param transaction The original transaction
+     *
+     * @return TRUE when started from JMS else FALSE.
+     */
+    private boolean isJMSOrigin(Txn transaction) {
+
+        // only try to get OriginId when metjod is available.
+        String originId = isOriginIdAvailable ? transaction.getOriginId() : null;
+
+        return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
+    }
+
     //
     // Document Triggers
     //
@@ -64,7 +106,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
         }
         
         /** TODO: make optional? (for lJO) */
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
@@ -106,7 +148,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(document.getURI().toString());
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
@@ -121,7 +163,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(document.getURI().toString());
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
@@ -136,7 +178,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
@@ -159,7 +201,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
@@ -182,7 +224,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(uri.toString());
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, uri.toString()));
             return;
         }
@@ -207,7 +249,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(collection.getURI().toString());
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
         }
 
@@ -231,7 +273,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
         }
 
@@ -253,7 +295,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
             return;
         }
@@ -275,7 +317,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             LOG.debug(uri.toString());
         }
         
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, uri.toString()));
             return;
         }
@@ -304,7 +346,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
         /*
          * If the action is originated from a trigger, do not process it again
          */
-        if(transaction.getOriginId()!=null && transaction.getOriginId().startsWith(JMS_EXTENSION_PKG)){
+        if (isJMSOrigin(transaction)) {
             LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }

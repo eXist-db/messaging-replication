@@ -82,6 +82,21 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         report = getReport();
     }
 
+    /**
+     * Set origin of transaction
+     *
+     * @param transaction The eXist-db transaction
+     */
+    private void setOrigin(Txn transaction) {
+        try {
+            transaction.setOriginId(this.getClass().getName());
+
+        } catch (java.lang.NoSuchMethodError error) {
+            // Running an old version of eXist-db
+            LOG.error("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
+        }
+    }
+
     @Override
     public void onMessage(Message msg) {
 
@@ -385,7 +400,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Start transaction
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
         
         try {
             DocumentImpl doc = null;
@@ -488,7 +503,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
 
         try {
             // TODO get user
@@ -558,7 +573,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
 
         try {
             // TODO get user
@@ -636,7 +651,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
 
         try {
             // TODO get user
@@ -742,7 +757,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Collection newCollection = null;
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
         
         try {
             // TODO get user
@@ -822,7 +837,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
 
         try {
             // TODO get user
@@ -916,7 +931,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
-        txn.setOriginId(this.getClass().getName());
+        setOrigin(txn);
 
         try {
             // TODO get user
