@@ -8,6 +8,7 @@
 
     <property name="build.dir" value="build"/>
     <property name="build.libs" value="${build.dir}/lib"/>
+    <property name="build.config" value="${build.dir}/config"/>
     <property name="dist.dir" value="dist"/>
 
     <property name="java.src" value="java/src"/>
@@ -56,31 +57,8 @@
     </target>
 	
     <target name="process" description="Process template files">
-		<copy file="config/application/expath-pkg.xml.tmpl" tofile="config/application/expath-pkg.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/application/repo.xml.tmpl" tofile="config/application/repo.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/library/expath-pkg.xml.tmpl" tofile="config/library/expath-pkg.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/library/exist.xml.tmpl" tofile="config/library/exist.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/library/repo.xml.tmpl" tofile="config/library/repo.xml">
+		<copy todir="${build.config}">
+			<fileset dir="config"/>
 			<filterset>
 			      <filter token="VERSION" value="${module.version}"/>
 				  <filter token="TITLE" value="${module.title}"/>
@@ -92,6 +70,7 @@
 		<tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.libs}"/>
+	<mkdir dir="${build.config}"/>
         <mkdir dir="${java.classes}"/>
         <mkdir dir="${java.libs}"/>
     </target>
@@ -100,8 +79,6 @@
         <delete dir="${build.dir}" includes="*.jar"/>
         <delete dir="${build.dir}/classes"/>
         <delete dir="${dist.dir}"/>
-		<delete dir="config/application" includes="*.xml"/>
-		<delete dir="config/library" includes="*.xml"/>
     </target>
 
     <target name="clean-all" depends="clean" description="Reset to clean state">
@@ -134,7 +111,7 @@
         <!-- create web application -->
         <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
             <fileset dir="${web.dir}"/>
-            <zipfileset dir="${config.dir}/application" includes="*.xml"/>
+            <zipfileset dir="${build.config}/application" includes="*.xml"/>
         </zip>
         
         <!-- create library -->
@@ -145,7 +122,7 @@
                 <exclude name="*-javadoc.jar"/>
                 <exclude name="*-sources.jar"/>
             </zipfileset>
-            <zipfileset dir="${config.dir}/library" includes="*.xml"/>
+            <zipfileset dir="${build.config}/library" includes="*.xml"/>
         </zip>       
     </target>
     
