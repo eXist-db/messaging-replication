@@ -8,6 +8,8 @@
 
     <property name="build.dir" value="build"/>
     <property name="build.libs" value="${build.dir}/lib"/>
+    <property name="build.config" value="${build.dir}/config"/>
+    <property name="build.javadoc" value="${build.dir}/javadoc"/>
     <property name="dist.dir" value="dist"/>
 
     <property name="java.src" value="java/src"/>
@@ -22,8 +24,8 @@
         <fileset dir="build/lib" includes="*.jar" erroronmissingdir="false"/>
     </path>
 
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"
-        classpathref="ivy.lib.path" onerror="report"/>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"
+        onerror="report"/>
 
     <!-- Seup build path -->
     <path id="classpath">
@@ -46,52 +48,28 @@
 
     <target name="setup" description="Download the Ivy dependency manager">
         <mkdir dir="${build.libs}"/>
-        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.jar"
-            dest="${build.libs}"/>
+        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.jar" dest="${build.libs}"/>
     </target>
 
-    <target name="download" description="Download 3d party JAR files"
-        xmlns:ivy="antlib:org.apache.ivy.ant">
+    <target name="download" description="Download 3d party JAR files" xmlns:ivy="antlib:org.apache.ivy.ant">
         <ivy:retrieve sync="true" pattern="${java.libs}/[artifact]-[revision](-[classifier]).[ext]"/>
     </target>
-	
+
     <target name="process" description="Process template files">
-		<copy file="config/application/expath-pkg.xml.tmpl" tofile="config/application/expath-pkg.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/application/repo.xml.tmpl" tofile="config/application/repo.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/library/expath-pkg.xml.tmpl" tofile="config/library/expath-pkg.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/library/exist.xml.tmpl" tofile="config/library/exist.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
-		<copy file="config/library/repo.xml.tmpl" tofile="config/library/repo.xml">
-			<filterset>
-			      <filter token="VERSION" value="${module.version}"/>
-				  <filter token="TITLE" value="${module.title}"/>
-			 </filterset>
-		</copy>
+        <copy todir="${build.config}">
+            <fileset dir="${config.dir}"/>
+            <filterset>
+                <filter token="VERSION" value="${module.version}"/>
+                <filter token="TITLE" value="${module.title}"/>
+            </filterset>
+        </copy>
     </target>
 
     <target name="prepare" depends="process" description="Create empty directories">
-		<tstamp/>
+        <tstamp/>
         <mkdir dir="${build.dir}"/>
         <mkdir dir="${build.libs}"/>
+        <mkdir dir="${build.config}"/>
         <mkdir dir="${java.classes}"/>
         <mkdir dir="${java.libs}"/>
     </target>
@@ -100,8 +78,6 @@
         <delete dir="${build.dir}" includes="*.jar"/>
         <delete dir="${build.dir}/classes"/>
         <delete dir="${dist.dir}"/>
-		<delete dir="config/application" includes="*.xml"/>
-		<delete dir="config/library" includes="*.xml"/>
     </target>
 
     <target name="clean-all" depends="clean" description="Reset to clean state">
@@ -110,12 +86,12 @@
     </target>
 
     <target name="compile" depends="prepare,download" description="Compile java sources">
-        <javac srcdir="${java.src}" destdir="${java.classes}" optimize="true" debug="true"
-            target="${javac.target}" source="${javac.source}" includeantruntime="false">
+        <javac srcdir="${java.src}" destdir="${java.classes}" optimize="true" debug="true" target="${javac.target}"
+            source="${javac.source}" includeantruntime="false">
             <classpath>
                 <path refid="classpath"/>
             </classpath>
-			<!-- <compilerarg value="-Xlint"/> -->
+            <!-- <compilerarg value="-Xlint"/> -->
         </javac>
     </target>
 
@@ -129,14 +105,25 @@
         </jar>
     </target>
 
+    <target name="javadoc" depends="prepare" description="Generate Javadocs">
+        <mkdir dir="${build.javadoc}"/>
+        <javadoc sourcepath="${java.src}" destdir="${build.javadoc}" classpathref="classpath">
+            <link href="http://docs.oracle.com/javase/7/docs/api/"/>
+            <link href="http://docs.oracle.com/javaee/7/api/"/>
+            <link href="http://exist-db.org/exist/api/"/>
+
+
+        </javadoc>
+    </target>
+
     <target name="xar" depends="jar" description="Create XAR files">
-        
+
         <!-- create web application -->
         <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
             <fileset dir="${web.dir}"/>
-            <zipfileset dir="${config.dir}/application" includes="*.xml"/>
+            <zipfileset dir="${build.config}/application" includes="*.xml"/>
         </zip>
-        
+
         <!-- create library -->
         <zip destfile="${dist.dir}/${module.name}-lib-${module.version}.xar">
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="jms-lib"/>
@@ -145,13 +132,13 @@
                 <exclude name="*-javadoc.jar"/>
                 <exclude name="*-sources.jar"/>
             </zipfileset>
-            <zipfileset dir="${config.dir}/library" includes="*.xml"/>
-        </zip>       
+            <zipfileset dir="${build.config}/library" includes="*.xml"/>
+        </zip>
     </target>
-    
+
     <target name="install" description="Install jar files into ${exist.dir}/lib/extensions">
         <copy file="${build.dir}/exist-${module.name}-${module.version}.jar" todir="${exist.dir}/lib/user"/>
-        
+
         <copy todir="${exist.dir}/lib/user">
             <fileset dir="${java.libs}" includes="*.jar" excludes="*sources*,*javadoc*"/>
         </copy>
