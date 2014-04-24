@@ -21,11 +21,10 @@
 
     <!-- Setup IVY download manager -->
     <path id="ivy.lib.path">
-        <fileset dir="build/lib" includes="*.jar" erroronmissingdir="false"/>
+        <fileset dir="build/lib" includes="ivy*.jar" erroronmissingdir="false"/>
     </path>
 
-    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"
-        onerror="report"/>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
 
     <!-- Seup build path -->
     <path id="classpath">
@@ -48,9 +47,11 @@
 
     <target name="setup" description="Download the Ivy dependency manager">
         <mkdir dir="${build.libs}"/>
-        <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/2.3.0/ivy-2.3.0.jar" dest="${build.libs}"/>
+		<echo>${ivy_url}</echo>
+        <get src="${ivy_url}" dest="${build.libs}"/>
     </target>
 
+	<!-- Be sure the 'setup' task has been executed first -->
     <target name="download" description="Download 3d party JAR files" xmlns:ivy="antlib:org.apache.ivy.ant">
         <ivy:retrieve sync="true" pattern="${java.libs}/[artifact]-[revision](-[classifier]).[ext]"/>
     </target>
@@ -111,8 +112,7 @@
             <link href="http://docs.oracle.com/javase/7/docs/api/"/>
             <link href="http://docs.oracle.com/javaee/7/api/"/>
             <link href="http://exist-db.org/exist/api/"/>
-
-
+			<link href="http://xmldb.exist-db.org/javadoc"/>
         </javadoc>
     </target>
 
