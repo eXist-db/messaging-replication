@@ -60,7 +60,7 @@ class SenderConnectionFactory {
                 LOG.info(String.format("Creating new PooledConnectionFactory for %s", brokerURL));
 
                 // Construct and initialize the factory
-                Class clazz = Class.forName(className);
+                Class<?> clazz = Class.forName(className);
                 Object object = ConstructorUtils.invokeConstructor(clazz, brokerURL);
 
                 // Convert to class
