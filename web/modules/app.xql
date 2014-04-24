@@ -153,14 +153,7 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
                 <td>{data($report/statistics/nrProcessedMessages)}</td>
                 <td>{data($report/statistics/nrFailedMessages)}</td>
                 
-                <td style="{ if($nrErrors eq 0) then '' else  'background-color:#f2dede;'}">{ 
-    
-                    if($nrErrors eq 0) 
-                    then
-                       $nrErrors 
-                    else
-                        <a id="error" href="#" data-html="true" data-toggle="tooltip" title="{data($report/errorMessages/error)}">{$nrErrors}</a>
-                }</td>
+                <td style="{ if($nrErrors eq 0) then '' else  'background-color:#f2dede;'}">{ $nrErrors }</td>
                 </tr>
         } 
         </tbody>
