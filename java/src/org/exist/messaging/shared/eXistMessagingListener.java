@@ -49,7 +49,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
 
     /**
      *  Get they way the listener is used.
-     * @return 
+     * @return Description how listener is used.
      */
     abstract public String getUsageType();
 

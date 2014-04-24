@@ -121,7 +121,7 @@ public class Receiver {
     /**
      * Get ID of receiver
      *
-     * @return
+     * @return ID of receiver
      */
     public Integer getId() {
         return id;

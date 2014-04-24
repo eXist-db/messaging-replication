@@ -124,7 +124,7 @@ public class JmsConfiguration extends MessagingConfiguration {
     /**
      * Get URL to broker.
      *
-     * @see Context.PROVIDER_URL
+     * @see Context#PROVIDER_URL
      * @return URL
      */
     public String getBrokerURL() {

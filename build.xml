@@ -92,7 +92,11 @@
             <classpath>
                 <path refid="classpath"/>
             </classpath>
-            <!-- <compilerarg value="-Xlint"/> -->
+            <!-- 
+				<compilerarg value="-Xlint:unchecked"/>
+				<compilerarg value="-Xlint:deprecation"/>
+				<compilerarg value="-Xlint"/> 
+			-->
         </javac>
     </target>
 
@@ -126,8 +130,8 @@
 
         <!-- create library -->
         <zip destfile="${dist.dir}/${module.name}-lib-${module.version}.xar">
-            <zipfileset dir="${build.dir}" includes="*.jar" prefix="jms-lib"/>
-            <zipfileset dir="${java.libs}" prefix="jms-lib">
+            <zipfileset dir="${build.dir}" includes="*.jar" prefix="content"/>
+            <zipfileset dir="${java.libs}" prefix="content">
                 <include name="*.jar"/>
                 <exclude name="*-javadoc.jar"/>
                 <exclude name="*-sources.jar"/>

@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.triggers.CollectionTrigger;
-import org.exist.collections.triggers.FilteringTrigger;
+import org.exist.collections.triggers.SAXTrigger;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.DocumentImpl;
 import org.exist.messaging.shared.eXistMessage;
@@ -43,9 +43,9 @@ import org.exist.xmldb.XmldbURI;
  *
  * @author Dannes Wessels (dannes@exist-db.org)
  */
-public class ReplicationTrigger extends FilteringTrigger implements /* DocumentTrigger,*/ CollectionTrigger {
+public class ReplicationTrigger extends SAXTrigger implements /* DocumentTrigger,*/ CollectionTrigger {
 
-    private final static Logger LOG = Logger.getLogger(ReplicationTrigger.class);
+    private final static Logger LOGGER = Logger.getLogger(ReplicationTrigger.class);
     
     private static final String BLOCKED_MESSAGE = "Blocked replication trigger for %s: was received by replication extension.";
     public static final String JMS_EXTENSION_PKG = "org.exist.replication.jms";
@@ -75,7 +75,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
         } catch (java.lang.NoSuchMethodError error) {
 
             // Running an old version of eXist-db
-            LOG.error("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
+            LOGGER.error("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
         }
 
     }
@@ -101,13 +101,13 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     private void afterUpdateCreateDocument(DBBroker broker, Txn transaction, DocumentImpl document, 
                                            eXistMessage.ResourceOperation operation) /* throws TriggerException */ {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(document.getURI().toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(document.getURI().toString());
         }
         
         /** TODO: make optional? (for lJO) */
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
 
@@ -132,8 +132,7 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             msg.setPayload(MessageHelper.gzipSerialize(broker, document));
 
         } catch (Throwable ex) {
-            LOG.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s", 
-                                    document.getContentLength(), ex.getMessage()), ex);
+            LOGGER.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s",                                    document.getContentLength(), ex.getMessage()), ex);
             //throw new TriggerException("Unable to retrieve message payload: " + ex.getMessage());
         }
 
@@ -144,12 +143,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterCreateDocument(DBBroker broker, Txn transaction,  DocumentImpl document) throws TriggerException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(document.getURI().toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(document.getURI().toString());
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
 
@@ -159,12 +158,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterUpdateDocument(DBBroker broker, Txn transaction, DocumentImpl document) throws TriggerException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(document.getURI().toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(document.getURI().toString());
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
 
@@ -174,12 +173,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterCopyDocument(DBBroker broker, Txn transaction, DocumentImpl document, XmldbURI oldUri) throws TriggerException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
 
@@ -197,12 +196,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterMoveDocument(DBBroker broker, Txn transaction, DocumentImpl document, XmldbURI oldUri) throws TriggerException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
 
@@ -220,12 +219,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterDeleteDocument(DBBroker broker, Txn transaction, XmldbURI uri) throws TriggerException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(uri.toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(uri.toString());
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, uri.toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, uri.toString()));
             return;
         }
 
@@ -245,12 +244,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterCreateCollection(DBBroker broker, Txn transaction, Collection collection) throws TriggerException {
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(collection.getURI().toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(collection.getURI().toString());
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
         }
 
         // Create Message
@@ -269,12 +268,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterCopyCollection(DBBroker broker, Txn transaction, Collection collection, XmldbURI oldUri) throws TriggerException {
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
         }
 
         // Create Message
@@ -291,12 +290,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterMoveCollection(DBBroker broker, Txn transaction, Collection collection, XmldbURI oldUri) throws TriggerException {
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
             return;
         }
 
@@ -313,12 +312,12 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
 
     @Override
     public void afterDeleteCollection(DBBroker broker, Txn transaction, XmldbURI uri) throws TriggerException {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(uri.toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(uri.toString());
         }
         
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, uri.toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, uri.toString()));
             return;
         }
 
@@ -339,15 +338,15 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
     @Override
     public void afterUpdateDocumentMetadata(DBBroker broker, Txn transaction, DocumentImpl document) throws TriggerException {
         
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(document.getURI().toString());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(document.getURI().toString());
         }
 
         /*
          * If the action is originated from a trigger, do not process it again
          */
         if (isJMSOrigin(transaction)) {
-            LOG.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
             return;
         }
 
@@ -388,11 +387,11 @@ public class ReplicationTrigger extends FilteringTrigger implements /* DocumentT
             sender.sendMessage(msg);
 
         } catch (TransportException ex) {
-            LOG.error(ex.getMessage(), ex);
+            LOGGER.error(ex.getMessage(), ex);
             //throw new TriggerException(ex.getMessage(), ex);
             
         } catch (Throwable ex) {
-            LOG.error(ex.getMessage(), ex);
+            LOGGER.error(ex.getMessage(), ex);
             //throw new TriggerException(ex.getMessage(), ex);
         }
     }
