@@ -137,9 +137,8 @@ public abstract class ClientParameters {
     }
     
     /**
-     *  Retrieve initial context properties, e.g. {@link Context.INITIAL_CONTEXT_FACTORY}
-     * and {@link Context.PROVIDER_URL}. Only properties with key starting with
-     * ".java" are added to the result.
+     * Retrieve initial context properties, e.g. {@link Context#INITIAL_CONTEXT_FACTORY} and
+     * {@link Context#PROVIDER_URL}. Only properties with key starting with     * ".java" are added to the result.
      *
      * @return Initial context properties
      */
