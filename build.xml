@@ -112,8 +112,7 @@
             <link href="http://docs.oracle.com/javase/7/docs/api/"/>
             <link href="http://docs.oracle.com/javaee/7/api/"/>
             <link href="http://exist-db.org/exist/api/"/>
-
-
+			<link href="http://xmldb.exist-db.org/javadoc"/>
         </javadoc>
     </target>
 
