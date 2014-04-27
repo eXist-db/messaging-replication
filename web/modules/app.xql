@@ -31,7 +31,7 @@ declare function app:executeAction($node as node(), $model as map(*), $action as
                case "close" return jms:close($receiver)
                default return "unknown action"
         } catch * {
-            <div class="alert alert-error">
+            <div class="alert alert-danger">
             {$err:description}
             </div> 
         }
@@ -55,7 +55,8 @@ declare function app:showReport($node as node(), $model as map(*), $show as xs:s
             <caption>JMS configuration</caption>
                 <thead>
                     <tr>
-                    <th>Item</th><th>Value</th>
+                        <th>Item</th>
+                        <th>Value</th>
                     </tr>
                 </thead>
             <tbody>
@@ -113,7 +114,7 @@ declare function app:showReport($node as node(), $model as map(*), $show as xs:s
                  
         </div>
         } catch * {
-            <div class="alert alert-error">
+            <div class="alert alert-danger">
             {$err:description}
             </div> 
         }
@@ -127,7 +128,15 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
         <table id="manageTable" class="table table-striped table-hoover table-bordered table-condensed tablesorter table-scrollable">
         <thead>
             <tr>
-                <th>Id</th><th>State</th><th>Action</th><th>URL</th><th>Destination</th><th>Client-id</th><th title="Number of messages">#</th><th title="Number of failed messages">F</th><th title="Number of errors">E</th>
+                <th>Id</th>
+                <th>State</th>
+                <th>Action</th>
+                <th>URL</th>
+                <th>Destination</th>
+                <th>Client-id</th>
+                <th title="Number of messages">#</th>
+                <th title="Number of failed messages">F</th>
+                <th title="Number of errors">E</th>
             </tr>
         </thead>
         <tbody>
@@ -140,10 +149,10 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
                 <td>{data($report/@id)}</td>
                 <td>{data($report/state)}</td>
                 <td>
-                    <a title="Show Report" href="?show=report&amp;receiver={$id}"><i class="icon-info-sign"/></a>
-                    <a title="Start Receiver" href="?action=start&amp;receiver={$id}"><i class="icon-play"/></a> 
-                    <a title="Stop Receiver" href="?action=stop&amp;receiver={$id}"><i class="icon-pause"/></a>  
-                    <a title="Close Receiver" href="?action=close&amp;receiver={$id}"><i class="icon-ban-circle"/></a>  
+                    <a title="Show Report" href="?show=report&amp;receiver={$id}"><span class="glyphicon glyphicon-info-sign"/></a>
+                    <a title="Start Receiver" href="?action=start&amp;receiver={$id}"><span class="glyphicon glyphicon-play"/></a> 
+                    <a title="Stop Receiver" href="?action=stop&amp;receiver={$id}"><span class="glyphicon glyphicon-pause"/></a>  
+                    <a title="Close Receiver" href="?action=close&amp;receiver={$id}"><span class="glyphicon glyphicon-remove-sign"/></a>  
                     
                         
                 </td>
@@ -160,7 +169,7 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
         </table>
         
     } catch * {
-            <div class="alert alert-error">
+            <div class="alert alert-danger">
             {$err:description}
             </div> 
     }

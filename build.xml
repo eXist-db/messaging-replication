@@ -99,6 +99,8 @@
 			-->
         </javac>
     </target>
+	
+	<target name="rebuild" depends="clean,xar" description="Clean and build XAR files"/>
 
     <target name="jar" depends="compile" description="Create JAR file">
         <jar basedir="${java.classes}" jarfile="${build.dir}/exist-${module.name}-${module.version}.jar">
@@ -118,6 +120,13 @@
             <link href="http://exist-db.org/exist/api/"/>
 			<link href="http://xmldb.exist-db.org/javadoc"/>
         </javadoc>
+        <jar basedir="${build.javadoc}" jarfile="${build.dir}/exist-${module.name}-${module.version}-javadoc.jar">
+            <manifest>
+                <attribute name="Project-Name" value="${module.name}"/>
+                <attribute name="Project-Version" value="${module.version}"/>
+                <attribute name="Project-Build" value="${DSTAMP}"/>
+            </manifest>
+        </jar>
     </target>
 
     <target name="xar" depends="jar" description="Create XAR files">
