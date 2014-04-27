@@ -132,13 +132,13 @@
     <target name="xar" depends="jar" description="Create XAR files">
 
         <!-- create web application -->
-        <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
+        <zip destfile="${dist.dir}/${module.name}-ui-${module.version}.xar">
             <fileset dir="${web.dir}"/>
             <zipfileset dir="${build.config}/application" includes="*.xml"/>
         </zip>
 
         <!-- create library -->
-        <zip destfile="${dist.dir}/${module.name}-lib-${module.version}.xar">
+        <zip destfile="${dist.dir}/${module.name}-core-${module.version}.xar">
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="content"/>
             <zipfileset dir="${java.libs}" prefix="content">
                 <include name="*.jar"/>
