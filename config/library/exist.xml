@@ -11,4 +11,8 @@
         <namespace>http://exist-db.org/xquery/messaging</namespace>
         <class>org.exist.messaging.xquery.MessagingModule</class>
     </java>
+    <java>
+        <namespace>http://exist-db.org/xquery/replication</namespace>
+        <class>org.exist.replication.xquery.ReplicationModule</class>
+    </java>
 </package>

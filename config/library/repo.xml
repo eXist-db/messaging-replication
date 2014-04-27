@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>@TITLE@ - Java libraries</description>
+    <description>@TITLE@ - Core</description>
     <author>Dannes Wessels</author>
     <website>https://github.com/eXist-db/messaging-replication</website>
     <status>beta</status>
