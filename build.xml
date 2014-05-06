@@ -78,6 +78,7 @@
     <target name="clean" description="Clean up all generated files">
         <delete dir="${build.dir}" includes="*.jar"/>
         <delete dir="${build.dir}/classes"/>
+		<delete dir="${build.config}"/>
         <delete dir="${dist.dir}"/>
     </target>
 
