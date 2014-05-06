@@ -27,7 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.triggers.CollectionTrigger;
-import org.exist.collections.triggers.SAXTrigger;
+import org.exist.collections.triggers.FilteringTrigger;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.DocumentImpl;
 import org.exist.messaging.shared.eXistMessage;
@@ -43,7 +43,7 @@ import org.exist.xmldb.XmldbURI;
  *
  * @author Dannes Wessels (dannes@exist-db.org)
  */
-public class ReplicationTrigger extends SAXTrigger implements /* DocumentTrigger,*/ CollectionTrigger {
+public class ReplicationTrigger extends FilteringTrigger implements CollectionTrigger {
 
     private final static Logger LOGGER = Logger.getLogger(ReplicationTrigger.class);
     
@@ -66,16 +66,15 @@ public class ReplicationTrigger extends SAXTrigger implements /* DocumentTrigger
 
         try {
             // Verify if method does exist
-            Txn tx = new Txn(0);
-            tx.getOriginId();
+            Class.forName("org.exist.Transaction");
 
             // Yes :-)
             isOriginIdAvailable = true;
 
-        } catch (java.lang.NoSuchMethodError error) {
+        } catch (java.lang.ClassNotFoundException error) {
 
             // Running an old version of eXist-db
-            LOGGER.error("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
+            LOGGER.info("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
         }
 
     }
