@@ -21,12 +21,14 @@ package org.exist.messaging.shared;
 
 import java.util.Arrays;
 import java.util.Properties;
+import org.apache.log4j.Logger;
 
 import org.exist.dom.StoredNode;
 import org.exist.memtree.DocumentBuilderReceiver;
 import org.exist.numbering.NodeId;
 import org.exist.storage.DBBroker;
 import org.exist.xquery.XPathException;
+import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.AtomicValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
@@ -41,6 +43,8 @@ import org.xml.sax.SAXException;
  * @author Dannes Wessels
  */
 public class eXistMessageItem implements Item {
+
+    protected final static Logger LOG = Logger.getLogger(eXistMessageItem.class);
 
     private eXistMessage data = null;
 
@@ -102,6 +106,11 @@ public class eXistMessageItem implements Item {
 
     @Override
     public void nodeMoved(NodeId oldNodeId, StoredNode newNode) {
-        throw new UnsupportedOperationException("Not supported yet.nodeMoved");
+        throw new UnsupportedOperationException("Not supported yet. nodeMoved");
+    }
+
+    @Override
+    public void destroy(XQueryContext context, Sequence contextSequence) {
+        throw new UnsupportedOperationException("Not supported yet. destroy");
     }
 }
