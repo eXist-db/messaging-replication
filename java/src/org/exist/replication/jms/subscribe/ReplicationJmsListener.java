@@ -66,7 +66,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private final static Logger LOG = Logger.getLogger(ReplicationJmsListener.class);
     private BrokerPool brokerPool = null;
     private org.exist.security.SecurityManager securityManager = null;
-    
+
     private String localID = null;
     private Report report = null;
 
@@ -77,7 +77,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      */
     public ReplicationJmsListener(BrokerPool brokerpool) {
         brokerPool = brokerpool;
-        securityManager = brokerpool.getSecurityManager(); 
+        securityManager = brokerpool.getSecurityManager();
         localID = Identity.getInstance().getIdentity();
         report = getReport();
     }
@@ -102,17 +102,17 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         // Start reporting
         report.start();
-        
+
         try {
             // Detect if the sender of the incoming message is the receiver
             if (StringUtils.isNotEmpty(localID)) {
                 String remoteID = msg.getStringProperty(Constants.EXIST_INSTANCE_ID);
-                if(localID.equals(remoteID)){
+                if (localID.equals(remoteID)) {
                     LOG.info("Incoming JMS messsage was sent by this instance. Processing stopped.");
                     return; // TODO: throw exception? probably not because message does not need to be re-received
                 }
             }
-                      
+
             if (msg instanceof BytesMessage) {
 
                 // Prepare received message
@@ -174,7 +174,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     //
     // The code below handles the incoming message ; DW: should be moved to seperate class
     //
-
     /**
      * Convert JMS ByteMessage into an eXist-db specific message.
      *
@@ -216,7 +215,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         return em;
     }
-
 
     /**
      * Handle operation on documents
@@ -291,7 +289,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      */
     private void createDocument(eXistMessage em) {
 
-        Map<String, Object> props = em.getMetadata();
+        Map<String, Object> metaData = em.getMetadata();
 
         XmldbURI sourcePath = XmldbURI.create(em.getResourcePath());
         XmldbURI colURI = sourcePath.removeLastSegment();
@@ -307,89 +305,30 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             mime = MimeType.BINARY_TYPE;
         }
 
-        // 
-        // Get OWNER
-        ///
-        String userName = null;
-        Object prop = props.get(MessageHelper.EXIST_RESOURCE_OWNER);
-        if (prop != null && prop instanceof String) {
-            userName = (String) prop;
-        }
+        // Get OWNER and Group
+        String userName = getUserName(metaData);
+        String groupName = getGroupName(metaData);
 
-        Account account = securityManager.getAccount(userName);
-        if (account == null) {
-            String errorText = String.format("Username %s does not exist.", userName);
-            LOG.error(errorText);
-            //throw new MessageReceiveException(errorText);
-            account = securityManager.getSystemSubject();
-            userName = account.getName();
-        }
-
-        //
-        // Get GROUP
-        //
-        String groupName = null;
-        prop = props.get(MessageHelper.EXIST_RESOURCE_GROUP);
-        if (prop != null && prop instanceof String) {
-            groupName = (String) prop;
-        }
-
-        Group group = securityManager.getGroup(groupName);
-        if (group == null) {
-            String errorText = String.format("Group %s does not exist.", groupName);
-            LOG.error(errorText);
-            //throw new MessageReceiveException(errorText);
-            group = securityManager.getSystemSubject().getDefaultGroup();
-            groupName = group.getName();
-        }
-
-        //
         // Get MIME_TYPE
-        //
-        MimeTable mimeTable = MimeTable.getInstance();
-        String mimeType = null;
-        prop = props.get(MessageHelper.EXIST_RESOURCE_MIMETYPE);
-        if (prop != null && prop instanceof String) {
-            MimeType mT = mimeTable.getContentTypeFor((String) prop);
-            if (mT != null) {
-                mimeType = mT.getName();
-            }
+        String mimeType = getMimeType(metaData, sourcePath);
 
-        }
-
-        // Fallback based on filename
-        if (mimeType == null) {
-            MimeType mT = mimeTable.getContentTypeFor(sourcePath);
-
-            if (mT == null) {
-                throw new MessageReceiveException("Unable to determine mimetype");
-            }
-            mimeType = mT.getName();
-        }
-
-        // Get/Set permissions
-        Integer mode = null;
-        prop = props.get(MessageHelper.EXIST_RESOURCE_MODE);
-        if (prop != null && prop instanceof Integer) {
-            mode = (Integer) prop;
-        }
-
+        // Get MODE
+        Integer mode = getMode(metaData);
 
         try {
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
-
             if (collection == null) {
                 String errorMessage = String.format("Collection %s does not exist", colURI);
                 LOG.error(errorMessage);
-                
+
                 // Create collection anyway
                 collection = createCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
             }
-            
-        } catch (Throwable t){
-             if(LOG.isDebugEnabled()){
+
+        } catch (Throwable t) {
+            if (LOG.isDebugEnabled()) {
                 LOG.error(t.getMessage(), t);
             } else {
                 LOG.error(t.getMessage());
@@ -401,7 +340,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
-        
+
         try {
             DocumentImpl doc = null;
             if (mime.isXMLType()) {
@@ -412,7 +351,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 InputStream byteInputStream = vt.getByteStream();
 
                 // DW: future improvement: determine compression based on property.
-
                 GZIPInputStream gis = new GZIPInputStream(byteInputStream);
                 InputSource inputsource = new InputSource(gis);
 
@@ -435,7 +373,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 byte[] payload = em.getPayload();
                 ByteArrayInputStream bais = new ByteArrayInputStream(payload);
                 GZIPInputStream gis = new GZIPInputStream(bais);
-  
+
                 try (BufferedInputStream bis = new BufferedInputStream(gis)) {
                     // DW: collection can be null
                     doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
@@ -454,18 +392,17 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 permission.setMode(mode);
             }
 
-
             // Commit change
             txnManager.commit(txn);
 
         } catch (Throwable ex) {
-            
-            if(LOG.isDebugEnabled()){
+
+            if (LOG.isDebugEnabled()) {
                 LOG.error(ex.getMessage(), ex);
             } else {
                 LOG.error(ex.getMessage());
             }
-            
+
             txnManager.abort(txn);
             throw new MessageReceiveException(String.format("Unable to write document into database: %s", ex.getMessage()));
 
@@ -484,7 +421,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     /**
      * Metadata is updated in database
-     * 
+     *
      * TODO not usable yet
      */
     private void updateMetadataDocument(eXistMessage em) {
@@ -516,7 +453,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(errorText);
                 txnManager.abort(txn);
                 //throw new MessageReceiveException(errorText);
-                
+
                 // be silent
                 return;
             }
@@ -528,13 +465,24 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(errorText);
                 txnManager.abort(txn);
                 //throw new MessageReceiveException(errorText);
-                
+
                 // be silent
                 return;
             }
 
-            //DW: TODO to do something
-            /* DocumentMetadata metadata = */ resource.getMetadata();
+            // Get supplied metadata
+            Map<String, Object> metaData = em.getMetadata();
+
+            Permission perms = resource.getPermissions();
+
+            String userName = getUserName(metaData);
+            perms.setGroup(userName);
+
+            String groupName = getGroupName(metaData);
+            perms.setGroup(groupName);
+
+            Integer mode = getMode(metaData);
+            perms.setMode(mode);
 
             // Commit change
             txnManager.commit(txn);
@@ -586,7 +534,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(errorText);
                 txnManager.abort(txn);
                 //throw new MessageReceiveException(errorText);
-                
+
                 // silently ignore
                 return;
             }
@@ -598,7 +546,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(errorText);
                 txnManager.abort(txn);
                 //throw new MessageReceiveException(errorText);
-                
+
                 // silently ignore
                 return;
             }
@@ -613,14 +561,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Commit change
             txnManager.commit(txn);
 
-        } catch (Throwable t ){
-            
-            if(LOG.isDebugEnabled()){
+        } catch (Throwable t) {
+
+            if (LOG.isDebugEnabled()) {
                 LOG.error(t.getMessage(), t);
             } else {
                 LOG.error(t.getMessage());
             }
-                        
+
             txnManager.abort(txn);
             throw new MessageReceiveException(t.getMessage(), t);
 
@@ -645,7 +593,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         //XmldbURI colURI = sourcePath.removeLastSegment();
         //XmldbURI docURI = sourcePath.lastSegment();
 
-
         DBBroker broker = null;
         Collection collection = null;
 
@@ -656,7 +603,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         try {
             // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
-
 
             // Open collection if possible, else abort
             //collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
@@ -673,15 +619,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Commit change
             txnManager.commit(txn);
 
-
         } catch (Throwable t) {
-            
-            if(LOG.isDebugEnabled()){
+
+            if (LOG.isDebugEnabled()) {
                 LOG.error(t.getMessage(), t);
             } else {
                 LOG.error(t.getMessage());
             }
-            
+
             txnManager.abort(txn);
             throw new MessageReceiveException(t.getMessage());
 
@@ -707,58 +652,23 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         //XmldbURI colURI = sourcePath.removeLastSegment();
         //XmldbURI docURI = sourcePath.lastSegment();
 
-        Map<String, Object> props = em.getMetadata();
+        Map<String, Object> metaData = em.getMetadata();
 
+        // Get OWNER/GROUP/MODE
+        String userName = getUserName(metaData);
+        String groupName = getGroupName(metaData);
+        Integer mode = getMode(metaData);
 
-        // Get OWNER
-        String userName = null;
-        Object prop = props.get(MessageHelper.EXIST_RESOURCE_OWNER);
-        if (prop != null && prop instanceof String) {
-            userName = (String) prop;
-        }
-
-        Account account = securityManager.getAccount(userName);
-        if (account == null) {
-            String errorText = String.format("Username %s does not exist.", userName);
-            LOG.error(errorText);
-            
-            account = securityManager.getSystemSubject();
-            userName = account.getName();
-        }
-
-        // Get GROUP
-        String groupName = null;
-        prop = props.get(MessageHelper.EXIST_RESOURCE_GROUP);
-        if (prop != null && prop instanceof String) {
-            groupName = (String) prop;
-        }
-
-        Group group = securityManager.getGroup(groupName);
-        if (group == null) {
-            String errorText = String.format("Group %s does not exist.", groupName);
-            LOG.error(errorText);
-  
-            group = securityManager.getSystemSubject().getDefaultGroup();
-            groupName = group.getName();
-        }
-
-        // Get/Set permissions
-        Integer mode = null;
-        prop = props.get(MessageHelper.EXIST_RESOURCE_MODE);
-        if (prop != null && prop instanceof Integer) {
-            mode = (Integer) prop;
-        }
-        
         createCollection(sourcePath, userName, groupName, mode);
     }
-    
+
     private Collection createCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
         DBBroker broker = null;
         Collection newCollection = null;
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
-        
+
         try {
             // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
@@ -793,19 +703,19 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Commit change
             txnManager.commit(txn);
-            
-        } catch (Throwable t) {
-           
-           if(LOG.isDebugEnabled()){
-               LOG.error(t.getMessage(), t);
-           } else {
-               LOG.error(t.getMessage());
-           }
-           
-           txnManager.abort(txn);
-           throw new MessageReceiveException(t.getMessage(), t);
 
-       } finally {
+        } catch (Throwable t) {
+
+            if (LOG.isDebugEnabled()) {
+                LOG.error(t.getMessage(), t);
+            } else {
+                LOG.error(t.getMessage());
+            }
+
+            txnManager.abort(txn);
+            throw new MessageReceiveException(t.getMessage(), t);
+
+        } finally {
             // TODO: check if can be done earlier
             if (newCollection != null) {
                 newCollection.release(Lock.WRITE_LOCK);
@@ -815,7 +725,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         }
         return newCollection;
     }
-      
 
     private void relocateDocument(eXistMessage em, boolean keepDocument) {
 
@@ -826,7 +735,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         XmldbURI destPath = XmldbURI.create(em.getDestinationPath());
         XmldbURI destColURI = destPath.removeLastSegment();
         XmldbURI destDocURI = destPath.lastSegment();
-
 
         DBBroker broker = null;
 
@@ -849,7 +757,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorMessage = String.format("Collection not found: %s", sourceColURI);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                
+
                 // be silent
                 return;
             }
@@ -860,7 +768,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorMessage = String.format("No resource found for path: %s", sourcePath);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                
+
                 // be silent
                 return;
             }
@@ -871,11 +779,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                
+
                 // be silent
                 return;
             }
-
 
             // Perform actial move/copy
             if (keepDocument) {
@@ -885,11 +792,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 broker.moveResource(txn, srcDocument, destCollection, destDocURI);
             }
 
-
             // Commit change
             txnManager.commit(txn);
-
-
 
         } catch (Throwable e) {
             LOG.error(e);
@@ -910,7 +814,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txnManager.close(txn);
             brokerPool.release(broker);
 
-
         }
     }
 
@@ -928,7 +831,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Collection srcCollection = null;
         Collection destCollection = null;
 
-
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
@@ -943,11 +845,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorMessage = String.format("Collection %s does not exist.", sourcePath);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                
+
                 // be silent
                 return;
             }
-
 
             // Open collection if possible, else abort
             destCollection = broker.openCollection(destColURI, Lock.WRITE_LOCK);
@@ -955,7 +856,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
                 LOG.error(errorMessage);
                 txnManager.abort(txn);
-                
+
                 // be silent
                 return;
             }
@@ -970,9 +871,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Commit change
             txnManager.commit(txn);
-
-
-
 
         } catch (Throwable e) {
             LOG.error(e);
@@ -992,16 +890,93 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txnManager.close(txn);
             brokerPool.release(broker);
 
-
         }
     }
-
-
 
     @Override
     public String getUsageType() {
         return "replication";
     }
 
+    /**
+     * Get valid username for database, else system subject if not valid.
+     */
+    private String getUserName(Map<String, Object> metaData) {
+
+        String userName = null;
+        Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_OWNER);
+        if (prop != null && prop instanceof String) {
+            userName = (String) prop;
+        }
+
+        Account account = securityManager.getAccount(userName);
+        if (account == null) {
+            String errorText = String.format("Username %s does not exist.", userName);
+            LOG.error(errorText);
+            //throw new MessageReceiveException(errorText);
+            account = securityManager.getSystemSubject();
+            userName = account.getName();
+        }
+
+        return userName;
+    }
+
+    /**
+     * Get valid groupname for database for database, else system subject if not existent
+     */
+    private String getGroupName(Map<String, Object> metaData) {
+
+        String groupName = null;
+        Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_GROUP);
+        if (prop != null && prop instanceof String) {
+            groupName = (String) prop;
+        }
+
+        Group group = securityManager.getGroup(groupName);
+        if (group == null) {
+            String errorText = String.format("Group %s does not exist.", groupName);
+            LOG.error(errorText);
+            //throw new MessageReceiveException(errorText);
+            group = securityManager.getSystemSubject().getDefaultGroup();
+            groupName = group.getName();
+        }
+
+        return groupName;
+    }
+
+    private String getMimeType(Map<String, Object> metaData, XmldbURI sourcePath) {
+        MimeTable mimeTable = MimeTable.getInstance();
+        String mimeType = null;
+        Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MIMETYPE);
+        if (prop != null && prop instanceof String) {
+            MimeType mT = mimeTable.getContentTypeFor((String) prop);
+            if (mT != null) {
+                mimeType = mT.getName();
+            }
+        }
+
+        // Fallback based on filename
+        if (mimeType == null) {
+            MimeType mT = mimeTable.getContentTypeFor(sourcePath);
+
+            if (mT == null) {
+                throw new MessageReceiveException("Unable to determine mimetype");
+            }
+            mimeType = mT.getName();
+        }
+
+        return mimeType;
+
+    }
+
+    private Integer getMode(Map<String, Object> metaData) {
+        // Get/Set permissions
+        Integer mode = null;
+        Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MODE);
+        if (prop != null && prop instanceof Integer) {
+            mode = (Integer) prop;
+        }
+        return mode;
+    }
 
 }
