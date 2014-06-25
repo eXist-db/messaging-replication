@@ -265,6 +265,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 createCollection(em);
                 break;
 
+            case METADATA:
+                updateMetadataCollection(em);
+                break;
+
             case DELETE:
                 deleteCollection(em);
                 break;
@@ -476,13 +480,24 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             Permission perms = resource.getPermissions();
 
             String userName = getUserName(metaData);
-            perms.setGroup(userName);
+            if (userName != null) {
+                perms.setGroup(userName);
+            }
 
             String groupName = getGroupName(metaData);
-            perms.setGroup(groupName);
+            if (groupName != null) {
+                perms.setGroup(groupName);
+            }
 
             Integer mode = getMode(metaData);
-            perms.setMode(mode);
+            if (mode != null) {
+                perms.setMode(mode);
+            }
+
+            String mimeType = getMimeType(metaData, sourcePath);
+            if (mimeType != null) {
+                resource.getMetadata().setMimeType(mimeType);
+            }
 
             // Commit change
             txnManager.commit(txn);
@@ -665,14 +680,15 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private Collection createCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
         DBBroker broker = null;
         Collection newCollection = null;
+
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
         try {
-            // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
-            // TODO ... consider to swallow situation transparently
+
+            // Check if collection is already there
             Collection collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
             if (collection != null) {
                 String errorText = String.format("Collection %s already exists", sourcePath);
@@ -855,6 +871,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (destCollection == null) {
                 String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
                 LOG.error(errorMessage);
+
                 txnManager.abort(txn);
 
                 // be silent
@@ -898,6 +915,71 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         return "replication";
     }
 
+    private void updateMetadataCollection(eXistMessage em) {
+        XmldbURI sourceColURI = XmldbURI.create(em.getResourcePath());
+
+        Map<String, Object> metaData = em.getMetadata();
+
+        // Get OWNER/GROUP/MODE
+        String userName = getUserName(metaData);
+        String groupName = getGroupName(metaData);
+        Integer mode = getMode(metaData);
+
+        TransactionManager txnManager = brokerPool.getTransactionManager();
+        Txn txn = txnManager.beginTransaction();
+        setOrigin(txn);
+
+        DBBroker broker = null;
+        Collection srcCollection = null;
+
+        try {
+            // TODO get user
+            broker = brokerPool.get(securityManager.getSystemSubject());
+
+            // Open collection if possible, else abort
+            srcCollection = broker.openCollection(sourceColURI, Lock.WRITE_LOCK);
+            if (srcCollection == null) {
+                String errorMessage = String.format("Collection not found: %s", sourceColURI);
+                LOG.error(errorMessage);
+                txnManager.abort(txn);
+
+                // be silent
+                return;
+            }
+
+            Permission permission = srcCollection.getPermissions();
+            if (userName != null) {
+                permission.setOwner(userName);
+            }
+            if (groupName != null) {
+                permission.setGroup(groupName);
+            }
+            if (mode != null) {
+                permission.setMode(mode);
+            }
+
+            // Commit change
+            txnManager.commit(txn);
+
+        } catch (Throwable e) {
+            LOG.error(e);
+            txnManager.abort(txn);
+            throw new MessageReceiveException(e.getMessage());
+
+        } finally {
+
+            if (srcCollection != null) {
+                srcCollection.release(Lock.WRITE_LOCK);
+            }
+
+            txnManager.close(txn);
+            brokerPool.release(broker);
+
+        }
+
+    }
+
+
     /**
      * Get valid username for database, else system subject if not valid.
      */
@@ -907,13 +989,16 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_OWNER);
         if (prop != null && prop instanceof String) {
             userName = (String) prop;
+        } else {
+            LOG.debug("No username provided");
+            return userName;
         }
 
         Account account = securityManager.getAccount(userName);
         if (account == null) {
             String errorText = String.format("Username %s does not exist.", userName);
             LOG.error(errorText);
-            //throw new MessageReceiveException(errorText);
+
             account = securityManager.getSystemSubject();
             userName = account.getName();
         }
@@ -930,13 +1015,16 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_GROUP);
         if (prop != null && prop instanceof String) {
             groupName = (String) prop;
+        } else {
+            LOG.debug("No groupname provided");
+            return groupName;
         }
 
         Group group = securityManager.getGroup(groupName);
         if (group == null) {
             String errorText = String.format("Group %s does not exist.", groupName);
             LOG.error(errorText);
-            //throw new MessageReceiveException(errorText);
+
             group = securityManager.getSystemSubject().getDefaultGroup();
             groupName = group.getName();
         }
@@ -975,8 +1063,13 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MODE);
         if (prop != null && prop instanceof Integer) {
             mode = (Integer) prop;
+        } else {
+            LOG.debug("No mode provided");
+            return mode;
         }
         return mode;
     }
+
+   
 
 }
