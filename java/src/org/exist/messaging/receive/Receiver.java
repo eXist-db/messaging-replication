@@ -79,7 +79,7 @@ public class Receiver {
     /*
      * 
      */
-    private JmsConfiguration jmsConfig;
+    private final JmsConfiguration jmsConfig;
     private Context initialContext = null;
     private ConnectionFactory connectionFactory = null;
     private Session session = null;

@@ -46,7 +46,7 @@ public class ReportItem {
     private Throwable throwable = new Throwable("EMPTY");
     private CONTEXT context = CONTEXT.NOTDEFINED;
 
-    private Date timestamp;
+    private final Date timestamp;
 
     public void setThrowable(Throwable throwable) {
         this.throwable = throwable;
