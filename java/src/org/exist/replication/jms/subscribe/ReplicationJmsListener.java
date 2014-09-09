@@ -226,7 +226,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         switch (em.getResourceOperation()) {
             case CREATE:
             case UPDATE:
-                createDocument(em);
+                createUpdateDocument(em);
                 break;
 
             case METADATA:
@@ -291,7 +291,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     /**
      * Created document in database
      */
-    private void createDocument(eXistMessage em) {
+    private void createUpdateDocument(eXistMessage em) {
 
         Map<String, Object> metaData = em.getMetadata();
 
@@ -412,11 +412,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } finally {
 
-            // TODO: check if can be done earlier
             if (collection != null) {
                 collection.release(Lock.WRITE_LOCK);
-                //collection.setTriggersEnabled(true);
             }
+
             txnManager.close(txn);
             brokerPool.release(broker);
 
@@ -447,7 +446,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             // Open collection if possible, else abort
@@ -456,7 +454,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorText = String.format("Collection does not exist %s", colURI);
                 LOG.error(errorText);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorText);
 
                 // be silent
                 return;
@@ -468,7 +465,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorText = String.format("No resource found for path: %s", sourcePath);
                 LOG.error(errorText);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorText);
 
                 // be silent
                 return;
@@ -539,7 +535,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             // Open collection if possible, else abort
@@ -548,7 +543,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorText = String.format("Collection does not exist %s", colURI);
                 LOG.error(errorText);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorText);
 
                 // silently ignore
                 return;
@@ -560,11 +554,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 String errorText = String.format("No resource found for path: %s", sourcePath);
                 LOG.error(errorText);
                 txnManager.abort(txn);
-                //throw new MessageReceiveException(errorText);
 
                 // silently ignore
                 return;
             }
+
             // This delete is based on mime-type /ljo 
             if (resource.getResourceType() == DocumentImpl.BINARY_FILE) {
                 collection.removeBinaryResource(txn, broker, resource.getFileURI());
@@ -605,8 +599,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private void deleteCollection(eXistMessage em) {
 
         XmldbURI sourcePath = XmldbURI.create(em.getResourcePath());
-        //XmldbURI colURI = sourcePath.removeLastSegment();
-        //XmldbURI docURI = sourcePath.lastSegment();
 
         DBBroker broker = null;
         Collection collection = null;
@@ -616,11 +608,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             // Open collection if possible, else abort
-            //collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
             collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
             if (collection == null) {
                 txnManager.abort(txn);
@@ -647,7 +637,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } finally {
 
-            // TODO: check if can be done earlier
             if (collection != null) {
                 collection.release(Lock.WRITE_LOCK);
             }
@@ -664,8 +653,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private void createCollection(eXistMessage em) {
 
         XmldbURI sourcePath = XmldbURI.create(em.getResourcePath());
-        //XmldbURI colURI = sourcePath.removeLastSegment();
-        //XmldbURI docURI = sourcePath.lastSegment();
 
         Map<String, Object> metaData = em.getMetadata();
 
@@ -764,7 +751,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             // Open collection if possible, else abort
@@ -818,7 +804,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } finally {
 
-            // TODO: check if can be done earlier
             if (destCollection != null) {
                 destCollection.release(Lock.WRITE_LOCK);
             }
@@ -836,8 +821,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private void relocateCollection(eXistMessage em, boolean keepCollection) {
 
         XmldbURI sourcePath = XmldbURI.create(em.getResourcePath());
-        //XmldbURI sourceColURI = sourcePath.removeLastSegment();
-        //XmldbURI sourceDocURI = sourcePath.lastSegment();
 
         XmldbURI destPath = XmldbURI.create(em.getDestinationPath());
         XmldbURI destColURI = destPath.removeLastSegment();
@@ -852,7 +835,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            // TODO get user
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             // Open collection if possible, else abort
