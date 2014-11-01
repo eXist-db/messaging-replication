@@ -17,7 +17,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.jms.messaging.send;
+package org.exist.jms.send;
 
 import java.io.IOException;
 import java.io.InputStream;

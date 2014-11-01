@@ -26,7 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.exist.jms.messaging.configuration.MessagingConfiguration;
 
 import org.exist.jms.replication.publish.PublisherParameters;
 import org.exist.jms.replication.subscribe.SubscriberParameters;

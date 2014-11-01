@@ -20,7 +20,6 @@
 package org.exist.jms.shared;
 
 import java.util.Properties;
-import org.exist.jms.messaging.configuration.MessagingConfiguration;
 import org.exist.jms.replication.shared.ClientParameters;
 
 /**

@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.JmsMessageProperties;
-import org.exist.jms.messaging.send.Sender;
+import org.exist.jms.send.Sender;
 
 import org.exist.jms.shared.eXistMessage;
 import org.exist.jms.shared.eXistMessageItem;

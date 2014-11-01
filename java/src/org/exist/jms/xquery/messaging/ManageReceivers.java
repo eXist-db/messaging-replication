@@ -20,8 +20,8 @@
 package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
-import org.exist.jms.messaging.receive.Receiver;
-import org.exist.jms.messaging.receive.ReceiversManager;
+import org.exist.jms.shared.Receiver;
+import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.shared.Constants;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.BasicFunction;
