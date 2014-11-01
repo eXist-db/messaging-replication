@@ -30,7 +30,7 @@ import org.exist.collections.triggers.CollectionTrigger;
 import org.exist.collections.triggers.FilteringTrigger;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.DocumentImpl;
-import org.exist.jms.messaging.shared.eXistMessage;
+import org.exist.jms.shared.eXistMessage;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.TransportException;
 import org.exist.storage.DBBroker;

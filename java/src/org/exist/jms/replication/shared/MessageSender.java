@@ -21,7 +21,7 @@
  */
 package org.exist.jms.replication.shared;
 
-import org.exist.jms.messaging.shared.eXistMessage;
+import org.exist.jms.shared.eXistMessage;
 
 /**
  *  Generic send-message interface

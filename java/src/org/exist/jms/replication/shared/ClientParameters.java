@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.naming.Context;
 import org.apache.log4j.Logger;
-import org.exist.jms.messaging.shared.Constants;
+import org.exist.jms.shared.Constants;
 
 /**
  *

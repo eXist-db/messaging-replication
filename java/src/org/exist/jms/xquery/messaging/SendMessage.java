@@ -20,10 +20,10 @@
 package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
-import org.exist.jms.messaging.shared.Constants;
+import org.exist.jms.shared.Constants;
 import org.exist.jms.messaging.send.Sender;
-import org.exist.jms.messaging.configuration.JmsConfiguration;
-import org.exist.jms.messaging.configuration.JmsMessageProperties;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.JmsMessageProperties;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;

@@ -22,7 +22,7 @@ package org.exist.jms.replication.subscribe;
 import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.exist.jms.messaging.configuration.JmsConfiguration;
+import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.messaging.receive.Receiver;
 import org.exist.jms.messaging.receive.ReceiversManager;
 import org.exist.storage.DBBroker;

@@ -42,9 +42,9 @@ import org.exist.dom.NodeProxy;
 import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
-import org.exist.jms.messaging.configuration.JmsConfiguration;
-import org.exist.jms.messaging.configuration.JmsMessageProperties;
-import org.exist.jms.messaging.shared.Constants;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.JmsMessageProperties;
+import org.exist.jms.shared.Constants;
 
 import org.exist.storage.serializers.Serializer;
 import org.exist.validation.internal.node.NodeInputStream;
@@ -52,10 +52,10 @@ import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.*;
 
-import static org.exist.jms.messaging.shared.Constants.*;
-import org.exist.jms.messaging.shared.Identity;
-import org.exist.jms.messaging.shared.eXistMessage;
-import org.exist.jms.messaging.shared.eXistMessageItem;
+import static org.exist.jms.shared.Constants.*;
+import org.exist.jms.shared.Identity;
+import org.exist.jms.shared.eXistMessage;
+import org.exist.jms.shared.eXistMessageItem;
 
 /**
  *

@@ -23,7 +23,7 @@ package org.exist.jms.replication.publish;
 
 import javax.naming.Context;
 
-import org.exist.jms.messaging.shared.Constants;
+import org.exist.jms.shared.Constants;
 import org.exist.jms.replication.shared.ClientParameters;
 import org.exist.jms.replication.shared.TransportException;
 

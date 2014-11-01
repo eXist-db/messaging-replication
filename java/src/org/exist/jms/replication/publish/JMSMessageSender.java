@@ -26,12 +26,12 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import org.exist.jms.messaging.configuration.JmsConfiguration;
-import org.exist.jms.messaging.configuration.JmsMessageProperties;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.JmsMessageProperties;
 import org.exist.jms.messaging.send.Sender;
 
-import org.exist.jms.messaging.shared.eXistMessage;
-import org.exist.jms.messaging.shared.eXistMessageItem;
+import org.exist.jms.shared.eXistMessage;
+import org.exist.jms.shared.eXistMessageItem;
 
 import org.exist.jms.replication.shared.MessageSender;
 import org.exist.jms.replication.shared.TransportException;

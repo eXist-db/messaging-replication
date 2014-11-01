@@ -23,7 +23,7 @@ package org.exist.jms.replication.subscribe;
 
 import javax.naming.Context;
 
-import org.exist.jms.messaging.shared.Constants;
+import org.exist.jms.shared.Constants;
 import org.exist.jms.replication.shared.ClientParameterException;
 import org.exist.jms.replication.shared.ClientParameters;
 

@@ -17,7 +17,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.jms.messaging.configuration;
+package org.exist.jms.shared;
 
 import javax.naming.Context;
 
@@ -26,8 +26,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.exist.jms.messaging.configuration.MessagingConfiguration;
 
-import org.exist.jms.messaging.shared.Constants;
 import org.exist.jms.replication.publish.PublisherParameters;
 import org.exist.jms.replication.subscribe.SubscriberParameters;
 

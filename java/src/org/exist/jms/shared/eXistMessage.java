@@ -19,7 +19,7 @@
  *
  *  $Id$
  */
-package org.exist.jms.messaging.shared;
+package org.exist.jms.shared;
 
 import java.util.HashMap;
 import java.util.Locale;

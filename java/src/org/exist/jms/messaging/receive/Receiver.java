@@ -45,10 +45,10 @@ import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 
-import org.exist.jms.messaging.configuration.JmsConfiguration;
-import org.exist.jms.messaging.shared.Constants;
-import org.exist.jms.messaging.shared.Report;
-import org.exist.jms.messaging.shared.eXistMessagingListener;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.Report;
+import org.exist.jms.shared.eXistMessagingListener;
 import org.exist.xquery.XPathException;
 
 /**

@@ -19,12 +19,12 @@
  * MA 02110-1301  USA
  */
 
-package org.exist.jms.messaging.shared;
+package org.exist.jms.shared;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.exist.memtree.MemTreeBuilder;
-import org.exist.jms.messaging.shared.ReportItem.CONTEXT;
+import org.exist.jms.shared.ReportItem.CONTEXT;
 
 
 /**

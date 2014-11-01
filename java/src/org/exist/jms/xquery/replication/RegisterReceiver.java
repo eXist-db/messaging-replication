@@ -22,9 +22,9 @@ package org.exist.jms.xquery.replication;
 
 import org.exist.jms.messaging.receive.Receiver;
 import org.exist.dom.QName;
-import org.exist.jms.messaging.configuration.JmsConfiguration;
+import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.messaging.receive.ReceiversManager;
-import org.exist.jms.messaging.shared.Constants;
+import org.exist.jms.shared.Constants;
 import org.exist.jms.replication.subscribe.ReplicationJmsListener;
 import org.exist.jms.xquery.ReplicationModule;
 import org.exist.xquery.BasicFunction;
