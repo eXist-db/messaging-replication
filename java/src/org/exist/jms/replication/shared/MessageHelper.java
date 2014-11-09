@@ -21,7 +21,6 @@
  */
 package org.exist.jms.replication.shared;
 
-import org.exist.jms.shared.eXistMessage;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -34,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.exist.dom.BinaryDocument;
 import org.exist.dom.DocumentImpl;
 import org.exist.dom.DocumentMetadata;
+import org.exist.jms.shared.eXistMessage;
 import org.exist.security.Permission;
 import org.exist.storage.DBBroker;
 import org.exist.storage.serializers.EXistOutputKeys;
@@ -104,7 +104,7 @@ public class MessageHelper {
                 payload = baos.toByteArray();
 
 
-            } catch (SAXException e) {
+            } catch (SAXException | IOException e) {
                 payload = new byte[0];
                 LOG.error(e);
                 throw new IOException(String.format("Error while serializing XML document: %s", e.getMessage()), e);

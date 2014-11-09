@@ -35,15 +35,10 @@ import javax.jms.TextMessage;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-
 import org.exist.Namespaces;
-import org.exist.memtree.DocumentImpl;
-import org.exist.memtree.SAXAdapter;
-
 import static org.exist.jms.shared.Constants.COMPRESSION_TYPE_GZIP;
 import static org.exist.jms.shared.Constants.DATA_TYPE_XML;
 import static org.exist.jms.shared.Constants.EXIST_DATA_TYPE;
@@ -54,9 +49,10 @@ import static org.exist.jms.shared.Constants.JMS_MESSAGE_ID;
 import static org.exist.jms.shared.Constants.JMS_PRIORITY;
 import static org.exist.jms.shared.Constants.JMS_TIMESTAMP;
 import static org.exist.jms.shared.Constants.JMS_TYPE;
-
 import org.exist.jms.shared.Report;
 import org.exist.jms.shared.eXistMessagingListener;
+import org.exist.memtree.DocumentImpl;
+import org.exist.memtree.SAXAdapter;
 import org.exist.security.Subject;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
