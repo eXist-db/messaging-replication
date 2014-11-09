@@ -49,7 +49,7 @@ public class Identity {
         getIdentityFromFile();
     }
     
-    public static Identity getInstance(){
+    public synchronized static Identity getInstance(){
         if(instance==null){
             instance = new Identity();
         }

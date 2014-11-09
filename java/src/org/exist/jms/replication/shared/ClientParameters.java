@@ -164,7 +164,7 @@ public abstract class ClientParameters {
     }
 
     public String getClientId() {
-        return clientId;
+        return clientId; 
     }
 
     public String getDestination() {

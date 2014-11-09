@@ -142,7 +142,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         return getProperty(Constants.MESSAGE_SELECTOR);
     }
     
-    public String getClientID(){
+    public String getClientId(){
         return getProperty(Constants.CLIENT_ID);
     }
 
@@ -239,7 +239,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
                 .append(Context.INITIAL_CONTEXT_FACTORY, getInitialContextFactory())
                 .append(Context.PROVIDER_URL, getBrokerURL())
-                .append(Constants.CLIENT_ID, getClientID())
+                .append(Constants.CLIENT_ID, getClientId())
                 .append(Constants.CONNECTION_FACTORY, getConnectionFactory())
                 .append(Constants.JMS_CONNECTION_USERNAME, getConnectionUserName())
                 .append(Constants.DESTINATION, getDestination())

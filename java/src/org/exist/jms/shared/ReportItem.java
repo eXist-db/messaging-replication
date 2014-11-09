@@ -20,6 +20,7 @@
 package org.exist.jms.shared;
 
 import java.util.Date;
+import java.util.Locale;
 import javax.jms.JMSException;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.exist.dom.QName;
@@ -65,7 +66,7 @@ public class ReportItem {
     }
 
     public String getContextName() {
-        return context.toString().toLowerCase();
+        return context.toString().toLowerCase(Locale.US);
     }
 
     public void writeError(MemTreeBuilder builder) {
@@ -75,13 +76,12 @@ public class ReportItem {
         builder.addAttribute(new QName("exception", null, null), getThowable().getClass().getSimpleName());
 
         String msg = getMessage();
-        if (getThowable() instanceof JMSException) {
-
-            JMSException jmse = (JMSException) getThowable();
+        Throwable t = getThowable(); 
+        if ( t instanceof JMSException) {
+            JMSException jmse = (JMSException) t;
             if (jmse.getErrorCode() != null) {
                 msg = msg + " (code=" + jmse.getErrorCode() + ")";
             }
-
         }
 
         builder.characters(msg);

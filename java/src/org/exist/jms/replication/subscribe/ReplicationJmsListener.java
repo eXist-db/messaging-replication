@@ -346,7 +346,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            DocumentImpl doc = null;
+            DocumentImpl doc;
             if (mime.isXMLType()) {
 
                 // Stream into database
@@ -439,7 +439,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // References to the database
         DBBroker broker = null;
         Collection collection = null;
-        DocumentImpl resource = null;
+        DocumentImpl resource;
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
@@ -528,7 +528,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // References to the database
         DBBroker broker = null;
         Collection collection = null;
-        DocumentImpl resource = null;
+        DocumentImpl resource;
 
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
@@ -742,7 +742,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         DBBroker broker = null;
 
         Collection srcCollection = null;
-        DocumentImpl srcDocument = null;
+        DocumentImpl srcDocument;
 
         Collection destCollection = null;
 

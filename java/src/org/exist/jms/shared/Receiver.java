@@ -45,10 +45,6 @@ import org.exist.memtree.DocumentImpl;
 import org.exist.memtree.MemTreeBuilder;
 import org.exist.memtree.NodeImpl;
 
-import org.exist.jms.shared.JmsConfiguration;
-import org.exist.jms.shared.Constants;
-import org.exist.jms.shared.Report;
-import org.exist.jms.shared.eXistMessagingListener;
 import org.exist.xquery.XPathException;
 
 /**
@@ -87,8 +83,8 @@ public class Receiver {
     private MessageConsumer messageConsumer = null;
     private Connection connection = null;
 
-    private Integer id = 0;
-    private static volatile Integer lastId = 0;
+    private int id = 0;
+    private static int lastId = 0;
 
     private static synchronized Integer createNewId() {
         lastId++;
@@ -192,7 +188,7 @@ public class Receiver {
             connection.setExceptionListener(messageListener);
             
             // Set clientId when set and not empty
-            String clientId=jmsConfig.getClientID();
+            String clientId=jmsConfig.getClientId();
             if(StringUtils.isNotBlank(clientId)){
                 connection.setClientID(clientId);
             }

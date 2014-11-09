@@ -178,11 +178,13 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
             // Done
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("$sFunction returned %s", logString, result.getStringValue()));
+                LOG.debug(String.format("%s : Function returned %s", logString, result.getStringValue()));
             }
 
             // Acknowledge processing
-            LOG.debug(logString + "call acknowledge");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(logString + "call acknowledge");
+            }
             msg.acknowledge();
 
             // Update statistics

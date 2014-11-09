@@ -138,7 +138,7 @@ public class Sender  {
                     : cf.createConnection(userName, password);
             
             // Set clientId when set and not empty
-            String clientId=jmsConfig.getClientID();
+            String clientId=jmsConfig.getClientId();
             if(StringUtils.isNotBlank(clientId)){
                 connection.setClientID(clientId);
             }
@@ -200,7 +200,7 @@ public class Sender  {
      */
     private ConnectionFactory getConnectionFactoryInstance(javax.naming.Context context, JmsConfiguration jmsConfig) throws NamingException {
 
-        ConnectionFactory retVal = null;
+        ConnectionFactory retVal;
  
         // check if Pooling is needed
         String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL);
@@ -238,7 +238,7 @@ public class Sender  {
      */
     private Message createMessageFromItem(Session session, Item item, JmsMessageProperties jmp, XQueryContext xqcontext) throws JMSException, XPathException {
 
-        Message message = null;
+        Message message;
 
         jmp.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
         boolean isCompressed = isDataCompressionRequired(jmp);
