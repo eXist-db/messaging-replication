@@ -146,6 +146,10 @@ public class eXistMessage {
     public void setPayload(byte[] data) {
         payload = data;
     }
+    
+    public void resetPayload(){
+        payload = new byte[0];
+    }
 
     public void setMetadata(Map<String, Object> props) {
         metaData = props;
