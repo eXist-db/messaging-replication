@@ -14,8 +14,8 @@
  :)
 xquery version "3.0";
 
-import module namespace jms="http://exist-db.org/xquery/messaging" 
-                        at "java:org.exist.messaging.xquery.MessagingModule";
+import module namespace jms="http://exist-db.org/xquery/jms" 
+                        at "java:org.exist.jms.xquery.JmsModule";
                         
 for $id in jms:list()
 return

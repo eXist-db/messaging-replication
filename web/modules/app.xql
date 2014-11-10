@@ -4,7 +4,8 @@ module namespace app="http://exist-db.org/extension/jms/templates";
 
 import module namespace templates="http://exist-db.org/xquery/templates" ;
 import module namespace config="http://exist-db.org/extension/jms/config" at "config.xqm";
-import module namespace jms="http://exist-db.org/xquery/messaging" at "java:org.exist.messaging.xquery.MessagingModule";
+import module namespace jms="http://exist-db.org/xquery/jms" 
+                        at "java:org.exist.jms.xquery.JmsModule";
                         
 (:~
  : This is a sample templating function. It will be called by the templating module if

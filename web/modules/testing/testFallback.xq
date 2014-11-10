@@ -1,7 +1,7 @@
 xquery version "3.0";
 
 import module namespace jms="http://exist-db.org/xquery/messaging" 
-                        at "java:org.exist.messaging.xquery.MessagingModule";
+                        at "java:org.exist.jms.xquery.MessagingModule";
                         
     
 declare function local:handleMessageOK($content as item(), $params as item()*, 

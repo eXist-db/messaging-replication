@@ -26,7 +26,6 @@ import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.Receiver;
 import org.exist.jms.shared.ReceiversManager;
 import org.exist.storage.DBBroker;
-import org.exist.storage.StartupTrigger;
 
 /**
  * Startup Trigger to fire-up a message receiver. Typically this trigger is started by
@@ -34,9 +33,9 @@ import org.exist.storage.StartupTrigger;
  *
  * @author Dannes Wessels
  */
-public class MessageReceiverStartupTrigger implements StartupTrigger {
+public class StartupTrigger implements org.exist.storage.StartupTrigger {
 
-    private final static Logger LOG = Logger.getLogger(MessageReceiverStartupTrigger.class);
+    private final static Logger LOG = Logger.getLogger(StartupTrigger.class);
    
 
     /*

@@ -1,6 +1,6 @@
 xquery version "3.0";
 
-import module namespace jms="http://exist-db.org/xquery/messaging" at "java:org.exist.messaging.xquery.MessagingModule";
+import module namespace jms="http://exist-db.org/xquery/messaging" at "java:org.exist.jms.xquery.MessagingModule";
 
 (: 
  : The (callback) function is required to have 4 parameters:
