@@ -19,12 +19,11 @@
  */
 package org.exist.jms.xquery;
 
-import org.exist.jms.xquery.management.ManageReceivers;
-import org.exist.jms.xquery.management.ListReceivers;
-import org.exist.jms.xquery.management.RegisterReceiver;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.jms.xquery.management.ListReceivers;
+import org.exist.jms.xquery.management.ManageReceivers;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;

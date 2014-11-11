@@ -20,11 +20,10 @@
 package org.exist.jms.xquery.management;
 
 import org.exist.dom.QName;
+import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.Receiver;
 import org.exist.jms.shared.ReceiversManager;
-import org.exist.jms.shared.Constants;
 import org.exist.jms.xquery.JmsModule;
-import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
