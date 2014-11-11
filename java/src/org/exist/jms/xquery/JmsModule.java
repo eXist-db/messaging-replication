@@ -41,9 +41,7 @@ public class JmsModule extends AbstractInternalModule {
     public final static String INCLUSION_DATE = "2013-11-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
     
-    public final static FunctionDef[] functions = {
-        new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
-        
+    public final static FunctionDef[] functions = {       
         new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
 
         new FunctionDef(ManageReceivers.signatures[0], ManageReceivers.class),

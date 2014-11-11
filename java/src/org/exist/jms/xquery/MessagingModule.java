@@ -23,6 +23,7 @@ import org.exist.jms.xquery.messaging.SendMessage;
 import java.util.List;
 import java.util.Map;
 import org.exist.dom.QName;
+import org.exist.jms.xquery.management.RegisterReceiver;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
@@ -40,6 +41,7 @@ public class MessagingModule extends AbstractInternalModule {
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
     
     public final static FunctionDef[] functions = {
+        new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
         new FunctionDef(SendMessage.signatures[0], SendMessage.class),
     };
     

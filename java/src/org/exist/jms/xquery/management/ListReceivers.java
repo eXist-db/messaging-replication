@@ -22,7 +22,7 @@ package org.exist.jms.xquery.management;
 import org.exist.dom.QName;
 import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.shared.Constants;
-import org.exist.jms.xquery.MessagingModule;
+import org.exist.jms.xquery.JmsModule;
 import org.exist.xquery.BasicFunction;
 import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
@@ -40,7 +40,7 @@ public class ListReceivers extends BasicFunction {
  public final static FunctionSignature signatures[] = {
 
         new FunctionSignature(
-            new QName("list", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+            new QName("list", JmsModule.NAMESPACE_URI, JmsModule.PREFIX),
             "Retrieve sequence of reciever IDs",
             new SequenceType[]{
                           // no params              
