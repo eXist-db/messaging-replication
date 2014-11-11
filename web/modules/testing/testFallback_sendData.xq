@@ -3,7 +3,7 @@
  :)
 xquery version "3.0";
 
-import module namespace jms="http://exist-db.org/xquery/messaging" 
+import module namespace messaging="http://exist-db.org/xquery/messaging" 
               at "java:org.exist.jms.xquery.MessagingModule";
 
 (: Configuration for setting-up an JMS connection :)
@@ -36,5 +36,5 @@ return
     return
     
         (: Send message to the JMS broker :)
-        jms:send( $content , $messageProperties, $jmsConfiguration ) 
+        messaging:send( $content , $messageProperties, $jmsConfiguration ) 
       
