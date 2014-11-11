@@ -8,7 +8,7 @@
             An example can be found <a href="messaging-send.html">here</a>.
             <div class="code" data-language="xquery">
 (: Send message :)
-jms:send(
+messaging:send(
         $content as item(), $jmsMessageProperties as map(*)?, 
         $jmsConfiguration as map(*)
     )</div>
@@ -18,7 +18,7 @@ jms:send(
              An example can be found <a href="messaging-register.html">here</a>.
             <div class="code" data-language="xquery">
 (: Register and start receiver :)
-jms:register(
+messaging:register(
             $callback as function(*), $additionalParameters as item()*, 
             $jmsConfiguration as map(*)
         )</div>

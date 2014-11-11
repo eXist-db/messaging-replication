@@ -5,7 +5,7 @@ xquery version "3.0";
 
 
 import module namespace replication="http://exist-db.org/xquery/replication" 
-                        at "java:org.exist.replication.xquery.ReplicationModule";
+                        at "java:org.exist.jms.xquery.ReplicationModule";
 
 
 (: Configuration for setting-up the JMS connection :)

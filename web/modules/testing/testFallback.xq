@@ -1,7 +1,7 @@
 xquery version "3.0";
 
-import module namespace jms="http://exist-db.org/xquery/messaging" 
-                        at "java:org.exist.messaging.xquery.MessagingModule";
+import module namespace messaging="http://exist-db.org/xquery/messaging" 
+              at "java:org.exist.jms.xquery.MessagingModule";
                         
     
 declare function local:handleMessageOK($content as item(), $params as item()*, 
@@ -34,10 +34,10 @@ let $ok4 := local:handleMessageOK#4
 
 let $additionalParameters := (1, "2" , xs:float(3.0))
 
-let $register := (jms:register( $ok1 , $additionalParameters, $jmsConfiguration),
-    jms:register( $ok2 , $additionalParameters, $jmsConfiguration),
-    jms:register( $nok , $additionalParameters, $jmsConfiguration),
-    jms:register( $ok3 , $additionalParameters, $jmsConfiguration),
-    jms:register( $ok4 , $additionalParameters, $jmsConfiguration))
+let $register := (messaging:register( $ok1 , $additionalParameters, $jmsConfiguration),
+    messaging:register( $ok2 , $additionalParameters, $jmsConfiguration),
+    messaging:register( $nok , $additionalParameters, $jmsConfiguration),
+    messaging:register( $ok3 , $additionalParameters, $jmsConfiguration),
+    messaging:register( $ok4 , $additionalParameters, $jmsConfiguration))
     
 return $register
