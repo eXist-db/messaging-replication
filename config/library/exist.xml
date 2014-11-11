@@ -8,11 +8,15 @@
     <jar>geronimo-jms_1.1_spec-1.1.1.jar</jar>
     <jar>hawtbuf-1.10.jar</jar>
     <java>
+        <namespace>http://exist-db.org/xquery/jms</namespace>
+        <class>org.exist.jms.xquery.JmsModule</class>
+    </java>
+    <java>
         <namespace>http://exist-db.org/xquery/messaging</namespace>
-        <class>org.exist.messaging.xquery.MessagingModule</class>
+        <class>org.exist.jms.xquery.MessagingModule</class>
     </java>
     <java>
         <namespace>http://exist-db.org/xquery/replication</namespace>
-        <class>org.exist.replication.xquery.ReplicationModule</class>
+        <class>org.exist.jms.xquery.ReplicationModule</class>
     </java>
 </package>
