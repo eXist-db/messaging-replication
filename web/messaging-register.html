@@ -14,8 +14,8 @@
  :)
 xquery version "3.0";
 
-import module namespace jms="http://exist-db.org/xquery/jms" 
-                        at "java:org.exist.jms.xquery.JmsModule";
+import module namespace messaging="http://exist-db.org/xquery/messaging" 
+              at "java:org.exist.jms.xquery.MessagingModule";
 
 (: 
  : A (callback) function is required to have 4 parameters. This function
@@ -69,7 +69,7 @@ let $additionalParameters := (1, "2" , xs:float(3.0))
     
 return
     (: Register the function to the JMS broker :)
-    jms:register( $callback , $additionalParameters, $jmsConfiguration)
+    messaging:register( $callback , $additionalParameters, $jmsConfiguration)
       </pre>
         </section>
     </div>
