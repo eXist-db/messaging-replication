@@ -84,7 +84,7 @@ public class Receiver {
     private Connection connection = null;
 
     private int id = 0;
-    private static int lastId = 0;
+    private static volatile int lastId = 0;
 
     private static synchronized Integer createNewId() {
         lastId++;

@@ -1,6 +1,6 @@
 <collection xmlns="http://exist-db.org/collection-config/1.0">
     <triggers>
-        <trigger class="org.exist.replication.jms.publish.ReplicationTrigger">
+        <trigger class="org.exist.jms.replication.publish.ReplicationTrigger">
 
             <!-- 
                 Class name of the initial context provider, default value for ActiveMQ

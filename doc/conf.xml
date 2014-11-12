@@ -2,7 +2,7 @@
     Start JMS listener for listener of the clustering feature. 
 -->
 <trigger 
-    class="org.exist.replication.jms.subscribe.MessageReceiverStartupTrigger">
+    class="org.exist.jms.replication.subscribe.ReceiverStartupTrigger">
     <!-- 
         Class name of the initial context provider, default value for ActiveMQ
         see javax.naming.Context#INITIAL_CONTEXT_FACTORY

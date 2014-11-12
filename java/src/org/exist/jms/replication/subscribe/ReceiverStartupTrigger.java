@@ -33,9 +33,9 @@ import org.exist.storage.DBBroker;
  *
  * @author Dannes Wessels
  */
-public class StartupTrigger implements org.exist.storage.StartupTrigger {
+public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger {
 
-    private final static Logger LOG = Logger.getLogger(StartupTrigger.class);
+    private final static Logger LOG = Logger.getLogger(ReceiverStartupTrigger.class);
    
 
     /*
