@@ -131,7 +131,8 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
             msg.setPayload(MessageHelper.gzipSerialize(broker, document));
 
         } catch (Throwable ex) {
-            LOGGER.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s",                                    document.getContentLength(), ex.getMessage()), ex);
+            LOGGER.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s",                                    
+                    document.getContentLength(), ex.getMessage()), ex);
             //throw new TriggerException("Unable to retrieve message payload: " + ex.getMessage());
         }
 

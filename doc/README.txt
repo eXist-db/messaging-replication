@@ -55,7 +55,7 @@ Get Started
 
     <collection xmlns="http://exist-db.org/collection-config/1.0">
         <triggers>
-            <trigger class="org.exist.replication.jms.publish.ReplicationTrigger">
+            <trigger class="org.exist.jms.replication.publish.ReplicationTrigger">
 
                 <parameter name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
                 <parameter name="java.naming.provider.url" value="tcp://myserver.local:61616"/>
@@ -78,7 +78,7 @@ Get Started
 - For each 'Slave' (subscriber)
   - Add a startup trigger to conf.xml:
 
-    <trigger class="org.exist.replication.jms.subscribe.MessageReceiverStartupTrigger">>
+    <trigger class="org.exist.jms.replication.subscribe.ReceiverStartupTrigger">>
 
         <parameter name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
         <parameter name="java.naming.provider.url" value="tcp://myserver.local:61616"/>
