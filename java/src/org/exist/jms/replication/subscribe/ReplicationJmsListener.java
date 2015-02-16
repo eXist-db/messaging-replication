@@ -746,6 +746,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         Collection destCollection = null;
 
+        // Use the correct lock
+        int lockTypeOriginal = keepDocument ? Lock.READ_LOCK : Lock.WRITE_LOCK;
+
         TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
@@ -754,7 +757,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             broker = brokerPool.get(securityManager.getSystemSubject());
 
             // Open collection if possible, else abort
-            srcCollection = broker.openCollection(sourceColURI, Lock.WRITE_LOCK);
+            srcCollection = broker.openCollection(sourceColURI, lockTypeOriginal);
             if (srcCollection == null) {
                 String errorMessage = String.format("Collection not found: %s", sourceColURI);
                 LOG.error(errorMessage);
@@ -809,7 +812,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             if (srcCollection != null) {
-                srcCollection.release(Lock.WRITE_LOCK);
+                srcCollection.release(lockTypeOriginal);
             }
 
             txnManager.close(txn);
