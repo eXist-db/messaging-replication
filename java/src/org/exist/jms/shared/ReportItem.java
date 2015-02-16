@@ -24,7 +24,7 @@ import java.util.Locale;
 import javax.jms.JMSException;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.exist.dom.QName;
-import org.exist.memtree.MemTreeBuilder;
+import org.exist.dom.memtree.MemTreeBuilder;
 
 /**
  * Container for reporting a problem with some meta data.

@@ -23,8 +23,8 @@ import java.util.Arrays;
 import java.util.Properties;
 import org.apache.log4j.Logger;
 
-import org.exist.dom.StoredNode;
-import org.exist.memtree.DocumentBuilderReceiver;
+import org.exist.dom.memtree.DocumentBuilderReceiver;
+import org.exist.dom.persistent.NodeHandle;
 import org.exist.numbering.NodeId;
 import org.exist.storage.DBBroker;
 import org.exist.xquery.XPathException;
@@ -105,7 +105,7 @@ public class eXistMessageItem implements Item {
     }
 
     @Override
-    public void nodeMoved(NodeId oldNodeId, StoredNode newNode) {
+    public void nodeMoved(NodeId oldNodeId, NodeHandle newNode) {
         throw new UnsupportedOperationException("Not supported yet. nodeMoved");
     }
 

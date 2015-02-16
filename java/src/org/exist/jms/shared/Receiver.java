@@ -41,9 +41,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import org.exist.dom.QName;
-import org.exist.memtree.DocumentImpl;
-import org.exist.memtree.MemTreeBuilder;
-import org.exist.memtree.NodeImpl;
+import org.exist.dom.memtree.DocumentImpl;
+import org.exist.dom.memtree.MemTreeBuilder;
+import org.exist.dom.memtree.NodeImpl;
 
 import org.exist.xquery.XPathException;
 

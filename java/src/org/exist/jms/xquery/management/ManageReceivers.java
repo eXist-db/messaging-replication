@@ -134,7 +134,8 @@ public class ManageReceivers extends BasicFunction {
                 returnValue = receiver.getReport();
 
             } else {
-                throw new XPathException(this, String.format("Function '%s' does not exist.", getSignature().getName().getLocalName()));
+                // DW: to check
+                throw new XPathException(this, String.format("Function '%s' does not exist.", getSignature().getName().getLocalPart()));
             }
 
             return returnValue;
