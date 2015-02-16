@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
-import org.exist.dom.DocumentImpl;
+import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.Identity;

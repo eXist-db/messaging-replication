@@ -29,7 +29,7 @@ import org.exist.collections.Collection;
 import org.exist.collections.triggers.CollectionTrigger;
 import org.exist.collections.triggers.FilteringTrigger;
 import org.exist.collections.triggers.TriggerException;
-import org.exist.dom.DocumentImpl;
+import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.TransportException;

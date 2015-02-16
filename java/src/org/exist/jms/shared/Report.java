@@ -23,7 +23,7 @@ package org.exist.jms.shared;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.exist.memtree.MemTreeBuilder;
+import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.jms.shared.ReportItem.CONTEXT;
 
 

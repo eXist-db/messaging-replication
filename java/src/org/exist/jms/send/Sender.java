@@ -38,10 +38,11 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import org.exist.dom.NodeProxy;
-import org.exist.memtree.DocumentImpl;
-import org.exist.memtree.MemTreeBuilder;
-import org.exist.memtree.NodeImpl;
+//import org.exist.dom.persistent.NodeProxy;
+import org.exist.dom.memtree.DocumentImpl;
+import org.exist.dom.memtree.MemTreeBuilder;
+import org.exist.dom.memtree.NodeImpl;
+import org.exist.dom.persistent.NodeProxy;
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.JmsMessageProperties;
 import org.exist.jms.shared.Constants;
@@ -250,8 +251,8 @@ public class Sender  {
 
             if (item instanceof NodeProxy) {
                 NodeProxy np = (NodeProxy) item;
-                jmp.setProperty(EXIST_DOCUMENT_URI, np.getDocument().getBaseURI());
-                jmp.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDocument().getMetadata().getMimeType());
+                jmp.setProperty(EXIST_DOCUMENT_URI, np.getDoc().getBaseURI());
+                jmp.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDoc().getMetadata().getMimeType());
             }
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
