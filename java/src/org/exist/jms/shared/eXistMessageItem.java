@@ -58,7 +58,7 @@ public class eXistMessageItem implements Item {
 
     @Override
     public int getType() {
-        return Type.COMMENT;
+        return Type.ITEM;
     }
 
     @Override
