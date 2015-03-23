@@ -22,7 +22,8 @@ package org.exist.jms.shared;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Class for managing Receivers
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class ReceiversManager {
 
-    private final static Logger LOG = Logger.getLogger(ReceiversManager.class);
+    private final static Logger LOG = LogManager.getLogger(ReceiversManager.class);
 
     private final Map<Integer, Receiver> receivers = new HashMap<>();
     private static ReceiversManager instance;

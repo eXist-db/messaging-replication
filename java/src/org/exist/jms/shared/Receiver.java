@@ -38,7 +38,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.exist.dom.QName;
 import org.exist.dom.memtree.DocumentImpl;
@@ -56,7 +57,7 @@ import org.exist.xquery.XPathException;
  */
 public class Receiver {
 
-    private final static Logger LOG = Logger.getLogger(Receiver.class);
+    private final static Logger LOG = LogManager.getLogger(Receiver.class);
 
     private DatatypeFactory dtFactory = null;
 

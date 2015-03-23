@@ -37,7 +37,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.exist.Namespaces;
 import static org.exist.jms.shared.Constants.COMPRESSION_TYPE_GZIP;
 import static org.exist.jms.shared.Constants.DATA_TYPE_XML;
@@ -82,7 +83,7 @@ import org.xml.sax.XMLReader;
  */
 public class MessagingJmsListener extends eXistMessagingListener {
 
-    private final static Logger LOG = Logger.getLogger(MessagingJmsListener.class);
+    private final static Logger LOG = LogManager.getLogger(MessagingJmsListener.class);
     
     private Subject subject;
     private final FunctionReference functionReference;

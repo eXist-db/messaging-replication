@@ -24,7 +24,8 @@ import java.util.Map;
 import javax.jms.ConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Helper class for creating and buffering ConnectionFactory instances.
@@ -33,7 +34,7 @@ import org.apache.log4j.Logger;
  */
 class SenderConnectionFactory {
 
-    private final static Logger LOG = Logger.getLogger(SenderConnectionFactory.class);
+    private final static Logger LOG = LogManager.getLogger(SenderConnectionFactory.class);
 
     private static final Map<String, ConnectionFactory> connectionFactories = new HashMap<>();
 
