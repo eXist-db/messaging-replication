@@ -24,7 +24,8 @@ package org.exist.jms.replication.publish;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.exist.collections.Collection;
 import org.exist.collections.triggers.CollectionTrigger;
 import org.exist.collections.triggers.FilteringTrigger;
@@ -45,7 +46,7 @@ import org.exist.xmldb.XmldbURI;
  */
 public class ReplicationTrigger extends FilteringTrigger implements CollectionTrigger {
 
-    private final static Logger LOGGER = Logger.getLogger(ReplicationTrigger.class);
+    private final static Logger LOGGER = LogManager.getLogger(ReplicationTrigger.class);
     
     private static final String BLOCKED_MESSAGE = "Blocked replication trigger for %s: was received by replication extension.";
     public static final String JMS_EXTENSION_PKG = "org.exist.replication.jms";

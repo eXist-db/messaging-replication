@@ -31,7 +31,8 @@ import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.persistent.DocumentImpl;
@@ -63,7 +64,7 @@ import org.xml.sax.InputSource;
  */
 public class ReplicationJmsListener extends eXistMessagingListener {
 
-    private final static Logger LOG = Logger.getLogger(ReplicationJmsListener.class);
+    private final static Logger LOG = LogManager.getLogger(ReplicationJmsListener.class);
     private BrokerPool brokerPool = null;
     private org.exist.security.SecurityManager securityManager = null;
 

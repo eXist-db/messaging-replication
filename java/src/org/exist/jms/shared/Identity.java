@@ -28,7 +28,8 @@ import java.io.OutputStream;
 import java.util.Properties;
 import java.util.UUID;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.exist.util.ConfigurationHelper;
 
 /**
@@ -38,7 +39,7 @@ import org.exist.util.ConfigurationHelper;
  */
 public class Identity {
 
-    private final static Logger LOG = Logger.getLogger(Identity.class);
+    private final static Logger LOG = LogManager.getLogger(Identity.class);
 
     private static Identity instance = null;
     private File identityFile = null;

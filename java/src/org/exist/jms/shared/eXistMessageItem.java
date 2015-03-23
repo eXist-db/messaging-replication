@@ -21,7 +21,8 @@ package org.exist.jms.shared;
 
 import java.util.Arrays;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.exist.dom.memtree.DocumentBuilderReceiver;
 import org.exist.dom.persistent.NodeHandle;
@@ -44,7 +45,7 @@ import org.xml.sax.SAXException;
  */
 public class eXistMessageItem implements Item {
 
-    protected final static Logger LOG = Logger.getLogger(eXistMessageItem.class);
+    protected final static Logger LOG = LogManager.getLogger(eXistMessageItem.class);
 
     private eXistMessage data = null;
 

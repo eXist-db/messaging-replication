@@ -24,7 +24,8 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
 import javax.jms.Session;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Interface definition 
@@ -32,7 +33,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class eXistMessagingListener implements MessageListener, ExceptionListener {
 
-    private final static Logger LOG = Logger.getLogger(eXistMessagingListener.class);
+    private final static Logger LOG = LogManager.getLogger(eXistMessagingListener.class);
 
 
     private final Report report = new Report();

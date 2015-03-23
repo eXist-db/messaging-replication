@@ -29,7 +29,8 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.exist.dom.persistent.BinaryDocument;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.dom.persistent.DocumentMetadata;
@@ -56,7 +57,7 @@ public class MessageHelper {
     public static final String EXIST_RESOURCE_MODE = "exist.resource.permission.mode";
     public static final String EXIST_MESSAGE_CONTENTENCODING = "exist.message.content-encoding";
 
-    private final static Logger LOG = Logger.getLogger(MessageHelper.class);
+    private final static Logger LOG = LogManager.getLogger(MessageHelper.class);
     
     //	Copied from webdav interface ; there is a better one
     public final static Properties OUTPUT_PROPERTIES = new Properties();

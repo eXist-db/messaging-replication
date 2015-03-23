@@ -24,7 +24,8 @@ package org.exist.jms.replication.publish;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.JmsMessageProperties;
@@ -43,7 +44,7 @@ import org.exist.jms.replication.shared.TransportException;
  */
 public class JMSMessageSender implements MessageSender {
 
-    private final static Logger LOG = Logger.getLogger(JMSMessageSender.class);
+    private final static Logger LOG = LogManager.getLogger(JMSMessageSender.class);
     
     private final PublisherParameters parameters = new PublisherParameters();
 

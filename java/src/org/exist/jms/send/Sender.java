@@ -36,7 +36,8 @@ import javax.naming.NamingException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 //import org.exist.dom.persistent.NodeProxy;
 import org.exist.dom.memtree.DocumentImpl;
@@ -64,7 +65,7 @@ import org.exist.jms.shared.eXistMessageItem;
  */
 public class Sender  {
 
-    private final static Logger LOG = Logger.getLogger(Sender.class);
+    private final static Logger LOG = LogManager.getLogger(Sender.class);
     
     private XQueryContext xqcontext;
     private String username;

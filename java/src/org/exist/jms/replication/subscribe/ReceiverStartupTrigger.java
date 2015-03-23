@@ -21,7 +21,8 @@ package org.exist.jms.replication.subscribe;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.Receiver;
 import org.exist.jms.shared.ReceiversManager;
@@ -35,7 +36,7 @@ import org.exist.storage.DBBroker;
  */
 public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger {
 
-    private final static Logger LOG = Logger.getLogger(ReceiverStartupTrigger.class);
+    private final static Logger LOG = LogManager.getLogger(ReceiverStartupTrigger.class);
    
 
     /*
