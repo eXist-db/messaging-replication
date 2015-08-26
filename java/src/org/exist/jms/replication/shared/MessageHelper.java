@@ -85,19 +85,18 @@ public class MessageHelper {
         // a byte array. Better to have an overloap to a file,
         byte[] payload;
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        GZIPOutputStream gos = new GZIPOutputStream(baos);
-
-
         if (document.getResourceType() == DocumentImpl.XML_FILE) {
-
+            
             // Stream XML document
             Serializer serializer = broker.getSerializer();
             serializer.reset();
             try {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
                 serializer.setProperties(OUTPUT_PROPERTIES);
 
-                try (Writer w = new OutputStreamWriter(gos, "UTF-8")) {
+                try (GZIPOutputStream gos = new GZIPOutputStream(baos);
+                        Writer w = new OutputStreamWriter(gos, "UTF-8")) {
                     serializer.serialize(document, w);
                     w.flush();
                 }
@@ -120,11 +119,14 @@ public class MessageHelper {
         } else {
             // Stream NON-XML document
 
-            try {
-                // DW: check classtype before using
-                broker.readBinaryResource((BinaryDocument) document, gos);
-                gos.flush();
-                gos.close();
+            try {          
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+ 
+                try (GZIPOutputStream gos = new GZIPOutputStream(baos)) {
+                    // DW: check classtype before using
+                    broker.readBinaryResource((BinaryDocument) document, gos);
+                    gos.flush();
+                }
 
                 payload = baos.toByteArray();
 

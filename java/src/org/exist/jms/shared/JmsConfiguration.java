@@ -84,6 +84,9 @@ public class JmsConfiguration extends MessagingConfiguration {
         setLocalProperty(Constants.DESTINATION, params.getDestination());
         setLocalProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
         setLocalProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
+        
+        setLocalProperty(Constants.JMS_CONNECTION_USERNAME, params.getConnectionUsername());
+        setLocalProperty(Constants.JMS_CONNECTION_PASSWORD, params.getConnectionPassword());
     }
 
     public void loadSubscriberParameters(SubscriberParameters params) {
@@ -98,7 +101,8 @@ public class JmsConfiguration extends MessagingConfiguration {
         setLocalProperty(Constants.NO_LOCAL, "" + params.isNoLocal());
         setLocalProperty(Constants.SUBSCRIBER_NAME, params.getSubscriberName());
 
-        //params.getProps()
+        setLocalProperty(Constants.JMS_CONNECTION_USERNAME, params.getConnectionUsername());
+        setLocalProperty(Constants.JMS_CONNECTION_PASSWORD, params.getConnectionPassword());
     }
 
     private void setLocalProperty(String key, String value) {

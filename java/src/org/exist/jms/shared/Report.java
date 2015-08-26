@@ -134,9 +134,9 @@ public class Report {
      */
     public List<String> getErrorMessages() {
         List<String> errorMessages = new ArrayList<>();
-        for (ReportItem t : errors) {
+        errors.stream().forEach((t) -> {
             errorMessages.add(t.getMessage());
-        }
+        });
         return errorMessages;
     }
 
@@ -174,9 +174,9 @@ public class Report {
 
         List<ReportItem> listenerErrors = getReportItems();
         if (!listenerErrors.isEmpty()) {
-            for (ReportItem ri : listenerErrors) {
+            listenerErrors.stream().forEach((ri) -> {
                 ri.writeError(builder);
-            }
+            });
         }
 
         builder.endElement();

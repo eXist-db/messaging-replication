@@ -193,12 +193,12 @@ public class eXistMessage {
         if(!keys.isEmpty()){
             sb.append("###  ");
 
-            for(String key : keys){
+            keys.stream().forEach((key) -> {
                 Object val=metaData.get(key);
-                if(val != null){
+                if (val != null) {
                     sb.append(key).append("='").append(val.toString()).append("'  ");
                 }
-            }
+            });
         }
         
         return sb.toString();
