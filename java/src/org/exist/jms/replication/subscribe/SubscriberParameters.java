@@ -157,12 +157,15 @@ public class SubscriberParameters extends ClientParameters {
             }
         }
         
-        // FOr a durable connection (default) a clientId must be set
+        // For a durable connection (default) a clientId must be set
         if (durable && clientId == null) {
             String errorText = "For durable connections the " + Constants.CLIENT_ID + " must be set.";
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }
+        
+        connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
+        connectionPassword = props.getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
 
     @Override
