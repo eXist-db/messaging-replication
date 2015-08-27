@@ -90,7 +90,7 @@ public class RegisterReceiver extends BasicFunction {
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getSubject(), reference, functionParams, context);
+            MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getSubject(), reference, functionParams, context.copyContext());
 
             // Create receiver
             Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
