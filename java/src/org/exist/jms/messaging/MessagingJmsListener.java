@@ -115,6 +115,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
     @Override
     public void onMessage(Message msg) {
+        
+        // Make a copy, just in case
+        functionReference.setContext(xqueryContext.copyContext());
 
         id = getIdentification();
         
