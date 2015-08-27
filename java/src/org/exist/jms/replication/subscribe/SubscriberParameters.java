@@ -163,6 +163,10 @@ public class SubscriberParameters extends ClientParameters {
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }
+        
+        // Get connection authentication
+        connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
+        connectionPassword = props.getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
 
     @Override
