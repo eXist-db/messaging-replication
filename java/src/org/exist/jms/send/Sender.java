@@ -76,7 +76,7 @@ public class Sender  {
     /**
      * Constructor.
      *
-     * @param context Xquery context, can be NULL for eXistMessageItem
+     * @param context Xquery context, can be NULL for eXistMessageItem. Context will be copied
      */
     public Sender(XQueryContext context) {
         username = context.getSubject().getName();

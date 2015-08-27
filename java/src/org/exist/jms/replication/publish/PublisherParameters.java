@@ -64,31 +64,31 @@ public class PublisherParameters extends ClientParameters {
         providerUrl=value;
         
         // Connection factory
-        value = props.getProperty(CONNECTION_FACTORY);
+        value = props.getProperty(Constants.CONNECTION_FACTORY);
         if (value == null || value.equals("")) {
             value = "ConnectionFactory";
-            LOG.info("No " + CONNECTION_FACTORY + " set, using default value '" + value + "'");
+            LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
         }
         connectionFactory = value;
         
 
         // Setup destination
-        value = props.getProperty(DESTINATION);
+        value = props.getProperty(Constants.DESTINATION);
         if (value == null || value.equals("")) {
             value = "dynamicTopics/eXistdb";
-            LOG.info("No " + DESTINATION + " set (topic), using default value '" + value
+            LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '" + value
                     + "' which is suitable for activeMQ");
         }
         topic = value;
 
         
         // Client ID, when set
-        value = props.getProperty(CLIENT_ID);
+        value = props.getProperty(Constants.CLIENT_ID);
         if (value != null && !value.equals("")) {
             clientId = value;
-            LOG.debug(CLIENT_ID + ": " + value);
+            LOG.debug(Constants.CLIENT_ID + ": " + value);
         } else {
-            LOG.debug(CLIENT_ID + " is not set.");
+            LOG.debug(Constants.CLIENT_ID + " is not set.");
         }
 
         // Get time to live value
@@ -114,6 +114,10 @@ public class PublisherParameters extends ClientParameters {
                 throw new TransportException(errorText);
             }
         }
+        
+        // Get connection authentication
+        connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
+        connectionPassword = props.getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
 
     @Override
@@ -128,10 +132,10 @@ public class PublisherParameters extends ClientParameters {
         sb.append(Context.PROVIDER_URL).append("='").append(providerUrl).append("'");
         sb.append(" ");
         
-        sb.append(DESTINATION).append("='").append(topic).append("'");
+        sb.append(Constants.DESTINATION).append("='").append(topic).append("'");
         sb.append(" ");
         
-        sb.append(CLIENT_ID).append("='").append(clientId).append("'");
+        sb.append(Constants.CLIENT_ID).append("='").append(clientId).append("'");
         sb.append(" ");
         
         sb.append(TIME_TO_LIVE).append("='").append(timeToLive).append("'");

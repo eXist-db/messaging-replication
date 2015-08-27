@@ -76,19 +76,19 @@ public class SubscriberParameters extends ClientParameters {
         providerUrl=value;
         
         // Connection factory
-        value = props.getProperty(CONNECTION_FACTORY);
+        value = props.getProperty(Constants.CONNECTION_FACTORY);
         if (value == null || value.equals("")) {
             value = "ConnectionFactory";
-            LOG.info("No " + CONNECTION_FACTORY + " set, using default value '" + value + "'");
+            LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
         }
         connectionFactory = value;
 
 
         // Destination / topic
-        value = props.getProperty(DESTINATION);
+        value = props.getProperty(Constants.DESTINATION);
         if (value == null || value.equals("")) {
             value = "dynamicTopics/eXistdb";
-            LOG.info("No " + DESTINATION + " set (topic), using default value '" + value
+            LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '" + value
                     + "' which is suitable for activeMQ");
         }
         topic = value;
@@ -96,12 +96,12 @@ public class SubscriberParameters extends ClientParameters {
         // Client ID ; 
         // for durable subscriptions later an additional check
         // is performed.
-        value = props.getProperty(CLIENT_ID);
+        value = props.getProperty(Constants.CLIENT_ID);
         if (value != null && !value.equals("")) {
             clientId = value;
-            LOG.debug(CLIENT_ID + ": " + value);
+            LOG.debug(Constants.CLIENT_ID + ": " + value);
         } else {
-            LOG.debug(CLIENT_ID + " is not set.");
+            LOG.debug(Constants.CLIENT_ID + " is not set.");
         }
 
 
@@ -159,10 +159,14 @@ public class SubscriberParameters extends ClientParameters {
         
         // FOr a durable connection (default) a clientId must be set
         if (durable && clientId == null) {
-            String errorText = "For durable connections the " + CLIENT_ID + " must be set.";
+            String errorText = "For durable connections the " + Constants.CLIENT_ID + " must be set.";
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }
+        
+        // Get connection authentication
+        connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
+        connectionPassword = props.getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
 
     @Override
@@ -177,10 +181,10 @@ public class SubscriberParameters extends ClientParameters {
         sb.append(Context.PROVIDER_URL).append("='").append(providerUrl).append("'");
         sb.append(" ");
         
-        sb.append(DESTINATION).append("='").append(topic).append("'");
+        sb.append(Constants.DESTINATION).append("='").append(topic).append("'");
         sb.append(" ");
         
-        sb.append(CLIENT_ID).append("='").append(clientId).append("'");
+        sb.append(Constants.CLIENT_ID).append("='").append(clientId).append("'");
         sb.append(" ");
         
         sb.append(SUBSCRIBER_NAME).append("='").append(subscriberName).append("'");

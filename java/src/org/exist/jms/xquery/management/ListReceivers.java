@@ -65,18 +65,18 @@ public class ListReceivers extends BasicFunction {
             LOG.error(txt);
             throw ex;
         }
-    
+
         // Get object that manages the receivers
         ReceiversManager manager = ReceiversManager.getInstance();
-        
+
         // Conten holfer results
         ValueSequence returnSequence = new ValueSequence();
-        
+
         // Collect IDs
-        for (Integer id : manager.getIds()) {
+        manager.getIds().stream().forEach((id) -> {
             returnSequence.add(new IntegerValue(id));
-        }
-        
+        });
+
         // Return IDs
         return returnSequence;
     }

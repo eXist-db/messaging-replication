@@ -27,7 +27,6 @@ import java.util.Properties;
 import javax.naming.Context;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.exist.jms.shared.Constants;
 
 /**
  *
@@ -37,16 +36,18 @@ public abstract class ClientParameters {
 
     protected final static Logger LOG = LogManager.getLogger(ClientParameters.class);
     
-    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
-    public static final String DESTINATION = Constants.DESTINATION;  //"topic";
-    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
-    public static final String PARAMETER_GROUPING = "..";
+//    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
+//    public static final String DESTINATION = Constants.DESTINATION;  //"topic";
+//    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
+//    public static final String PARAMETER_GROUPING = "..";
    
     protected String connectionFactory = null;
     protected String clientId = null;
     protected String topic = null;
     protected String initialContextFactory = null;
     protected String providerUrl = null;
+    protected String connectionUsername = null;
+    protected String connectionPassword = null;
 
     protected Properties props = new Properties();
 
@@ -58,12 +59,10 @@ public abstract class ClientParameters {
     public void setMultiValueParameters(Map<String, List<?>> params) {
 
         // Iterate over parameters
-        for (Map.Entry<String, List<?>> entry : params.entrySet()) {
-
+        params.entrySet().stream().forEach((entry) -> {
             // Get key, values
             String key = entry.getKey();
             List<?> values = entry.getValue();
-
             if (values != null && !values.isEmpty()) {
                 // Only get first value
                 Object value = values.get(0);
@@ -71,7 +70,7 @@ public abstract class ClientParameters {
                     props.setProperty(key, (String) value);
                 }
             }
-        }
+        });
 
     }
 
@@ -83,12 +82,12 @@ public abstract class ClientParameters {
      */
     public void setSingleValueParameters(final Map<String, List<? extends Object>> params) {
 
-        for(final String key : params.keySet()) {
+        params.keySet().stream().forEach((key) -> {
             final String value = getConfigurationValue(params, key);
-            if(value != null){
+            if (value != null) {
                 props.setProperty(key, value);
             }
-        }
+        });
 
     }
 
@@ -147,11 +146,9 @@ public abstract class ClientParameters {
         Properties contextProps = new Properties();
         
         // Copy all properties that start with "java."
-        for(String key : props.stringPropertyNames()){
-            if(key.startsWith("java.")){
-                contextProps.setProperty(key, props.getProperty(key));
-            }
-        }
+        props.stringPropertyNames().stream().filter((key) -> (key.startsWith("java."))).forEach((key) -> {
+            contextProps.setProperty(key, props.getProperty(key));
+        });
                 
         return contextProps;
     }
@@ -184,12 +181,20 @@ public abstract class ClientParameters {
         return providerUrl;
     }
     
+    public String getConnectionUsername() {
+        return connectionUsername;
+    }
+    
+    public String getConnectionPassword() {
+        return connectionPassword;
+    }
+    
     public String getParameterValue(String key){
         return props.getProperty(key);
     }
     
-     public String getParameterValue(String group, String key){
-        return props.getProperty(group + PARAMETER_GROUPING + key);
-    }
+//     public String getParameterValue(String group, String key){
+//        return props.getProperty(group + PARAMETER_GROUPING + key);
+//    }
     
 }
