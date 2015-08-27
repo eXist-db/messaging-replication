@@ -19,6 +19,8 @@
     <property name="web.dir" value="web"/>
     <property name="config.dir" value="config"/>
 
+    <property name="server.url" value="http://demo.exist-db.org/exist/apps/public-repo/public/"/>
+
     <!-- Setup IVY download manager -->
     <path id="ivy.lib.path">
         <fileset dir="build/lib" includes="ivy*.jar" erroronmissingdir="false"/>
@@ -156,6 +158,20 @@
         <copy todir="${exist.dir}/lib/user">
             <fileset dir="${java.libs}" includes="*.jar" excludes="*sources*,*javadoc*"/>
         </copy>
+    </target>
+
+    <target name="upload">
+      <input message="Enter password:" addproperty="server.pass" defaultvalue="">
+        <handler type="secure"/>
+      </input>
+      <property name="xar-lib" value="${module.name}-core-${module.version}.xar"/>
+      <property name="xar-app" value="${module.name}-ui-${module.version}.xar"/>
+      <exec executable="curl">
+        <arg line="-T ${dist.dir}/${xar-lib} -u admin:${server.pass} ${server.url}/${xar-lib}"/>
+      </exec>
+      <exec executable="curl">
+        <arg line="-T ${dist.dir}/${xar-app} -u admin:${server.pass} ${server.url}/${xar-app}"/>
+      </exec>
     </target>
 
 </project>
