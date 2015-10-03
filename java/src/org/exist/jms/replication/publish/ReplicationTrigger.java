@@ -49,7 +49,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     private final static Logger LOGGER = LogManager.getLogger(ReplicationTrigger.class);
     
     private static final String BLOCKED_MESSAGE = "Blocked replication trigger for %s: was received by replication extension.";
-    public static final String JMS_EXTENSION_PKG = "org.exist.replication.jms";
+    public static final String JMS_EXTENSION_PKG = "org.exist.jms";
     
     private Map<String, List<?>> parameters;
 
