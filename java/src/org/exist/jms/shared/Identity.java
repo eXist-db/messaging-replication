@@ -19,17 +19,16 @@
  */
 package org.exist.jms.shared;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.util.ConfigurationHelper;
 
 /**
@@ -40,21 +39,24 @@ import org.exist.util.ConfigurationHelper;
 public class Identity {
 
     private final static Logger LOG = LogManager.getLogger(Identity.class);
+    
+    private static final String IDENTITY_PROP = "identity";
 
     private static Identity instance = null;
-    private File identityFile = null;
+
+    public static synchronized Identity getInstance() {
+        if(instance==null){
+            instance = new Identity();
+        }
+        return instance;
+    }
+    
+    private Path identityFile = null;
     private String identity = null;
 
     private Identity() {
         findIdentityFile();
         getIdentityFromFile();
-    }
-    
-    public synchronized static Identity getInstance(){
-        if(instance==null){
-            instance = new Identity();
-        }
-        return instance;
     }
     
     public String getIdentity(){
@@ -64,12 +66,18 @@ public class Identity {
     /**
      * Find identity file
      */
-    private void findIdentityFile() {
-
+    private void findIdentityFile(){
+        
         if (identityFile == null) {
-            File existHome = ConfigurationHelper.getExistHome();
-            File dataDir = new File(existHome, "webapp/WEB-INF/data");
-            identityFile = (dataDir.exists()) ? new File(dataDir, "jms.identity") : new File(existHome, "jms.identity");
+            Optional<Path> existHome = ConfigurationHelper.getExistHome();
+           
+            if(existHome.isPresent()){
+                Path dataDir = existHome.get().resolve("webapp/WEB-INF/data");
+                identityFile = (Files.exists(dataDir)) ? dataDir.resolve("jms.identity") : existHome.get().resolve("jms.identity"); 
+            } else {
+                LOG.error("eXist_home not found");
+            }
+ 
         }
     }
 
@@ -81,39 +89,42 @@ public class Identity {
         Properties props = new Properties();
 
         // Read if possible
-        if (identityFile.exists()) {
-            InputStream is = null;
+        if (Files.exists(identityFile)) {
+            
+            LOG.debug(String.format("Read jms identity from %s", identityFile.toString()));
+   
             try {
-                is = new FileInputStream(identityFile);
-                props.load(is);
+                try (InputStream is = Files.newInputStream(identityFile)) {
+                    props.load(is);              
+                    identity = props.getProperty(IDENTITY_PROP);
+                }
                 
-                identity = props.getProperty("identity");
             } catch (IOException ex) {
                 LOG.error(ex.getMessage());
-            } finally {
-                IOUtils.closeQuietly(is);
             }
-
+            
         }
 
         // Create and write when needed
-        if (!identityFile.exists() || identity == null) {
+        if (Files.notExists(identityFile) || identity == null) {
+            
+            LOG.debug(String.format("Create new jms identity into %s", identityFile.toString()));
+            
             identity = UUID.randomUUID().toString();
+            props.setProperty(IDENTITY_PROP, identity);
 
-            props.setProperty("identity", identity);
-
-            OutputStream os = null;
             try {
-                os = new FileOutputStream(identityFile);
-                props.store(os, "");
+                try (OutputStream os = Files.newOutputStream(identityFile)) {
+                    props.store(os, "");
+                }
                 
             } catch (IOException ex) {
                 LOG.error(ex.getMessage());
-            } finally {
-                IOUtils.closeQuietly(os);
-            }
+            } 
 
         }
 
     }
+
+    
 }
