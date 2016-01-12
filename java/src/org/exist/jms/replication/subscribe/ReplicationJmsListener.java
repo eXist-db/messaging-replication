@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -321,7 +322,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Integer mode = getMode(metaData);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
             if (collection == null) {
@@ -418,7 +419,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
     }
@@ -447,7 +448,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Open collection if possible, else abort
             collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
@@ -511,7 +512,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 collection.release(Lock.WRITE_LOCK);
             }
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
 
@@ -536,7 +537,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Open collection if possible, else abort
             collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
@@ -589,7 +590,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
     }
@@ -609,7 +610,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Open collection if possible, else abort
             collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
@@ -643,7 +644,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
     }
@@ -674,7 +675,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Check if collection is already there
             Collection collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
@@ -725,7 +726,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 newCollection.release(Lock.WRITE_LOCK);
             }
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
         }
         return newCollection;
     }
@@ -755,7 +756,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Open collection if possible, else abort
             srcCollection = broker.openCollection(sourceColURI, lockTypeOriginal);
@@ -817,7 +818,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
     }
@@ -839,7 +840,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         setOrigin(txn);
 
         try {
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Open collection if possible, else abort
             srcCollection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
@@ -891,7 +892,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
     }
@@ -920,7 +921,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         try {
             // TODO get user
-            broker = brokerPool.get(securityManager.getSystemSubject());
+            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
 
             // Open collection if possible, else abort
             srcCollection = broker.openCollection(sourceColURI, Lock.WRITE_LOCK);
@@ -959,7 +960,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             txnManager.close(txn);
-            brokerPool.release(broker);
+            broker.close(); // ToDo: replace with auto closable
 
         }
 
