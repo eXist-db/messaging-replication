@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Enumeration;
+import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
@@ -156,7 +157,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             if (subject == null) {
                 subject = brokerPool.getSecurityManager().getGuestSubject();
             }
-            dummyBroker = brokerPool.get(subject);             
+            dummyBroker = brokerPool.get(Optional.of(subject));
 
             // Copy message and jms configuration details into Maptypes
             MapType msgProperties = getMessageProperties(msg, xqueryContext);
@@ -205,7 +206,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         } finally {
             // Cleanup resources
             if (dummyBroker != null && brokerPool != null) {
-                brokerPool.release(dummyBroker);
+                dummyBroker.close(); // ToDO Use auto      closable
             }
             
             // update statistics
