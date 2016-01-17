@@ -21,28 +21,14 @@
  */
 package org.exist.jms.replication.subscribe;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Optional;
-import java.util.zip.GZIPInputStream;
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
-import org.exist.jms.shared.Constants;
-import org.exist.jms.shared.Identity;
-import org.exist.jms.shared.Report;
-import org.exist.jms.shared.eXistMessage;
-import org.exist.jms.shared.eXistMessagingListener;
+import org.exist.jms.shared.*;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.Permission;
@@ -57,6 +43,17 @@ import org.exist.util.VirtualTempFile;
 import org.exist.util.VirtualTempFileInputSource;
 import org.exist.xmldb.XmldbURI;
 import org.xml.sax.InputSource;
+
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Optional;
+import java.util.zip.GZIPInputStream;
 
 /**
  * JMS listener for receiving JMS replication messages
@@ -93,6 +90,18 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      */
     private void setOrigin(Txn transaction) {
             transaction.setOriginId(this.getClass().getName());
+    }
+
+    /**
+     * Release lock on collection
+     *
+     * @param collection The collection, null is allowed
+     * @param lockMode The lock mode.
+     */
+    private void releaseLock(Collection collection, int lockMode){
+        if (collection != null) {
+            collection.release(lockMode);
+        }
     }
 
     @Override
@@ -297,9 +306,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         XmldbURI colURI = sourcePath.removeLastSegment();
         XmldbURI docURI = sourcePath.lastSegment();
 
-        // References to the database
-        DBBroker broker = null;
-        Collection collection = null;
+        // Reference to the collection
+        Collection collection;
 
         // Get mime, or NULL when not available
         MimeType mime = MimeTable.getInstance().getContentTypeFor(docURI.toString());
@@ -317,19 +325,16 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Get MODE
         Integer mode = getMode(metaData);
 
+        // Check for collection, create if not existent
         try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            collection = getOrCreateCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
 
-            collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
-            if (collection == null) {
-                String errorMessage = String.format("Collection %s does not exist", colURI);
-                LOG.error(errorMessage);
+        } catch (MessageReceiveException e) {
+            LOG.error(e.getMessage());
+            throw e;
+        }
 
-                // Create collection anyway
-                collection = createCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
-            }
-
-        } catch (Throwable t) {
+        catch (Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.error(t.getMessage(), t);
             } else {
@@ -338,11 +343,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             throw new MessageReceiveException(String.format("Unable to create collection in database: %s", t.getMessage()));
         }
 
-        // Start transaction
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
 
-        try {
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
+            setOrigin(txn);
+
             DocumentImpl doc;
             if (mime.isXMLType()) {
 
@@ -394,7 +399,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
+
 
         } catch (Throwable ex) {
 
@@ -404,17 +410,12 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(ex.getMessage());
             }
 
-            txnManager.abort(txn);
             throw new MessageReceiveException(String.format("Unable to write document into database: %s", ex.getMessage()));
+
 
         } finally {
 
-            if (collection != null) {
-                collection.release(Lock.WRITE_LOCK);
-            }
-
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
+            releaseLock(collection, Lock.WRITE_LOCK);
 
         }
     }
@@ -434,36 +435,28 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         XmldbURI docURI = sourcePath.lastSegment();
 
         // References to the database
-        DBBroker broker = null;
         Collection collection = null;
         DocumentImpl resource;
 
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
 
-        try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            setOrigin(txn);
 
             // Open collection if possible, else abort
             collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
             if (collection == null) {
-                String errorText = String.format("Collection does not exist %s", colURI);
-                LOG.error(errorText);
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("Collection does not exist %s", colURI));
+                txn.abort();
+                return; // be silent
             }
 
             // Open document if possible, else abort
             resource = collection.getDocument(broker, docURI);
             if (resource == null) {
-                String errorText = String.format("No resource found for path: %s", sourcePath);
-                LOG.error(errorText);
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("No resource found for path: %s", sourcePath));
+                txn.abort();
+                return; // be silent
             }
 
             // Get supplied metadata
@@ -492,28 +485,20 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
 
         } catch (Throwable e) {
             LOG.error(e);
-            txnManager.abort(txn);
             throw new MessageReceiveException(e.getMessage(), e);
 
         } finally {
-
-            // TODO: check if can be done earlier
-            if (collection != null) {
-                collection.release(Lock.WRITE_LOCK);
-            }
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
-
+            releaseLock(collection, Lock.WRITE_LOCK);
         }
 
     }
 
     /**
-     * Remove document from database
+     * Remove document from database. If a document or collection does not exist, this is logged.
      */
     private void deleteDocument(eXistMessage em) {
 
@@ -521,37 +506,29 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         XmldbURI colURI = sourcePath.removeLastSegment();
         XmldbURI docURI = sourcePath.lastSegment();
 
-        // References to the database
-        DBBroker broker = null;
+        // Reference to the collection
         Collection collection = null;
-        DocumentImpl resource;
 
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
+        try (final DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            Txn txn = txnManager.beginTransaction()) {
 
-        try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            setOrigin(txn);
 
             // Open collection if possible, else abort
             collection = broker.openCollection(colURI, Lock.WRITE_LOCK);
             if (collection == null) {
                 String errorText = String.format("Collection does not exist %s", colURI);
                 LOG.error(errorText);
-                txnManager.abort(txn);
-
-                // silently ignore
-                return;
+                txn.abort();
+                return; // silently ignore
             }
 
             // Open document if possible, else abort
-            resource = collection.getDocument(broker, docURI);
+            DocumentImpl resource = collection.getDocument(broker, docURI);
             if (resource == null) {
-                String errorText = String.format("No resource found for path: %s", sourcePath);
-                LOG.error(errorText);
-                txnManager.abort(txn);
-
-                // silently ignore
-                return;
+                LOG.error(String.format("No resource found for path: %s", sourcePath));
+                txn.abort();
+                return; // silently ignore
             }
 
             // This delete is based on mime-type /ljo 
@@ -563,7 +540,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
 
         } catch (Throwable t) {
 
@@ -573,18 +550,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(t.getMessage());
             }
 
-            txnManager.abort(txn);
             throw new MessageReceiveException(t.getMessage(), t);
 
         } finally {
-
-            if (collection != null) {
-                collection.release(Lock.WRITE_LOCK);
-            }
-
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
-
+            releaseLock(collection, Lock.WRITE_LOCK);
         }
     }
 
@@ -595,28 +564,26 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         XmldbURI sourcePath = XmldbURI.create(em.getResourcePath());
 
-        DBBroker broker = null;
         Collection collection = null;
 
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
 
-        try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            setOrigin(txn);
 
             // Open collection if possible, else abort
             collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
             if (collection == null) {
-                txnManager.abort(txn);
-                // be silent
-                return;
+                LOG.error(String.format("Collection does not exist: %s", sourcePath));
+                txn.abort();
+                return;  // be silent
             }
 
             // Remove collection
             broker.removeCollection(txn, collection);
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
 
         } catch (Throwable t) {
 
@@ -626,18 +593,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(t.getMessage());
             }
 
-            txnManager.abort(txn);
             throw new MessageReceiveException(t.getMessage());
 
         } finally {
-
-            if (collection != null) {
-                collection.release(Lock.WRITE_LOCK);
-            }
-
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
-
+            releaseLock(collection, Lock.WRITE_LOCK);
         }
     }
 
@@ -655,34 +614,42 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         String groupName = getGroupName(metaData);
         Integer mode = getMode(metaData);
 
-        createCollection(sourcePath, userName, groupName, mode);
+        getOrCreateCollection(sourcePath, userName, groupName, mode);
     }
 
-    private Collection createCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
-        DBBroker broker = null;
-        Collection newCollection = null;
-        
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
+    private Collection getOrCreateCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
 
-        try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
-
-            // Check if collection is already there
-            Collection collection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
+        // Check if collection is already there ; do not modify
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
+            Collection collection = broker.openCollection(sourcePath, Lock.READ_LOCK);
             if (collection != null) {
-                String errorText = String.format("Collection %s already exists", sourcePath);
-                LOG.error(errorText);
-
-                collection.release(Lock.WRITE_LOCK);
-                txnManager.abort(txn);
-
-                // Just return the existent collection
-                return collection;
+                LOG.error(String.format("Collection %s already exists", sourcePath));
+                releaseLock(collection, Lock.READ_LOCK);
+                return collection; // Just return the already existent collection
             }
+
+        } catch (Throwable e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.error(e.getMessage(), e);
+            } else {
+                LOG.error(e.getMessage());
+            }
+
+            throw new MessageReceiveException(e.getMessage(), e);
+        }
+
+        // Reference to newly created collection
+        Collection newCollection = null;
+
+        // New collection to be created
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
+
+            setOrigin(txn);
 
             // Create collection
             newCollection = broker.getOrCreateCollection(txn, sourcePath);
+
             // Set owner,group and permissions
             Permission permission = newCollection.getPermissions();
             if (userName != null) {
@@ -694,11 +661,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (mode != null) {
                 permission.setMode(mode);
             }
+
             broker.saveCollection(txn, newCollection);
-            broker.flush();
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
 
         } catch (Throwable t) {
 
@@ -708,16 +675,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(t.getMessage());
             }
 
-            txnManager.abort(txn);
             throw new MessageReceiveException(t.getMessage(), t);
 
         } finally {
-            // TODO: check if can be done earlier
-            if (newCollection != null) {
-                newCollection.release(Lock.WRITE_LOCK);
-            }
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
+            releaseLock(newCollection, Lock.WRITE_LOCK);
         }
         return newCollection;
     }
@@ -732,8 +693,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         XmldbURI destColURI = destPath.removeLastSegment();
         XmldbURI destDocURI = destPath.lastSegment();
 
-        DBBroker broker = null;
-
         Collection srcCollection = null;
         DocumentImpl srcDocument;
 
@@ -742,49 +701,38 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Use the correct lock
         int lockTypeOriginal = keepDocument ? Lock.READ_LOCK : Lock.WRITE_LOCK;
 
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
 
-        try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            setOrigin(txn);
 
             // Open collection if possible, else abort
             srcCollection = broker.openCollection(sourceColURI, lockTypeOriginal);
             if (srcCollection == null) {
-                String errorMessage = String.format("Collection not found: %s", sourceColURI);
-                LOG.error(errorMessage);
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("Collection not found: %s", sourceColURI));
+                txn.abort();
+                return; // be silent
             }
 
             // Open document if possible, else abort
             srcDocument = srcCollection.getDocument(broker, sourceDocURI);
             if (srcDocument == null) {
-                String errorMessage = String.format("No resource found for path: %s", sourcePath);
-                LOG.error(errorMessage);
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("No resource found for path: %s", sourcePath));
+                txn.abort();
+                return; // be silent
             }
 
             // Open collection if possible, else abort
             destCollection = broker.openCollection(destColURI, Lock.WRITE_LOCK);
             if (destCollection == null) {
-                String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
-                LOG.error(errorMessage);
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("Destination collection %s does not exist.", destColURI));
+                txn.abort();
+                return; // be silent
             }
 
-            // Perform actial move/copy
+            // Perform actual move/copy
             if (keepDocument) {
                 broker.copyResource(txn, srcDocument, destCollection, destDocURI);
-
             } else {
                 broker.moveResource(txn, srcDocument, destCollection, destDocURI);
             }
@@ -794,22 +742,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } catch (Throwable e) {
             LOG.error(e);
-            txnManager.abort(txn);
             throw new MessageReceiveException(e.getMessage(), e);
 
         } finally {
-
-            if (destCollection != null) {
-                destCollection.release(Lock.WRITE_LOCK);
-            }
-
-            if (srcCollection != null) {
-                srcCollection.release(lockTypeOriginal);
-            }
-
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
-
+            releaseLock(destCollection, Lock.WRITE_LOCK);
+            releaseLock(srcCollection, lockTypeOriginal);
         }
     }
 
@@ -821,68 +758,47 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         XmldbURI destColURI = destPath.removeLastSegment();
         XmldbURI destDocURI = destPath.lastSegment();
 
-        DBBroker broker = null;
         Collection srcCollection = null;
         Collection destCollection = null;
 
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
 
-        try {
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+            setOrigin(txn);
 
             // Open collection if possible, else abort
             srcCollection = broker.openCollection(sourcePath, Lock.WRITE_LOCK);
             if (srcCollection == null) {
-                String errorMessage = String.format("Collection %s does not exist.", sourcePath);
-                LOG.error(errorMessage);
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("Collection %s does not exist.", sourcePath));
+                txn.abort();
+                return; // be silent
             }
 
             // Open collection if possible, else abort
             destCollection = broker.openCollection(destColURI, Lock.WRITE_LOCK);
             if (destCollection == null) {
-                String errorMessage = String.format("Destination collection %s does not exist.", destColURI);
-                LOG.error(errorMessage);
-
-                txnManager.abort(txn);
-
-                // be silent
-                return;
+                LOG.error(String.format("Destination collection %s does not exist.", destColURI));
+                txn.abort();
+                return; // be silent
             }
 
             // Perform actual move/copy
             if (keepCollection) {
                 broker.copyCollection(txn, srcCollection, destCollection, destDocURI);
-
             } else {
                 broker.moveCollection(txn, srcCollection, destCollection, destDocURI);
             }
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
 
         } catch (Throwable e) {
             LOG.error(e);
-            txnManager.abort(txn);
             throw new MessageReceiveException(e.getMessage());
 
         } finally {
-
-            if (destCollection != null) {
-                destCollection.release(Lock.WRITE_LOCK);
-            }
-
-            if (srcCollection != null) {
-                srcCollection.release(Lock.WRITE_LOCK);
-            }
-
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
-
+            releaseLock(destCollection, Lock.WRITE_LOCK);
+            releaseLock(srcCollection, Lock.WRITE_LOCK);
         }
     }
 
@@ -901,28 +817,23 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         String groupName = getGroupName(metaData);
         Integer mode = getMode(metaData);
 
-        Txn txn = txnManager.beginTransaction();
-        setOrigin(txn);
 
-        DBBroker broker = null;
-        Collection srcCollection = null;
+        Collection collection = null;
 
-        try {
-            // TODO get user
-            broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+        try( DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+             Txn txn = txnManager.beginTransaction()) {
+
+            setOrigin(txn);
 
             // Open collection if possible, else abort
-            srcCollection = broker.openCollection(sourceColURI, Lock.WRITE_LOCK);
-            if (srcCollection == null) {
-                String errorMessage = String.format("Collection not found: %s", sourceColURI);
-                LOG.error(errorMessage);
+            collection = broker.openCollection(sourceColURI, Lock.WRITE_LOCK);
+            if (collection == null) {
+                LOG.error(String.format("Collection not found: %s", sourceColURI));
                 txnManager.abort(txn);
-
-                // be silent
-                return;
+                return; // be silent
             }
 
-            Permission permission = srcCollection.getPermissions();
+            Permission permission = collection.getPermissions();
             if (userName != null) {
                 permission.setOwner(userName);
             }
@@ -934,21 +845,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             // Commit change
-            txnManager.commit(txn);
+            txn.commit();
 
         } catch (Throwable e) {
             LOG.error(e);
-            txnManager.abort(txn);
             throw new MessageReceiveException(e.getMessage());
 
         } finally {
-
-            if (srcCollection != null) {
-                srcCollection.release(Lock.WRITE_LOCK);
-            }
-
-            txnManager.close(txn);
-            broker.close(); // ToDo: replace with auto closable
+            releaseLock(collection,Lock.WRITE_LOCK );
 
         }
 
