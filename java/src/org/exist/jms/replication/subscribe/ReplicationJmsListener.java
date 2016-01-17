@@ -66,8 +66,9 @@ import org.xml.sax.InputSource;
 public class ReplicationJmsListener extends eXistMessagingListener {
 
     private final static Logger LOG = LogManager.getLogger(ReplicationJmsListener.class);
-    private BrokerPool brokerPool = null;
-    private org.exist.security.SecurityManager securityManager = null;
+    private final BrokerPool brokerPool;
+    private final org.exist.security.SecurityManager securityManager;
+    private final TransactionManager txnManager;
 
     private String localID = null;
     private Report report = null;
@@ -80,6 +81,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     public ReplicationJmsListener(BrokerPool brokerpool) {
         brokerPool = brokerpool;
         securityManager = brokerpool.getSecurityManager();
+        txnManager = brokerpool.getTransactionManager();
         localID = Identity.getInstance().getIdentity();
         report = getReport();
     }
@@ -90,13 +92,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      * @param transaction The eXist-db transaction
      */
     private void setOrigin(Txn transaction) {
-        try {
             transaction.setOriginId(this.getClass().getName());
-
-        } catch (java.lang.NoSuchMethodError error) {
-            // Running an old version of eXist-db
-            LOG.error("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
-        }
     }
 
     @Override
@@ -343,7 +339,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         }
 
         // Start transaction
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -443,7 +438,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Collection collection = null;
         DocumentImpl resource;
 
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -532,7 +526,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Collection collection = null;
         DocumentImpl resource;
 
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -605,7 +598,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         DBBroker broker = null;
         Collection collection = null;
 
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -669,8 +661,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private Collection createCollection(XmldbURI sourcePath, String userName, String groupName, Integer mode) throws MessageReceiveException {
         DBBroker broker = null;
         Collection newCollection = null;
-
-        TransactionManager txnManager = brokerPool.getTransactionManager();
+        
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -751,7 +742,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Use the correct lock
         int lockTypeOriginal = keepDocument ? Lock.READ_LOCK : Lock.WRITE_LOCK;
 
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -835,7 +825,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Collection srcCollection = null;
         Collection destCollection = null;
 
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
@@ -912,7 +901,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         String groupName = getGroupName(metaData);
         Integer mode = getMode(metaData);
 
-        TransactionManager txnManager = brokerPool.getTransactionManager();
         Txn txn = txnManager.beginTransaction();
         setOrigin(txn);
 
