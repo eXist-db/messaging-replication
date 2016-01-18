@@ -50,15 +50,15 @@ class SenderConnectionFactory {
         // Get CF
         ConnectionFactory retVal = connectionFactories.get(brokerURL);
 
-        if (StringUtils.isBlank(className) || "yes".equalsIgnoreCase(className)
-                || "true".equalsIgnoreCase(className) || "activemq".equalsIgnoreCase(className)) {
-            className = ACTIVEMQ_POOLED_CONNECTION_FACTORY;
-        }
-
         // WHen not available create a new CF
         if (retVal == null) {
             try {
                 LOG.info(String.format("Creating new PooledConnectionFactory for %s", brokerURL));
+
+                if (StringUtils.isBlank(className) || "yes".equalsIgnoreCase(className)
+                        || "true".equalsIgnoreCase(className) || "activemq".equalsIgnoreCase(className)) {
+                    className = ACTIVEMQ_POOLED_CONNECTION_FACTORY;
+                }
 
                 // Construct and initialize the factory
                 Class<?> clazz = Class.forName(className);

@@ -19,6 +19,31 @@
  */
 package org.exist.jms.messaging;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.exist.Namespaces;
+import org.exist.dom.memtree.DocumentImpl;
+import org.exist.dom.memtree.SAXAdapter;
+import org.exist.jms.shared.Report;
+import org.exist.jms.shared.eXistMessagingListener;
+import org.exist.security.Subject;
+import org.exist.storage.BrokerPool;
+import org.exist.storage.DBBroker;
+import org.exist.validation.ValidationReport;
+import org.exist.xquery.XPathException;
+import org.exist.xquery.XQueryContext;
+import org.exist.xquery.functions.map.MapType;
+import org.exist.xquery.value.*;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+
+import javax.jms.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,55 +52,8 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Optional;
 import java.util.zip.GZIPInputStream;
-import javax.jms.BytesMessage;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import org.exist.Namespaces;
-import static org.exist.jms.shared.Constants.COMPRESSION_TYPE_GZIP;
-import static org.exist.jms.shared.Constants.DATA_TYPE_XML;
-import static org.exist.jms.shared.Constants.EXIST_DATA_TYPE;
-import static org.exist.jms.shared.Constants.EXIST_DOCUMENT_COMPRESSION;
-import static org.exist.jms.shared.Constants.JMS_CORRELATION_ID;
-import static org.exist.jms.shared.Constants.JMS_EXPIRATION;
-import static org.exist.jms.shared.Constants.JMS_MESSAGE_ID;
-import static org.exist.jms.shared.Constants.JMS_PRIORITY;
-import static org.exist.jms.shared.Constants.JMS_TIMESTAMP;
-import static org.exist.jms.shared.Constants.JMS_TYPE;
-import org.exist.jms.shared.Report;
-import org.exist.jms.shared.eXistMessagingListener;
-import org.exist.dom.memtree.DocumentImpl;
-import org.exist.dom.memtree.SAXAdapter;
-import org.exist.security.Subject;
-import org.exist.storage.BrokerPool;
-import org.exist.storage.DBBroker;
-import org.exist.validation.ValidationReport;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.functions.map.MapType;
-import org.exist.xquery.value.Base64BinaryDocument;
-import org.exist.xquery.value.BinaryValue;
-import org.exist.xquery.value.BooleanValue;
-import org.exist.xquery.value.DecimalValue;
-import org.exist.xquery.value.DoubleValue;
-import org.exist.xquery.value.FloatValue;
-import org.exist.xquery.value.FunctionReference;
-import org.exist.xquery.value.IntegerValue;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.ValueSequence;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
+
+import static org.exist.jms.shared.Constants.*;
 
 /**
  * JMS message receiver. Passes call to XQuery callback function.
@@ -140,7 +118,6 @@ public class MessagingJmsListener extends eXistMessagingListener {
         }
 
         // Placeholder for broker
-        DBBroker dummyBroker = null;
         BrokerPool brokerPool = null;
 
         try {
@@ -157,43 +134,47 @@ public class MessagingJmsListener extends eXistMessagingListener {
             if (subject == null) {
                 subject = brokerPool.getSecurityManager().getGuestSubject();
             }
-            dummyBroker = brokerPool.get(Optional.of(subject));
 
-            // Copy message and jms configuration details into Maptypes
-            MapType msgProperties = getMessageProperties(msg, xqueryContext);
-            MapType jmsProperties = getJmsProperties(msg, xqueryContext);
-            
-            // Retrieve content of message
-            Sequence content = getContent(msg, logString);
+            try(DBBroker dummyBroker = brokerPool.get(Optional.of(subject));) {
 
-            // Setup parameters callback function
-            Sequence params[] = new Sequence[4];
-            params[0] = content;
-            params[1] = functionParams;
-            params[2] = msgProperties;
-            params[3] = jmsProperties;
 
-            // Execute callback function
-            LOG.debug(logString + "call evalFunction");
-            Sequence result = functionReference.evalFunction(null, null, params);
+                // Copy message and jms configuration details into Maptypes
+                MapType msgProperties = getMessageProperties(msg, xqueryContext);
+                MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
-            // Done
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%s : Function returned %s", logString, result.getStringValue()));
+                // Retrieve content of message
+                Sequence content = getContent(msg, logString);
+
+                // Setup parameters callback function
+                Sequence params[] = new Sequence[4];
+                params[0] = content;
+                params[1] = functionParams;
+                params[2] = msgProperties;
+                params[3] = jmsProperties;
+
+                // Execute callback function
+                LOG.debug(logString + "call evalFunction");
+                Sequence result = functionReference.evalFunction(null, null, params);
+
+                // Done
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(String.format("%s : Function returned %s", logString, result.getStringValue()));
+                }
+
+                // Acknowledge processing
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug(logString + "call acknowledge");
+                }
+                msg.acknowledge();
+
+                // Update statistics
+                report.incMessageCounterOK();
             }
-
-            // Acknowledge processing
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(logString + "call acknowledge");
-            }
-            msg.acknowledge();
-
-            // Update statistics
-            report.incMessageCounterOK();
 
         } catch (Throwable ex) {
             report.addListenerError(ex);
             LOG.error(logString + ex.getMessage());
+
             try {
                 session.close();
             } catch (JMSException ex1) {
@@ -204,11 +185,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             // throw new RuntimeException(ex.getMessage());
 
         } finally {
-            // Cleanup resources
-            if (dummyBroker != null && brokerPool != null) {
-                dummyBroker.close(); // ToDO Use auto      closable
-            }
-            
+
             // update statistics
             report.stop();
             report.incMessageCounterTotal();
