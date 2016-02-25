@@ -135,7 +135,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 subject = brokerPool.getSecurityManager().getGuestSubject();
             }
 
-            try(DBBroker dummyBroker = brokerPool.get(Optional.of(subject));) {
+            try(DBBroker dummyBroker = brokerPool.get(Optional.of(subject))) {
 
 
                 // Copy message and jms configuration details into Maptypes
@@ -376,7 +376,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
      */
     private Sequence handleObjectMessage(ObjectMessage msg) throws JMSException, XPathException {
 
-        Object obj = ((ObjectMessage) msg).getObject();
+        Object obj = msg.getObject();
         Sequence content = null;
 
         if (obj instanceof BigInteger) {
@@ -445,7 +445,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             IOUtils.closeQuietly(is);
 
             if (validationReport.isValid()) {
-                content = (DocumentImpl) adapter.getDocument();
+                content = adapter.getDocument();
             } else {
                 String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);

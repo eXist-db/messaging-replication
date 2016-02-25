@@ -35,7 +35,7 @@ public class ReportItem {
 
     public enum CONTEXT {
         RECEIVER, LISTENER, CONNECTION, NOTDEFINED
-    };
+    }
 
 
     public ReportItem(Throwable throwable, CONTEXT context) {

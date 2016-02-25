@@ -66,7 +66,8 @@ public class Receiver {
      */
     private enum STATE {
         NOT_DEFINED, STARTED, STOPPED, CLOSED, ERROR
-    };
+    }
+
     private STATE state = STATE.NOT_DEFINED;
     /**
      * The JMS listeners
@@ -450,7 +451,7 @@ public class Receiver {
         builder.endElement();
 
         // return result
-        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+        return builder.getDocument().getNode(nodeNr);
     }
 
     /**

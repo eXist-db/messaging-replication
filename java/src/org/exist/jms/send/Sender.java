@@ -560,7 +560,7 @@ public class Sender  {
         builder.endElement();
 
         // return result
-        return ((DocumentImpl) builder.getDocument()).getNode(nodeNr);
+        return builder.getDocument().getNode(nodeNr);
 
 
     }

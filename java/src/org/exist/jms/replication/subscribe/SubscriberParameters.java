@@ -171,33 +171,14 @@ public class SubscriberParameters extends ClientParameters {
 
     @Override
     public String getReport() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append("Subscriber configuration: ");
-        
-        sb.append(Context.INITIAL_CONTEXT_FACTORY).append("='").append(initialContextFactory).append("'");
-        sb.append(" ");
-        
-        sb.append(Context.PROVIDER_URL).append("='").append(providerUrl).append("'");
-        sb.append(" ");
-        
-        sb.append(Constants.DESTINATION).append("='").append(topic).append("'");
-        sb.append(" ");
-        
-        sb.append(Constants.CLIENT_ID).append("='").append(clientId).append("'");
-        sb.append(" ");
-        
-        sb.append(SUBSCRIBER_NAME).append("='").append(subscriberName).append("'");
-        sb.append(" ");
-        
-        sb.append(MESSAGE_SELECTOR).append("='").append(messageSelector).append("'");
-        sb.append(" ");
-        
-        sb.append(NO_LOCAL).append("='").append(noLocal).append("'");
-        sb.append(" ");
-        
-        sb.append(DURABLE).append("='").append(durable).append("'");
-        
-        return sb.toString();
+        return "Subscriber configuration: " +
+                Context.INITIAL_CONTEXT_FACTORY + "='" + initialContextFactory + "' " +
+                Context.PROVIDER_URL + "='" + providerUrl + "' " +
+                Constants.DESTINATION + "='" + topic + "' " +
+                Constants.CLIENT_ID + "='" + clientId + "' " +
+                SUBSCRIBER_NAME + "='" + subscriberName + "' " +
+                MESSAGE_SELECTOR + "='" + messageSelector + "' " +
+                NO_LOCAL + "='" + noLocal + "' " +
+                DURABLE + "='" + durable + "'";
     }
 }

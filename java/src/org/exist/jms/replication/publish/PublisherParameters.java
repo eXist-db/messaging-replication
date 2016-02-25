@@ -122,27 +122,12 @@ public class PublisherParameters extends ClientParameters {
 
     @Override
     public String getReport() {
-        StringBuilder sb = new StringBuilder();
-        
-        sb.append("Publisher configuration: ");
-        
-        sb.append(Context.INITIAL_CONTEXT_FACTORY).append("='").append(initialContextFactory).append("'");
-        sb.append(" ");
-        
-        sb.append(Context.PROVIDER_URL).append("='").append(providerUrl).append("'");
-        sb.append(" ");
-        
-        sb.append(Constants.DESTINATION).append("='").append(topic).append("'");
-        sb.append(" ");
-        
-        sb.append(Constants.CLIENT_ID).append("='").append(clientId).append("'");
-        sb.append(" ");
-        
-        sb.append(TIME_TO_LIVE).append("='").append(timeToLive).append("'");
-        sb.append(" ");
-        
-        sb.append(PRIORITY).append("='").append(priority).append("'");
-        
-        return sb.toString();
+        return "Publisher configuration: " +
+                Context.INITIAL_CONTEXT_FACTORY + "='" + initialContextFactory + "' " +
+                Context.PROVIDER_URL + "='" + providerUrl + "' " +
+                Constants.DESTINATION + "='" + topic + "' " +
+                Constants.CLIENT_ID + "='" + clientId + "' " +
+                TIME_TO_LIVE + "='" + timeToLive + "' " +
+                PRIORITY + "='" + priority + "'";
     }
 }
