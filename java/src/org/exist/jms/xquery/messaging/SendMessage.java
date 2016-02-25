@@ -30,7 +30,6 @@ import org.exist.xquery.Cardinality;
 import org.exist.xquery.FunctionSignature;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
-;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 

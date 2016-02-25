@@ -115,7 +115,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (StringUtils.isNotEmpty(localID)) {
                 String remoteID = msg.getStringProperty(Constants.EXIST_INSTANCE_ID);
                 if (localID.equals(remoteID)) {
-                    LOG.info("Incoming JMS messsage was sent by this instance. Processing stopped.");
+                    LOG.info("Incoming JMS messsage was originally sent by this instance. Processing stopped.");
                     return; // TODO: throw exception? probably not because message does not need to be re-received
                 }
             }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://exist-db.org/ns/expath-pkg">
     <jar>exist-messaging-replication-@VERSION@.jar</jar>
-    <jar>activemq-client-5.13.0.jar</jar>
-    <jar>activemq-jms-pool-5.13.0.jar</jar>
-    <jar>activemq-pool-5.13.0.jar</jar>
+    <jar>activemq-client-5.13.1.jar</jar>
+    <jar>activemq-jms-pool-5.13.1.jar</jar>
+    <jar>activemq-pool-5.13.1.jar</jar>
     <jar>geronimo-j2ee-management_1.1_spec-1.0.1.jar</jar>
     <jar>geronimo-jms_1.1_spec-1.1.1.jar</jar>
     <jar>hawtbuf-1.11.jar</jar>

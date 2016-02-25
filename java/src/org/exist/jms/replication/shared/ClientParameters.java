@@ -146,9 +146,7 @@ public abstract class ClientParameters {
         Properties contextProps = new Properties();
         
         // Copy all properties that start with "java."
-        props.stringPropertyNames().stream().filter((key) -> (key.startsWith("java."))).forEach((key) -> {
-            contextProps.setProperty(key, props.getProperty(key));
-        });
+        props.stringPropertyNames().stream().filter((key) -> (key.startsWith("java."))).forEach((key) -> contextProps.setProperty(key, props.getProperty(key)));
                 
         return contextProps;
     }

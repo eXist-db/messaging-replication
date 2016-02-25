@@ -91,7 +91,7 @@ public class Identity {
         // Read if possible
         if (Files.exists(identityFile)) {
             
-            LOG.debug(String.format("Read jms identity from %s", identityFile.toString()));
+            LOG.info(String.format("Read jms identity from %s", identityFile.toString()));
    
             try {
                 try (InputStream is = Files.newInputStream(identityFile)) {
@@ -108,7 +108,7 @@ public class Identity {
         // Create and write when needed
         if (Files.notExists(identityFile) || identity == null) {
             
-            LOG.debug(String.format("Create new jms identity into %s", identityFile.toString()));
+            LOG.info(String.format("Create new jms identity into %s", identityFile.toString()));
             
             identity = UUID.randomUUID().toString();
             props.setProperty(IDENTITY_PROP, identity);
