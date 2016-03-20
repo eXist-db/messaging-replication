@@ -40,7 +40,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 //import org.exist.dom.persistent.NodeProxy;
-import org.exist.dom.memtree.DocumentImpl;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.dom.memtree.NodeImpl;
 import org.exist.dom.persistent.NodeProxy;
@@ -243,7 +242,7 @@ public class Sender  {
         Message message;
 
         jmp.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
-        boolean isCompressed = isDataCompressionRequired(jmp);
+        boolean isCompressed = applyGZIPcompression(jmp);
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
@@ -410,7 +409,7 @@ public class Sender  {
      * @return TRUE if not set or has value 'gzip' else FALSE.
      *
      */
-    private boolean isDataCompressionRequired(JmsMessageProperties mdd) {
+    private boolean applyGZIPcompression(JmsMessageProperties mdd) {
         // 
         String compressionValue = mdd.getProperty(EXIST_DOCUMENT_COMPRESSION);
         if (StringUtils.isBlank(compressionValue)) {

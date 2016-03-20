@@ -98,8 +98,7 @@ public class RegisterReceiver extends BasicFunction {
 
         } catch (Throwable t) {
             LOG.error(t);
-            XPathException ex = new XPathException(this, t);
-            throw ex;
+            throw new XPathException(this, t);
         }
     }
 }

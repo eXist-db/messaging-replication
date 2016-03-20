@@ -49,7 +49,7 @@ public class ResourceReplicator {
         try {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
-            props.setProperty(Context.PROVIDER_URL, "tcp://miniserver.local:61616");
+            props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
             Context context = new InitialContext(props);
 
             ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");

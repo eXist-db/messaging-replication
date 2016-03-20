@@ -24,7 +24,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.Namespaces;
-import org.exist.dom.memtree.DocumentImpl;
 import org.exist.dom.memtree.SAXAdapter;
 import org.exist.jms.shared.Report;
 import org.exist.jms.shared.eXistMessagingListener;
@@ -246,8 +245,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 if (isCompressed) {
                     is = new GZIPInputStream(is);
                 }
-                BinaryValue bv = Base64BinaryDocument.getInstance(xqueryContext, is);
-                content = bv;
+                content = Base64BinaryDocument.getInstance(xqueryContext, is);
                 IOUtils.closeQuietly(is);
             }
             

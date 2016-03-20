@@ -147,8 +147,7 @@ public class ManageReceivers extends BasicFunction {
 
         } catch (Throwable t) {
             LOG.error(t.getMessage());
-            XPathException ex = new XPathException(this, t);
-            throw ex;
+            throw new XPathException(this, t);
         }
     }
 }
