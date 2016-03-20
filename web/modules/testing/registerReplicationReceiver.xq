@@ -13,7 +13,7 @@ let $jmsConfiguration :=
     map {
         "java.naming.factory.initial" 
             := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://miniserver.local:61616",
+        "java.naming.provider.url" := "tcp://localhost:61616",
         "destination" := "dynamicTopics/eXistdb-replication-demo",
         "connection-factory" := "ConnectionFactory",
         "subscriber.name" :="SubscriptionId",
