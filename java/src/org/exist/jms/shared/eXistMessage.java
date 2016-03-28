@@ -87,7 +87,7 @@ public class eXistMessage {
         XML, BINARY, UNDEFINED
     }
 
-    public void setResourceOperation(ResourceOperation type) {
+    public void setResourceOperation(final ResourceOperation type) {
         resourceOperation = type;
     }
     
@@ -97,7 +97,7 @@ public class eXistMessage {
      * @param type Name of resource operation
      * @throws IllegalArgumentException When argument cannot be converted to enum value.
      */
-    public void setResourceOperation(String type) {
+    public void setResourceOperation(final String type) {
         resourceOperation = ResourceOperation.valueOf(type.toUpperCase(Locale.ENGLISH));
     }
 
@@ -105,7 +105,7 @@ public class eXistMessage {
         return resourceOperation;
     }
 
-    public void setResourceType(ResourceType type) {
+    public void setResourceType(final ResourceType type) {
         resourceType = type;
     }
     
@@ -115,7 +115,7 @@ public class eXistMessage {
      * @param type resource type.
      * @throws IllegalArgumentException When argument cannot be converted to enum value.
      */
-    public void setResourceType(String type) {
+    public void setResourceType(final String type) {
         resourceType = eXistMessage.ResourceType.valueOf(type.toUpperCase(Locale.ENGLISH));
     }
 
@@ -123,7 +123,7 @@ public class eXistMessage {
         return resourceType;
     }
 
-    public void setResourcePath(String path) {
+    public void setResourcePath(final String path) {
         this.path = path;
     }
 
@@ -131,7 +131,7 @@ public class eXistMessage {
         return path;
     }
 
-    public void setDestinationPath(String path) {
+    public void setDestinationPath(final String path) {
         destination = path;
     }
 
@@ -143,7 +143,7 @@ public class eXistMessage {
         return payload;
     }
 
-    public void setPayload(byte[] data) {
+    public void setPayload(final byte[] data) {
         payload = data;
     }
     
@@ -151,7 +151,7 @@ public class eXistMessage {
         payload = new byte[0];
     }
 
-    public void setMetadata(Map<String, Object> props) {
+    public void setMetadata(final Map<String, Object> props) {
         metaData = props;
     }
 
@@ -163,7 +163,7 @@ public class eXistMessage {
         return contentType;
     }
     
-    public void setDocumentType(ContentType documentType) {
+    public void setDocumentType(final ContentType documentType) {
         this.contentType = documentType;
     }
     
@@ -172,7 +172,7 @@ public class eXistMessage {
      * @return Report of message
      */
     public String getReport() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         
         sb.append("Message summary: ");
         sb.append("ResourceType='").append(resourceType.toString()).append("'  ");
@@ -189,12 +189,12 @@ public class eXistMessage {
         }
         
         // Iterate over properties if present
-        Set<String> keys = metaData.keySet();
+        final Set<String> keys = metaData.keySet();
         if(!keys.isEmpty()){
             sb.append("###  ");
 
             keys.stream().forEach((key) -> {
-                Object val=metaData.get(key);
+                final Object val=metaData.get(key);
                 if (val != null) {
                     sb.append(key).append("='").append(val.toString()).append("'  ");
                 }
@@ -215,7 +215,7 @@ public class eXistMessage {
      * @param message JMS message.
      * @throws JMSException A property could not be set.
      */
-    public void updateMessageProperties(Message message) throws JMSException {
+    public void updateMessageProperties(final Message message) throws JMSException {
 
         // Set eXist-db clustering specific details
         message.setStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION, getResourceOperation().name());
@@ -233,12 +233,12 @@ public class eXistMessage {
 //        }
 
         // Set other details
-        Map<String, Object> metaDataMap = getMetadata();
+        final Map<String, Object> metaDataMap = getMetadata();
 
-        for (Map.Entry<String, Object> entry : metaDataMap.entrySet()) {
+        for (final Map.Entry<String, Object> entry : metaDataMap.entrySet()) {
 
-            String item = entry.getKey();
-            Object value = entry.getValue();
+            final String item = entry.getKey();
+            final Object value = entry.getValue();
 
             if (value instanceof String) {
                 message.setStringProperty(item, (String) value);

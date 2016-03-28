@@ -50,27 +50,27 @@ public class ListReceivers extends BasicFunction {
         
     };
 
-    public ListReceivers(XQueryContext context, FunctionSignature signature) {
+    public ListReceivers(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         // User must either be DBA or in the JMS group
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+            final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, txt);
             LOG.error(txt);
             throw ex;
         }
 
         // Get object that manages the receivers
-        ReceiversManager manager = ReceiversManager.getInstance();
+        final ReceiversManager manager = ReceiversManager.getInstance();
 
         // Conten holfer results
-        ValueSequence returnSequence = new ValueSequence();
+        final ValueSequence returnSequence = new ValueSequence();
 
         // Collect IDs
         manager.getIds().stream().forEach((id) -> returnSequence.add(new IntegerValue(id)));

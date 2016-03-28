@@ -29,10 +29,10 @@ import org.exist.jms.replication.shared.ClientParameters;
  */
 public class JmsMessageProperties extends MessagingConfiguration {
 
-    public void loadParameters(ClientParameters params) {
+    public void loadParameters(final ClientParameters params) {
 
         // Get properties
-        Properties props = params.getProps();
+        final Properties props = params.getProps();
 
         // TODO remove properties needed for connection
         //props.remove(LOG)

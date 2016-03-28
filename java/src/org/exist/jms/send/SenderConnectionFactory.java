@@ -45,7 +45,7 @@ class SenderConnectionFactory {
      * @return the connection factory
      * @throws NamingException
      */
-    static ConnectionFactory getConnectionFactoryInstance(String brokerURL, String className) {
+    static ConnectionFactory getConnectionFactoryInstance(final String brokerURL, String className) {
 
         // Get CF
         ConnectionFactory retVal = connectionFactories.get(brokerURL);
@@ -61,11 +61,11 @@ class SenderConnectionFactory {
                 }
 
                 // Construct and initialize the factory
-                Class<?> clazz = Class.forName(className);
-                Object object = ConstructorUtils.invokeConstructor(clazz, brokerURL);
+                final Class<?> clazz = Class.forName(className);
+                final Object object = ConstructorUtils.invokeConstructor(clazz, brokerURL);
 
                 // Convert to class
-                ConnectionFactory cf = (ConnectionFactory) object;
+                final ConnectionFactory cf = (ConnectionFactory) object;
 
                 // Store newly created factory
                 connectionFactories.put(brokerURL, cf);
@@ -73,7 +73,7 @@ class SenderConnectionFactory {
                 // Return to requester
                 retVal =  cf;
 
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 LOG.error(t);
             }
 

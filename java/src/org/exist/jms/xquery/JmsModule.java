@@ -55,7 +55,7 @@ public class JmsModule extends AbstractInternalModule {
     public final static QName EXCEPTION_MESSAGE_QNAME =
             new QName("exception-message", JmsModule.NAMESPACE_URI, JmsModule.PREFIX);
 
-    public JmsModule(Map<String, List<? extends Object>> parameters) throws XPathException {
+    public JmsModule(final Map<String, List<? extends Object>> parameters) throws XPathException {
         super(functions, parameters);
     }
 
