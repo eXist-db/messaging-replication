@@ -80,7 +80,7 @@ public abstract class ClientParameters {
      * @param params Single valued parameters.
 
      */
-    public void setSingleValueParameters(final Map<String, List<? extends Object>> params) {
+    public void setSingleValueParameters(final Map<String, List<?>> params) {
 
         params.keySet().stream().forEach((key) -> {
             final String value = getConfigurationValue(params, key);
@@ -99,11 +99,11 @@ public abstract class ClientParameters {
      * @return Value of item, or NULL if not existent or existent and not a
      * String object
      */
-    private static String getConfigurationValue(final Map<String, List<? extends Object>> params, final String name) {
+    private static String getConfigurationValue(final Map<String, List<?>> params, final String name) {
 
         String retVal = null;
 
-        final List<? extends Object> value = params.get(name);
+        final List<?> value = params.get(name);
         if(value != null) {
             if(value.size() > 0) {
                 retVal = value.get(0).toString();

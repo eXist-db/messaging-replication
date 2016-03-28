@@ -43,7 +43,7 @@ public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger 
      * Entry point for starting the trigger.
      */
     @Override
-    public void execute(final DBBroker broker, final Map<String, List<? extends Object>> params) {
+    public void execute(final DBBroker broker, final Map<String, List<?>> params) {
 
         final ReceiversManager manager = ReceiversManager.getInstance();
         
