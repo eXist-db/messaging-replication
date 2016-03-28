@@ -74,8 +74,8 @@ public class MessageHelper {
     /**
      *  Serialize document to byte array as gzipped document.
      * 
-     * @param broker
-     * @param document
+     * @param broker The database broker
+     * @param document The document
      * @return document as bytes
      * @throws IOException 
      */

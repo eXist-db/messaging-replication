@@ -51,7 +51,7 @@ public class JMSMessageSender implements MessageSender {
     /**
      * Constructor
      *
-     * @param parameters Set of (Key,value) parameters for setting JMS routing
+     * @param params Set of (Key,value) parameters for setting JMS routing
      * instructions, like java.naming.* , destination and connection factory.
      */
     JMSMessageSender(final Map<String, List<?>> params) {
