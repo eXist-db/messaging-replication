@@ -320,7 +320,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final String groupName = getGroupName(metaData);
 
         // Get MIME_TYPE
-        final String mimeType = getMimeType(metaData, sourcePath);
+        final String mimeType = getMimeType(metaData, mime.getName());
 
         // Get MODE
         final Integer mode = getMode(metaData);
@@ -376,11 +376,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             } else {
 
                 // Stream into database
-                final byte[] payload = em.getPayload();
-                final ByteArrayInputStream bais = new ByteArrayInputStream(payload);
-                final GZIPInputStream gis = new GZIPInputStream(bais);
+                byte[] payload = em.getPayload();
 
-                try (BufferedInputStream bis = new BufferedInputStream(gis)) {
+                try (ByteArrayInputStream bais = new ByteArrayInputStream(payload);
+                     GZIPInputStream gis = new GZIPInputStream(bais);
+                     BufferedInputStream bis = new BufferedInputStream(gis)) {
                     // DW: collection can be null
                     doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
                 }
@@ -434,6 +434,13 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final XmldbURI colURI = sourcePath.removeLastSegment();
         final XmldbURI docURI = sourcePath.lastSegment();
 
+        // Get mime, or NULL when not available
+        MimeType mime = MimeTable.getInstance().getContentTypeFor(docURI.toString());
+        if (mime == null) {
+            mime = MimeType.BINARY_TYPE;
+        }
+
+
         // References to the database
         Collection collection = null;
         final DocumentImpl resource;
@@ -479,7 +486,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 perms.setMode(mode);
             }
 
-            final String mimeType = getMimeType(metaData, sourcePath);
+            final String mimeType = getMimeType(metaData, mime.getName());
             if (mimeType != null) {
                 resource.getMetadata().setMimeType(mimeType);
             }
@@ -623,7 +630,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
             final Collection collection = broker.openCollection(sourcePath, Lock.READ_LOCK);
             if (collection != null) {
-                LOG.error(String.format("Collection %s already exists", sourcePath));
+                LOG.debug(String.format("Collection %s already exists", sourcePath));
                 releaseLock(collection, Lock.READ_LOCK);
                 return collection; // Just return the already existent collection
             }
@@ -911,25 +918,18 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         return groupName;
     }
 
-    private String getMimeType(final Map<String, Object> metaData, final XmldbURI sourcePath) {
-        final MimeTable mimeTable = MimeTable.getInstance();
+    private String getMimeType(Map<String, Object> metaData, String defaultName) {
+
         String mimeType = null;
-        final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MIMETYPE);
         if (prop != null && prop instanceof String) {
-            final MimeType mT = mimeTable.getContentTypeFor((String) prop);
             if (mT != null) {
                 mimeType = mT.getName();
             }
         }
 
-        // Fallback based on filename
+        // Fallback based on default
         if (mimeType == null) {
-            final MimeType mT = mimeTable.getContentTypeFor(sourcePath);
-
-            if (mT == null) {
-                throw new MessageReceiveException("Unable to determine mimetype");
-            }
-            mimeType = mT.getName();
+            mimeType = defaultName;
         }
 
         return mimeType;

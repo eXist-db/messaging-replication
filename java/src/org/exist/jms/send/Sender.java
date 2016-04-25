@@ -392,7 +392,7 @@ public class Sender  {
         final byte[] payload = em.getPayload();
 
         if (payload == null) {
-            LOG.error("No payload for replication");
+            LOG.debug("No payload for replication");
         } else {
             message.writeBytes(payload);
         }
