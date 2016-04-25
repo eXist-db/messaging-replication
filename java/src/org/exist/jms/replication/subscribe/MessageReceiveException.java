@@ -33,15 +33,15 @@ public class MessageReceiveException extends RuntimeException {
         super();
     }
 
-    public MessageReceiveException(String msg) {
+    public MessageReceiveException(final String msg) {
         super(msg);
     }
 
-    public MessageReceiveException(Throwable t) {
+    public MessageReceiveException(final Throwable t) {
         super(t);
     }
 
-    public MessageReceiveException(String msg, Throwable t) {
+    public MessageReceiveException(final String msg, final Throwable t) {
         super(msg, t);
     }
 }

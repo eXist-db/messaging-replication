@@ -19,13 +19,14 @@
  */
 package org.exist.jms.send;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.jms.ConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.jms.ConnectionFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helper class for creating and buffering ConnectionFactory instances.
@@ -43,9 +44,8 @@ class SenderConnectionFactory {
      *
      * @param brokerURL URL to broker
      * @return the connection factory
-     * @throws NamingException
      */
-    static ConnectionFactory getConnectionFactoryInstance(String brokerURL, String className) {
+    static ConnectionFactory getConnectionFactoryInstance(final String brokerURL, String className) {
 
         // Get CF
         ConnectionFactory retVal = connectionFactories.get(brokerURL);
@@ -61,19 +61,19 @@ class SenderConnectionFactory {
                 }
 
                 // Construct and initialize the factory
-                Class<?> clazz = Class.forName(className);
-                Object object = ConstructorUtils.invokeConstructor(clazz, brokerURL);
+                final Class<?> clazz = Class.forName(className);
+                final Object object = ConstructorUtils.invokeConstructor(clazz, brokerURL);
 
                 // Convert to class
-                ConnectionFactory cf = (ConnectionFactory) object;
+                final ConnectionFactory cf = (ConnectionFactory) object;
 
                 // Store newly created factory
                 connectionFactories.put(brokerURL, cf);
 
                 // Return to requester
-                retVal =  cf;
+                retVal = cf;
 
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 LOG.error(t);
             }
 
@@ -83,6 +83,7 @@ class SenderConnectionFactory {
 
         return retVal;
     }
+
     public static final String ACTIVEMQ_POOLED_CONNECTION_FACTORY = "org.apache.activemq.pool.PooledConnectionFactory";
 
 }

@@ -51,10 +51,10 @@ public class JMSMessageSender implements MessageSender {
     /**
      * Constructor
      *
-     * @param parameters Set of (Key,value) parameters for setting JMS routing
+     * @param params Set of (Key,value) parameters for setting JMS routing
      * instructions, like java.naming.* , destination and connection factory.
      */
-    JMSMessageSender(Map<String, List<?>> params) {
+    JMSMessageSender(final Map<String, List<?>> params) {
         parameters.setMultiValueParameters(params);
     }
 
@@ -65,26 +65,26 @@ public class JMSMessageSender implements MessageSender {
      * @throws TransportException Thrown when something bad happens.
      */
     @Override
-    public void sendMessage(eXistMessage em) throws TransportException {
+    public void sendMessage(final eXistMessage em) throws TransportException {
 
         try {
             // Get from .xconf file, fill defaults when needed
             parameters.processParameters();
 
-            Sender sender = new Sender();
+            final Sender sender = new Sender();
 
-            eXistMessageItem item = new eXistMessageItem();
+            final eXistMessageItem item = new eXistMessageItem();
             item.setData(em);
 
-            JmsConfiguration jmsConfig = new JmsConfiguration();
+            final JmsConfiguration jmsConfig = new JmsConfiguration();
             jmsConfig.loadPublisherParameters(parameters);
 
-            JmsMessageProperties msgMetaProps = new JmsMessageProperties();
+            final JmsMessageProperties msgMetaProps = new JmsMessageProperties();
             msgMetaProps.loadParameters(parameters);
 
             sender.send(jmsConfig, msgMetaProps, item);
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             // I know, this is bad coding practice,
             // but in case of probles we really need to fire this exception
             LOG.error(ex.getMessage(), ex);

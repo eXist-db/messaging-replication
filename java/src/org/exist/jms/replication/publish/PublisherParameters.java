@@ -96,8 +96,8 @@ public class PublisherParameters extends ClientParameters {
         if (value != null && !value.equals("")) {
             try {
                 timeToLive = Long.valueOf(value);
-            } catch (NumberFormatException ex) {
-                String errorText = "Unable to set TTL; got '" + value + "'. " + ex.getMessage();
+            } catch (final NumberFormatException ex) {
+                final String errorText = "Unable to set TTL; got '" + value + "'. " + ex.getMessage();
                 LOG.error(errorText);
                 throw new TransportException(errorText);
             }
@@ -108,8 +108,8 @@ public class PublisherParameters extends ClientParameters {
         if (value != null && !value.equals("")) {
             try {
                 priority = Integer.valueOf(value);
-            } catch (NumberFormatException ex) {
-                String errorText = "Unable to set priority; got '" + value + "'. " + ex.getMessage();
+            } catch (final NumberFormatException ex) {
+                final String errorText = "Unable to set priority; got '" + value + "'. " + ex.getMessage();
                 LOG.error(errorText);
                 throw new TransportException(errorText);
             }

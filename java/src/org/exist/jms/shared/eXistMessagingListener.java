@@ -63,7 +63,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
      *
      * @param session The JMS session.
      */
-    public void setSession(Session session) {
+    public void setSession(final Session session) {
         this.session = session;
     }
 
@@ -76,7 +76,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
      *
      * @param id Identifier
      */
-    public void setIdentification(String id) {
+    public void setIdentification(final String id) {
         this.id = id;
     }
 
@@ -86,15 +86,15 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
 
 
     @Override
-    public void onException(JMSException jmse) {
+    public void onException(final JMSException jmse) {
 
         getReport().addConnectionError(jmse);
 
         // Report exception
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append(jmse.getMessage());
 
-        String txt = jmse.getErrorCode();
+        final String txt = jmse.getErrorCode();
         if (txt != null) {
             sb.append(" (").append(txt).append(") ");
         }
@@ -102,7 +102,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
         LOG.error(sb.toString(), jmse);
 
         // If there is a linked exception, report it too
-        Exception linkedException = jmse.getLinkedException();
+        final Exception linkedException = jmse.getLinkedException();
         if (linkedException != null) {
             LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
         }

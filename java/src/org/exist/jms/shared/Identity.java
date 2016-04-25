@@ -69,10 +69,10 @@ public class Identity {
     private void findIdentityFile(){
         
         if (identityFile == null) {
-            Optional<Path> existHome = ConfigurationHelper.getExistHome();
+            final Optional<Path> existHome = ConfigurationHelper.getExistHome();
            
             if(existHome.isPresent()){
-                Path dataDir = existHome.get().resolve("webapp/WEB-INF/data");
+                final Path dataDir = existHome.get().resolve("webapp/WEB-INF/data");
                 identityFile = (Files.exists(dataDir)) ? dataDir.resolve("jms.identity") : existHome.get().resolve("jms.identity"); 
             } else {
                 LOG.error("eXist_home not found");
@@ -86,7 +86,7 @@ public class Identity {
      */
     private void getIdentityFromFile() {
 
-        Properties props = new Properties();
+        final Properties props = new Properties();
 
         // Read if possible
         if (Files.exists(identityFile)) {
@@ -99,7 +99,7 @@ public class Identity {
                     identity = props.getProperty(IDENTITY_PROP);
                 }
                 
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 LOG.error(ex.getMessage());
             }
             
@@ -118,7 +118,7 @@ public class Identity {
                     props.store(os, "");
                 }
                 
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 LOG.error(ex.getMessage());
             } 
 
