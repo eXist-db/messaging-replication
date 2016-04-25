@@ -377,10 +377,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
                 // Stream into database
                 byte[] payload = em.getPayload();
-                ByteArrayInputStream bais = new ByteArrayInputStream(payload);
-                GZIPInputStream gis = new GZIPInputStream(bais);
 
-                try (BufferedInputStream bis = new BufferedInputStream(gis)) {
+                try (ByteArrayInputStream bais = new ByteArrayInputStream(payload);
+                     GZIPInputStream gis = new GZIPInputStream(bais);
+                     BufferedInputStream bis = new BufferedInputStream(gis)) {
                     // DW: collection can be null
                     doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
                 }
@@ -623,7 +623,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
             Collection collection = broker.openCollection(sourcePath, Lock.READ_LOCK);
             if (collection != null) {
-                LOG.error(String.format("Collection %s already exists", sourcePath));
+                LOG.debug(String.format("Collection %s already exists", sourcePath));
                 releaseLock(collection, Lock.READ_LOCK);
                 return collection; // Just return the already existent collection
             }
@@ -927,7 +927,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             MimeType mT = mimeTable.getContentTypeFor(sourcePath);
 
             if (mT == null) {
-                throw new MessageReceiveException("Unable to determine mimetype");
+                throw new MessageReceiveException(String.format("Unable to determine mimetype for '%s", sourcePath));
             }
             mimeType = mT.getName();
         }
