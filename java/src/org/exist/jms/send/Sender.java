@@ -162,6 +162,7 @@ public class Sender  {
             // Set Message properties from user provided data
             setMessagePropertiesFromMap(msgMetaProps, message);
 
+
             // Set time-to-live (when available)
             Long timeToLive = jmsConfig.getTimeToLive();
             if (timeToLive != null) {
