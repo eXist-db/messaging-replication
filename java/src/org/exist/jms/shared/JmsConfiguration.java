@@ -54,28 +54,28 @@ public class JmsConfiguration extends MessagingConfiguration {
      * @throws XPathException Something bad happened.
      */
     @Override
-    public void loadConfiguration(AbstractMapType map) throws XPathException {
+    public void loadConfiguration(final AbstractMapType map) throws XPathException {
         // Get all keys
-        Sequence keys = map.keys();
+        final Sequence keys = map.keys();
         
         // Iterate over all keys
         for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
 
             // Get next item
-            Item key = i.nextItem();
+            final Item key = i.nextItem();
             
             // Only use Strings as key, as required by JMS
-            String keyValue = key.getStringValue();
+            final String keyValue = key.getStringValue();
             
             // Get values
-            Sequence values = map.get((AtomicValue)key);
+            final Sequence values = map.get((AtomicValue)key);
 
             // Purely set String values
             setProperty(keyValue, values.getStringValue());
         }
     }
 
-    public void loadPublisherParameters(PublisherParameters params) {
+    public void loadPublisherParameters(final PublisherParameters params) {
         setLocalProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
         setLocalProperty(Context.PROVIDER_URL, params.getProviderUrl());
 
@@ -89,7 +89,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         setLocalProperty(Constants.JMS_CONNECTION_PASSWORD, params.getConnectionPassword());
     }
 
-    public void loadSubscriberParameters(SubscriberParameters params) {
+    public void loadSubscriberParameters(final SubscriberParameters params) {
         setLocalProperty(Context.INITIAL_CONTEXT_FACTORY, params.getInitialContextFactory());
         setLocalProperty(Context.PROVIDER_URL, params.getProviderUrl());
 
@@ -105,7 +105,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         setLocalProperty(Constants.JMS_CONNECTION_PASSWORD, params.getConnectionPassword());
     }
 
-    private void setLocalProperty(String key, String value) {
+    private void setLocalProperty(final String key, final String value) {
         if (StringUtils.isNotBlank(key) && value != null) {
             setProperty(key, value);
         }
@@ -151,13 +151,13 @@ public class JmsConfiguration extends MessagingConfiguration {
     }
 
     public Long getTimeToLive() {
-        String timeToLiveValue = getProperty(Constants.PRODUCER_TTL);
+        final String timeToLiveValue = getProperty(Constants.PRODUCER_TTL);
 
         Long retVal = null;
 
         try {
             retVal = NumberUtils.toLong(timeToLiveValue);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             LOG.error(ex.getMessage());
         }
 
@@ -166,14 +166,14 @@ public class JmsConfiguration extends MessagingConfiguration {
     }
 
     public Integer getPriority() {
-        String priority = getProperty(Constants.PRODUCER_PRIORITY);
+        final String priority = getProperty(Constants.PRODUCER_PRIORITY);
 
         Integer retVal = null;
 
         try {
             retVal = NumberUtils.toInt(priority);
 
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             LOG.error(ex.getMessage());
         }
 
@@ -187,22 +187,22 @@ public class JmsConfiguration extends MessagingConfiguration {
      */
     public void validate() throws XPathException {
         
-        String initialContextFactory = getInitialContextFactory();
+        final String initialContextFactory = getInitialContextFactory();
         if(initialContextFactory==null){
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.INITIAL_CONTEXT_FACTORY));
         }
         
-        String providerURL = getBrokerURL();
+        final String providerURL = getBrokerURL();
         if(providerURL==null){
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.PROVIDER_URL));
         }
         
-        String connectionFactory = getConnectionFactory();
+        final String connectionFactory = getConnectionFactory();
         if(connectionFactory==null){
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.CONNECTION_FACTORY));
         }
         
-        String destination = getDestination();
+        final String destination = getDestination();
         if(destination==null){
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.DESTINATION));
         }
@@ -214,23 +214,17 @@ public class JmsConfiguration extends MessagingConfiguration {
      * @return The value or TRUE when not set
      */
     public boolean isDurable() {
-        String durable = getProperty(Constants.DURABLE);
-        
-        if(durable==null){
-            return true;
-        }
-        
-        return BooleanUtils.toBoolean(durable);
+        final String durable = getProperty(Constants.DURABLE);
+
+        return durable == null || BooleanUtils.toBoolean(durable);
+
     }
 
 
     public boolean isNoLocal() {
-        String noLocal = getProperty(Constants.NO_LOCAL);
-        
-        if(noLocal==null){
-            return true;
-        }
-        return BooleanUtils.toBoolean(noLocal);
+        final String noLocal = getProperty(Constants.NO_LOCAL);
+
+        return noLocal == null || BooleanUtils.toBoolean(noLocal);
     }
 
 

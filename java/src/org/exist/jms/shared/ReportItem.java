@@ -38,7 +38,7 @@ public class ReportItem {
     }
 
 
-    public ReportItem(Throwable throwable, CONTEXT context) {
+    public ReportItem(final Throwable throwable, final CONTEXT context) {
         this.timestamp = new Date();
         this.throwable = throwable;
         this.context = context;
@@ -49,7 +49,7 @@ public class ReportItem {
 
     private final Date timestamp;
 
-    public void setThrowable(Throwable throwable) {
+    public void setThrowable(final Throwable throwable) {
         this.throwable = throwable;
     }
 
@@ -69,16 +69,16 @@ public class ReportItem {
         return context.toString().toLowerCase(Locale.US);
     }
 
-    public void writeError(MemTreeBuilder builder) {
+    public void writeError(final MemTreeBuilder builder) {
         builder.startElement("", "error", "error", null);
         builder.addAttribute(new QName("src", null, null), getContextName());
         builder.addAttribute(new QName("timestamp", null, null), getTimeStamp());
         builder.addAttribute(new QName("exception", null, null), getThowable().getClass().getSimpleName());
 
         String msg = getMessage();
-        Throwable t = getThowable(); 
+        final Throwable t = getThowable();
         if ( t instanceof JMSException) {
-            JMSException jmse = (JMSException) t;
+            final JMSException jmse = (JMSException) t;
             if (jmse.getErrorCode() != null) {
                 msg = msg + " (code=" + jmse.getErrorCode() + ")";
             }

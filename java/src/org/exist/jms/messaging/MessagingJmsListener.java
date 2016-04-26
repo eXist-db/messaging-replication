@@ -82,7 +82,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 //        this.id=id;
 //    }
 
-    public MessagingJmsListener(Subject subject, FunctionReference functionReference, Sequence functionParams, XQueryContext xqueryContext) {
+    public MessagingJmsListener(final Subject subject, final FunctionReference functionReference, final Sequence functionParams, final XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
         this.xqueryContext = xqueryContext;
@@ -92,14 +92,14 @@ public class MessagingJmsListener extends eXistMessagingListener {
     }
 
     @Override
-    public void onMessage(Message msg) {
+    public void onMessage(final Message msg) {
         
         // Make a copy, just in case
         functionReference.setContext(xqueryContext.copyContext());
 
         id = getIdentification();
         
-        String logString=String.format("{%s} ", id);
+        final String logString=String.format("{%s} ", id);
         
         report.start();
 
@@ -111,7 +111,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 LOG.info(String.format("%sReceived message: messageId=%s", logString, msg.getJMSMessageID()));
             }
 
-        } catch (JMSException ex) {
+        } catch (final JMSException ex) {
             report.addListenerError(ex);
             LOG.error(logString + ex.getMessage());
         }
@@ -138,14 +138,14 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
 
                 // Copy message and jms configuration details into Maptypes
-                MapType msgProperties = getMessageProperties(msg, xqueryContext);
-                MapType jmsProperties = getJmsProperties(msg, xqueryContext);
+                final MapType msgProperties = getMessageProperties(msg, xqueryContext);
+                final MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
                 // Retrieve content of message
-                Sequence content = getContent(msg, logString);
+                final Sequence content = getContent(msg, logString);
 
                 // Setup parameters callback function
-                Sequence params[] = new Sequence[4];
+                final Sequence[] params = new Sequence[4];
                 params[0] = content;
                 params[1] = functionParams;
                 params[2] = msgProperties;
@@ -153,7 +153,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
                 // Execute callback function
                 LOG.debug(logString + "call evalFunction");
-                Sequence result = functionReference.evalFunction(null, null, params);
+                final Sequence result = functionReference.evalFunction(null, null, params);
 
                 // Done
                 if (LOG.isDebugEnabled()) {
@@ -170,13 +170,13 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 report.incMessageCounterOK();
             }
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             report.addListenerError(ex);
             LOG.error(logString + ex.getMessage());
 
             try {
                 session.close();
-            } catch (JMSException ex1) {
+            } catch (final JMSException ex1) {
                  LOG.error(logString + ex1.getMessage());
             }
             
@@ -204,7 +204,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * @throws XPathException An eXist-db object could not be  handled.
      * @throws JMSException   A problem occurred handling an JMS object.
      */
-    private Sequence getContent(Message msg, String logString) throws IOException, XPathException, JMSException {
+    private Sequence getContent(final Message msg, final String logString) throws IOException, XPathException, JMSException {
         // This sequence shall contain the actual conten that will be passed
         // to the callback function
         Sequence content = null;
@@ -224,14 +224,14 @@ public class MessagingJmsListener extends eXistMessagingListener {
         } else if (msg instanceof BytesMessage) {
             
             // XML nodes and base64 (binary) data are sent as an array of bytes
-            BytesMessage bm = (BytesMessage) msg;
+            final BytesMessage bm = (BytesMessage) msg;
             
             // Read data into byte buffer
-            byte[] data = new byte[(int) bm.getBodyLength()];
+            final byte[] data = new byte[(int) bm.getBodyLength()];
             bm.readBytes(data);
             
-            String value = msg.getStringProperty(EXIST_DOCUMENT_COMPRESSION);
-            boolean isCompressed = (StringUtils.isNotBlank(value) && COMPRESSION_TYPE_GZIP.equals(value));
+            final String value = msg.getStringProperty(EXIST_DOCUMENT_COMPRESSION);
+            final boolean isCompressed = (StringUtils.isNotBlank(value) && COMPRESSION_TYPE_GZIP.equals(value));
             
             // Serialize data
             if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
@@ -251,9 +251,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
             
         } else {
             // Unsupported JMS message type
-            String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
+            final String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
 
-            XPathException ex = new XPathException(txt);
+            final XPathException ex = new XPathException(txt);
             report.addListenerError(ex);
             LOG.error(txt);
             throw ex;
@@ -268,42 +268,42 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * @param xqueryContext eXist-db query context
      * @return eXist-db map containing the properties
      */
-    private MapType getMessageProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
+    private MapType getMessageProperties(final Message msg, final XQueryContext xqueryContext) throws XPathException, JMSException {
         // Copy property values into Maptype
-        MapType map = new MapType(xqueryContext);
+        final MapType map = new MapType(xqueryContext);
 
-        Enumeration props = msg.getPropertyNames();
+        final Enumeration props = msg.getPropertyNames();
         while (props.hasMoreElements()) {
-            String key = (String) props.nextElement();
+            final String key = (String) props.nextElement();
             
-            Object obj = msg.getObjectProperty(key);
+            final Object obj = msg.getObjectProperty(key);
 
             if(obj instanceof String){
-                String value = msg.getStringProperty(key);
+                final String value = msg.getStringProperty(key);
                 addStringKV(map, key, value);
                 
             } else if (obj instanceof Integer) {
-                Integer localValue = msg.getIntProperty(key);
-                ValueSequence vs = new ValueSequence(new IntegerValue(localValue));
+                final Integer localValue = msg.getIntProperty(key);
+                final ValueSequence vs = new ValueSequence(new IntegerValue(localValue));
                 addKV(map, key, vs);
    
             } else if (obj instanceof Double) {
-                Double localValue = msg.getDoubleProperty(key);
-                ValueSequence vs = new ValueSequence(new DoubleValue(localValue));
+                final Double localValue = msg.getDoubleProperty(key);
+                final ValueSequence vs = new ValueSequence(new DoubleValue(localValue));
                 addKV(map, key, vs);
             
             } else if (obj instanceof Boolean) {   
-                Boolean localValue = msg.getBooleanProperty(key);
-                ValueSequence vs = new ValueSequence(new BooleanValue(localValue));
+                final Boolean localValue = msg.getBooleanProperty(key);
+                final ValueSequence vs = new ValueSequence(new BooleanValue(localValue));
                 addKV(map, key, vs);
                 
             } else if (obj instanceof Float) {
-                Float localValue = msg.getFloatProperty(key);
-                ValueSequence vs = new ValueSequence(new FloatValue(localValue));
+                final Float localValue = msg.getFloatProperty(key);
+                final ValueSequence vs = new ValueSequence(new FloatValue(localValue));
                 addKV(map, key, vs);
                 
             } else {             
-                String value = msg.getStringProperty(key);
+                final String value = msg.getStringProperty(key);
                 addStringKV(map, key, value);
                 
                 if(LOG.isDebugEnabled()){
@@ -322,9 +322,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * @param xqueryContext eXist-db query context
      * @return eXist-db map containing the properties
      */
-    private MapType getJmsProperties(Message msg, XQueryContext xqueryContext) throws XPathException, JMSException {
+    private MapType getJmsProperties(final Message msg, final XQueryContext xqueryContext) throws XPathException, JMSException {
         // Copy property values into Maptype
-        MapType map = new MapType(xqueryContext);
+        final MapType map = new MapType(xqueryContext);
 
         addStringKV(map, JMS_MESSAGE_ID, msg.getJMSMessageID());
         addStringKV(map, JMS_CORRELATION_ID, msg.getJMSCorrelationID());
@@ -345,7 +345,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * 
      * @throws XPathException A map operation failed.
      */
-    private void addStringKV(MapType map, String key, String value) throws XPathException {
+    private void addStringKV(final MapType map, final String key, final String value) throws XPathException {
         if (map != null && key != null && !key.isEmpty() && value != null) {
             map.add(new StringValue(key), new ValueSequence(new StringValue(value)));
         }
@@ -360,7 +360,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * 
      * @throws XPathException A map operation failed.
      */
-    private void addKV(MapType map, String key, ValueSequence valueSequence) throws XPathException {
+    private void addKV(final MapType map, final String key, final ValueSequence valueSequence) throws XPathException {
         if (map != null && StringUtils.isNotBlank(key) && valueSequence != null) {
             map.add(new StringValue(key), valueSequence);    
         }
@@ -372,9 +372,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * @throws JMSException if the JMS provider fails to set the object due to some internal error.
      * @throws XPathException Object type is not supported.
      */
-    private Sequence handleObjectMessage(ObjectMessage msg) throws JMSException, XPathException {
+    private Sequence handleObjectMessage(final ObjectMessage msg) throws JMSException, XPathException {
 
-        Object obj = msg.getObject();
+        final Object obj = msg.getObject();
         Sequence content = null;
 
         if (obj instanceof BigInteger) {
@@ -393,9 +393,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
             content = new FloatValue((Float) obj);
 
         } else {
-            String txt = String.format("Unable to convert the object %s", obj.toString());
+            final String txt = String.format("Unable to convert the object %s", obj.toString());
 
-            XPathException ex = new XPathException(txt);
+            final XPathException ex = new XPathException(txt);
             report.addListenerError(ex);
             LOG.error(txt);
             throw ex;
@@ -413,7 +413,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * 
      * @throws XPathException Something bad happened.
      */
-    private Sequence processXML(byte[] data, boolean isGzipped) throws XPathException {
+    private Sequence processXML(final byte[] data, final boolean isGzipped) throws XPathException {
 
         Sequence content = null;
         try {
@@ -431,7 +431,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             factory.setNamespaceAware(true);
             final InputSource src = new InputSource(is);
             final SAXParser parser = factory.newSAXParser();
-            XMLReader xr = parser.getXMLReader();
+            final XMLReader xr = parser.getXMLReader();
 
             xr.setErrorHandler(validationReport);
             xr.setContentHandler(adapter);
@@ -445,7 +445,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             if (validationReport.isValid()) {
                 content = adapter.getDocument();
             } else {
-                String txt = String.format("Received document is not valid: %s", validationReport.toString());
+                final String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);
                 throw new XPathException(txt);
             }

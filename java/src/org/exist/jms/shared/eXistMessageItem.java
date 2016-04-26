@@ -53,7 +53,7 @@ public class eXistMessageItem implements Item {
         return data;
     }
 
-    public void setData(eXistMessage data) {
+    public void setData(final eXistMessage data) {
         this.data = data;
     }
 
@@ -76,7 +76,7 @@ public class eXistMessageItem implements Item {
     }
 
     @Override
-    public AtomicValue convertTo(int requiredType) throws XPathException {
+    public AtomicValue convertTo(final int requiredType) throws XPathException {
         throw new UnsupportedOperationException("Not supported yet. convertTo");
     }
 
@@ -86,32 +86,32 @@ public class eXistMessageItem implements Item {
     }
 
     @Override
-    public void toSAX(DBBroker broker, ContentHandler handler, Properties properties) throws SAXException {
+    public void toSAX(final DBBroker broker, final ContentHandler handler, final Properties properties) throws SAXException {
         throw new UnsupportedOperationException("Not supported yet. toSAX");
     }
 
     @Override
-    public void copyTo(DBBroker broker, DocumentBuilderReceiver receiver) throws SAXException {
+    public void copyTo(final DBBroker broker, final DocumentBuilderReceiver receiver) throws SAXException {
         throw new UnsupportedOperationException("Not supported yet. copyTo");
     }
 
     @Override
-    public int conversionPreference(Class<?> javaClass) {
+    public int conversionPreference(final Class<?> javaClass) {
         throw new UnsupportedOperationException("Not supported yet. conversionPreference");
     }
 
     @Override
-    public <T> T toJavaObject(Class<T> target) throws XPathException {
+    public <T> T toJavaObject(final Class<T> target) throws XPathException {
         throw new UnsupportedOperationException("Not supported yet. toJavaObject");
     }
 
     @Override
-    public void nodeMoved(NodeId oldNodeId, NodeHandle newNode) {
+    public void nodeMoved(final NodeId oldNodeId, final NodeHandle newNode) {
         throw new UnsupportedOperationException("Not supported yet. nodeMoved");
     }
 
     @Override
-    public void destroy(XQueryContext context, Sequence contextSequence) {
+    public void destroy(final XQueryContext context, final Sequence contextSequence) {
         throw new UnsupportedOperationException("Not supported yet. destroy");
     }
 }

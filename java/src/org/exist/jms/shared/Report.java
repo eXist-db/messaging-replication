@@ -107,7 +107,7 @@ public class Report {
      *
      * @param error The Listener error
      */
-    public void addListenerError(Throwable error) {
+    public void addListenerError(final Throwable error) {
         errors.add(new ReportItem(error, CONTEXT.LISTENER));
     }
 
@@ -116,7 +116,7 @@ public class Report {
      *
      * @param error The Receiver error
      */
-    public void addReceiverError(Throwable error) {
+    public void addReceiverError(final Throwable error) {
         errors.add(new ReportItem(error, CONTEXT.RECEIVER));
     }
 
@@ -125,7 +125,7 @@ public class Report {
      *
      * @param error The connection error
      */
-    public void addConnectionError(Throwable error) {
+    public void addConnectionError(final Throwable error) {
         errors.add(new ReportItem(error, CONTEXT.CONNECTION));
     }
 
@@ -133,7 +133,7 @@ public class Report {
      * @return List tests of all problems
      */
     public List<String> getErrorMessages() {
-        List<String> errorMessages = new ArrayList<>();
+        final List<String> errorMessages = new ArrayList<>();
         errors.stream().forEach((t) -> errorMessages.add(t.getMessage()));
         return errorMessages;
     }
@@ -166,11 +166,11 @@ public class Report {
      *
      * @param builder The builder to create the XML report.
      */
-    public void write(MemTreeBuilder builder) {
+    public void write(final MemTreeBuilder builder) {
 
         builder.startElement("", "errorMessages", "errorMessages", null);
 
-        List<ReportItem> listenerErrors = getReportItems();
+        final List<ReportItem> listenerErrors = getReportItems();
         if (!listenerErrors.isEmpty()) {
             listenerErrors.stream().forEach((ri) -> ri.writeError(builder));
         }

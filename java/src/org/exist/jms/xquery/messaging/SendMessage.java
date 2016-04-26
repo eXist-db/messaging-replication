@@ -56,46 +56,46 @@ public class SendMessage extends BasicFunction {
         
     };
 
-    public SendMessage(XQueryContext context, FunctionSignature signature) {
+    public SendMessage(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         // User must either be DBA or in the JMS group
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+            final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, txt);
             LOG.error(txt, ex);
             throw ex;
         }
 
         // Get content
-        Item content = args[0].itemAt(0);
+        final Item content = args[0].itemAt(0);
 
         // Get application properties
-        AbstractMapType msgPropertiesMap = (AbstractMapType) args[1].itemAt(0);
-        JmsMessageProperties messageProperties = new JmsMessageProperties();
+        final AbstractMapType msgPropertiesMap = (AbstractMapType) args[1].itemAt(0);
+        final JmsMessageProperties messageProperties = new JmsMessageProperties();
         messageProperties.loadConfiguration(msgPropertiesMap);
 
         // Get JMS configuration
-        AbstractMapType jmsConfigurationMap = (AbstractMapType) args[2].itemAt(0);
-        JmsConfiguration jmsConfiguration = new JmsConfiguration();
+        final AbstractMapType jmsConfigurationMap = (AbstractMapType) args[2].itemAt(0);
+        final JmsConfiguration jmsConfiguration = new JmsConfiguration();
         jmsConfiguration.loadConfiguration(jmsConfigurationMap);
 
         try {
             // Send message and return results
-            Sender sender = new Sender(context);
+            final Sender sender = new Sender(context);
             return sender.send(jmsConfiguration, messageProperties, content);
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage());
             ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             LOG.error(t.getMessage());
             throw new XPathException(this, t);
         }

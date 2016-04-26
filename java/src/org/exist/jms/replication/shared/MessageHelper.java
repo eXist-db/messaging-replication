@@ -79,7 +79,7 @@ public class MessageHelper {
      * @return document as bytes
      * @throws IOException 
      */
-    public static byte[] gzipSerialize(DBBroker broker, DocumentImpl document) throws IOException {
+    public static byte[] gzipSerialize(final DBBroker broker, final DocumentImpl document) throws IOException {
         
         // This is the weak spot, the data is serialized into
         // a byte array. Better to have an overloap to a file,
@@ -88,10 +88,10 @@ public class MessageHelper {
         if (document.getResourceType() == DocumentImpl.XML_FILE) {
             
             // Stream XML document
-            Serializer serializer = broker.getSerializer();
+            final Serializer serializer = broker.getSerializer();
             serializer.reset();
             try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
                 serializer.setProperties(OUTPUT_PROPERTIES);
 
@@ -109,7 +109,7 @@ public class MessageHelper {
                 LOG.error(e);
                 throw new IOException(String.format("Error while serializing XML document: %s", e.getMessage()), e);
 
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 payload = new byte[0];
                 System.gc(); // recover from out of memory exception
                 LOG.error(e);
@@ -120,7 +120,7 @@ public class MessageHelper {
             // Stream NON-XML document
 
             try {          
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
  
                 try (GZIPOutputStream gos = new GZIPOutputStream(baos)) {
                     // DW: check classtype before using
@@ -130,12 +130,12 @@ public class MessageHelper {
 
                 payload = baos.toByteArray();
 
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 payload = new byte[0];
                 LOG.error(e);
                 throw new IOException(String.format("Error while serializing binary document: %s", e.getMessage()), e);
 
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 payload = new byte[0];
                 System.gc(); // recover from out of memory exception
                 LOG.error(e);
@@ -148,7 +148,7 @@ public class MessageHelper {
 
     }
 
-    public static void retrieveDocMetadata(Map<String, Object> props, DocumentMetadata docMetadata) {
+    public static void retrieveDocMetadata(final Map<String, Object> props, final DocumentMetadata docMetadata) {
         if (docMetadata == null) {
             LOG.error("no metadata supplied");
 
@@ -157,7 +157,7 @@ public class MessageHelper {
         }
     }
     
-    public static void retrievePermission(Map<String, Object> props, Permission perm){
+    public static void retrievePermission(final Map<String, Object> props, final Permission perm){
             if (perm == null) {
                 LOG.error("no permissions supplied");
                 
@@ -169,7 +169,7 @@ public class MessageHelper {
     }
     
     
-    public static void retrieveFromDocument(Map<String, Object> props, DocumentImpl document){
+    public static void retrieveFromDocument(final Map<String, Object> props, final DocumentImpl document){
             // We do not differ between DOCUMENT subtypes,
 	        // mime-type is set in document metadata EXIST_RESOURCE_MIMETYPE. /ljo
             props.put(EXIST_RESOURCE_TYPE, eXistMessage.ResourceType.DOCUMENT); 
