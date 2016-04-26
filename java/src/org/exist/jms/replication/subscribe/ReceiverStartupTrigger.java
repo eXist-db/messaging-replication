@@ -43,25 +43,25 @@ public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger 
      * Entry point for starting the trigger.
      */
     @Override
-    public void execute(final DBBroker broker, final Map<String, List<? extends Object>> params) {
+    public void execute(final DBBroker broker, final Map<String, List<?>> params) {
 
-        ReceiversManager manager = ReceiversManager.getInstance();
+        final ReceiversManager manager = ReceiversManager.getInstance();
         
         // Get from .xconf file, fill defaults when needed
-        SubscriberParameters parameters = new SubscriberParameters();
+        final SubscriberParameters parameters = new SubscriberParameters();
         parameters.setSingleValueParameters(params);
         
         try {
             // Get parameters, fill defaults when needed
             parameters.processParameters();
 
-            JmsConfiguration jmsConfig = new JmsConfiguration();
+            final JmsConfiguration jmsConfig = new JmsConfiguration();
             jmsConfig.loadSubscriberParameters(parameters);
 
             // Setup listeners
-            ReplicationJmsListener jmsListener = new ReplicationJmsListener(broker.getBrokerPool());
+            final ReplicationJmsListener jmsListener = new ReplicationJmsListener(broker.getBrokerPool());
 
-            Receiver receiver = new Receiver(jmsConfig, jmsListener);
+            final Receiver receiver = new Receiver(jmsConfig, jmsListener);
             manager.register(receiver);
 
             receiver.initialize();

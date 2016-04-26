@@ -32,15 +32,15 @@ public class TransportException extends Exception {
         super();
     }
 
-    public TransportException(String msg) {
+    public TransportException(final String msg) {
         super(msg);
     }
     
-    public TransportException(Throwable t) {
+    public TransportException(final Throwable t) {
         super(t);
     }
     
-    public TransportException(String msg, Throwable t) {
+    public TransportException(final String msg, final Throwable t) {
         super(msg, t);
     }
 }

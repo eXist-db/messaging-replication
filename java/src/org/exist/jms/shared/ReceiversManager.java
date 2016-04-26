@@ -58,7 +58,7 @@ public class ReceiversManager {
      *
      * @throws IllegalArgumentException When the argument has value NULL.
      */
-    public void register(Receiver receiver) {
+    public void register(final Receiver receiver) {
 
         if (receiver == null) {
             throw new IllegalArgumentException("Receiver should not be null");
@@ -73,7 +73,7 @@ public class ReceiversManager {
      *
      * @param id Identification of receiver
      */
-    public void remove(Integer id) {
+    public void remove(final Integer id) {
         LOG.info(String.format("Remove receiver %s", id));
         receivers.remove(id);
     }
@@ -84,7 +84,7 @@ public class ReceiversManager {
      * @param id Identification of receiver
      * @return The receiver
      */
-    public Receiver get(Integer id) {
+    public Receiver get(final Integer id) {
         return receivers.get(id);
     }
 

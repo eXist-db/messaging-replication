@@ -109,7 +109,7 @@ public class SubscriberParameters extends ClientParameters {
         // Get subscribername
         value = props.getProperty(SUBSCRIBER_NAME);
         if (value == null || value.equals("")) {
-            String errorText = "'" + SUBSCRIBER_NAME + "' is not set.";
+            final String errorText = "'" + SUBSCRIBER_NAME + "' is not set.";
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }
@@ -133,7 +133,7 @@ public class SubscriberParameters extends ClientParameters {
                 noLocal = true;
 
             } else {
-                String errorText = "'" + NO_LOCAL + "' contains wrong value '" + value + "'";
+                final String errorText = "'" + NO_LOCAL + "' contains wrong value '" + value + "'";
                 LOG.error(errorText);
                 throw new ClientParameterException(errorText);
             }
@@ -151,7 +151,7 @@ public class SubscriberParameters extends ClientParameters {
                 durable = true;
 
             } else {
-                String errorText = "'" + DURABLE + "' contains wrong value '" + value + "'";
+                final String errorText = "'" + DURABLE + "' contains wrong value '" + value + "'";
                 LOG.error(errorText);
                 throw new ClientParameterException(errorText);
             }
@@ -159,7 +159,7 @@ public class SubscriberParameters extends ClientParameters {
         
         // FOr a durable connection (default) a clientId must be set
         if (durable && clientId == null) {
-            String errorText = "For durable connections the " + Constants.CLIENT_ID + " must be set.";
+            final String errorText = "For durable connections the " + Constants.CLIENT_ID + " must be set.";
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }

@@ -57,43 +57,43 @@ public class RegisterReceiver extends BasicFunction {
       
     };
 
-    public RegisterReceiver(XQueryContext context, FunctionSignature signature) {
+    public RegisterReceiver(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
     @Override
-    public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
+    public Sequence eval(final Sequence[] args, final Sequence contextSequence) throws XPathException {
 
         // User must either be DBA or in the JMS group
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
-            String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
+            final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, txt);
             LOG.error(txt, ex);
             throw ex;
         }
 
         try {
             // Get object that manages the receivers
-            ReceiversManager manager = ReceiversManager.getInstance();
+            final ReceiversManager manager = ReceiversManager.getInstance();
 
             // Get function
-            FunctionReference reference = (FunctionReference) args[0].itemAt(0);
+            final FunctionReference reference = (FunctionReference) args[0].itemAt(0);
 
             // Get optional function parameters
-            Sequence functionParams = args[1];
+            final Sequence functionParams = args[1];
 
             // Get JMS configuration
-            AbstractMapType configMap = (AbstractMapType) args[2].itemAt(0);
-            JmsConfiguration config = new JmsConfiguration();
+            final AbstractMapType configMap = (AbstractMapType) args[2].itemAt(0);
+            final JmsConfiguration config = new JmsConfiguration();
             config.loadConfiguration(configMap);
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context.copyContext());
+            final MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context.copyContext());
 
             // Create receiver
-            Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
+            final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
 
             // Register, initialize and start receiver
             manager.register(receiver);
@@ -103,12 +103,12 @@ public class RegisterReceiver extends BasicFunction {
             // Return identification
             return new IntegerValue(receiver.getId());
 
-        } catch (XPathException ex) {
+        } catch (final XPathException ex) {
             LOG.error(ex.getMessage());
             ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             LOG.error(t);
             throw new XPathException(this, t);
         }

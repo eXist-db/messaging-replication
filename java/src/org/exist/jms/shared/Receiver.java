@@ -98,7 +98,7 @@ public class Receiver {
      * @param config JMS configuration settings
      * @param listener The generic exist-db message listener
      */
-    public Receiver(JmsConfiguration config, eXistMessagingListener listener) {
+    public Receiver(final JmsConfiguration config, final eXistMessagingListener listener) {
         this.jmsConfig = config;
         this.messageListener = listener;
 
@@ -110,7 +110,7 @@ public class Receiver {
         // Initialing XML datafactory
         try {
             dtFactory = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException ex) {
+        } catch (final DatatypeConfigurationException ex) {
             LOG.fatal(ex);
         }
     }
@@ -134,7 +134,7 @@ public class Receiver {
     public void start() throws XPathException {
 
         if (connection == null) {
-            String txt = "JMS connection must be initialized first";
+            final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -147,7 +147,7 @@ public class Receiver {
 
             state = STATE.STARTED;
 
-        } catch (JMSException ex) {
+        } catch (final JMSException ex) {
             LOG.error(ex);
             messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
@@ -168,7 +168,7 @@ public class Receiver {
 
         try {
             // Setup Context
-            Properties props = new Properties();
+            final Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, jmsConfig.getInitialContextFactory());
             props.setProperty(Context.PROVIDER_URL, jmsConfig.getBrokerURL());
             initialContext = new InitialContext(props);
@@ -177,8 +177,8 @@ public class Receiver {
             connectionFactory = (ConnectionFactory) initialContext.lookup(jmsConfig.getConnectionFactory());
 
             // Setup username/password when required
-            String userName = jmsConfig.getConnectionUserName();
-            String password = jmsConfig.getConnectionPassword();
+            final String userName = jmsConfig.getConnectionUserName();
+            final String password = jmsConfig.getConnectionPassword();
             if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
                 connection = connectionFactory.createConnection();
             } else {
@@ -189,7 +189,7 @@ public class Receiver {
             connection.setExceptionListener(messageListener);
             
             // Set clientId when set and not empty
-            String clientId=jmsConfig.getClientId();
+            final String clientId=jmsConfig.getClientId();
             if(StringUtils.isNotBlank(clientId)){
                 connection.setClientID(clientId);
             }
@@ -201,11 +201,11 @@ public class Receiver {
             destination = (Destination) initialContext.lookup(jmsConfig.getDestination());
 
             // Setup consumer with message selector
-            String messageSelector = jmsConfig.getMessageSelector();
-            String subscriberName = jmsConfig.getSubscriberName();
+            final String messageSelector = jmsConfig.getMessageSelector();
+            final String subscriberName = jmsConfig.getSubscriberName();
             
-            boolean isDurable = jmsConfig.isDurable(); // TRUE if not set, special case for Durable topic
-            boolean isNoLocal = jmsConfig.isNoLocal();
+            final boolean isDurable = jmsConfig.isDurable(); // TRUE if not set, special case for Durable topic
+            final boolean isNoLocal = jmsConfig.isNoLocal();
             
             // Interesting switch due to JMS specification
             if (destination instanceof Topic && isDurable) {
@@ -232,7 +232,7 @@ public class Receiver {
 
             state = STATE.STOPPED;
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             state = STATE.ERROR;
             
             closeAllSilently(initialContext, connection, session);
@@ -256,7 +256,7 @@ public class Receiver {
     public void stop() throws XPathException {
 
         if (connection == null) {
-            String txt = "JMS connection must be initialized first";
+            final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -269,7 +269,7 @@ public class Receiver {
 
             state = STATE.STOPPED;
 
-        } catch (JMSException ex) {
+        } catch (final JMSException ex) {
             LOG.error(ex);
 
             messageListener.getReport().addReceiverError(ex);
@@ -287,7 +287,7 @@ public class Receiver {
     public void close() throws XPathException {
 
         if (connection == null) {
-            String txt = "JMS connection must be initialized first";
+            final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
             throw new XPathException(txt);
         }
@@ -296,7 +296,7 @@ public class Receiver {
         if (state != STATE.STOPPED) {
             try {
                 connection.stop();
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex);
                 messageListener.getReport().addReceiverError(ex);
 
@@ -308,7 +308,7 @@ public class Receiver {
             String clientId = null;
             try {
                 clientId = connection.getClientID();
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.debug(ex);
             }
 
@@ -324,7 +324,7 @@ public class Receiver {
 
             state = STATE.CLOSED;
 
-        } catch (JMSException ex) {
+        } catch (final JMSException ex) {
             LOG.error(ex);
      
             messageListener.getReport().addReceiverError(ex);
@@ -337,11 +337,11 @@ public class Receiver {
      */
     public NodeImpl getReport() {
 
-        MemTreeBuilder builder = new MemTreeBuilder();
+        final MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
 
         // start root element
-        int nodeNr = builder.startElement("", "Receiver", "Receiver", null);
+        final int nodeNr = builder.startElement("", "Receiver", "Receiver", null);
         builder.addAttribute(new QName("id", null, null), "" + id);
 
 
@@ -367,7 +367,7 @@ public class Receiver {
         builder.characters(jmsConfig.getConnectionFactory());
         builder.endElement();
 
-        String userName = jmsConfig.getConnectionUserName();
+        final String userName = jmsConfig.getConnectionUserName();
         if (StringUtils.isNotBlank(userName)) {
             builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
             builder.characters(userName);
@@ -380,13 +380,13 @@ public class Receiver {
 
         if (connection != null) {
             try {
-                String clientId = connection.getClientID();
+                final String clientId = connection.getClientID();
                 if (StringUtils.isNotEmpty(clientId)) {
                     builder.startElement("", Constants.CLIENT_ID, Constants.CLIENT_ID, null);
                     builder.characters(clientId);
                     builder.endElement();
                 }
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.debug(ex.getMessage());
             }
         }
@@ -396,13 +396,13 @@ public class Receiver {
          */
         if (messageConsumer != null) {
             try {
-                String messageSelector = messageConsumer.getMessageSelector();
+                final String messageSelector = messageConsumer.getMessageSelector();
                 if (messageSelector != null) {
                     builder.startElement("", Constants.MESSAGE_SELECTOR, Constants.MESSAGE_SELECTOR, null);
                     builder.characters(messageSelector);
                     builder.endElement();
                 }
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.debug(ex.getMessage());
             }
         }
@@ -427,7 +427,7 @@ public class Receiver {
             /*
              * Statistics
              */
-            Report stats = messageListener.getReport();
+            final Report stats = messageListener.getReport();
             builder.startElement("", "statistics", "statistics", null);
 
             builder.startElement("", "nrProcessedMessages", "nrProcessedMessages", null);
@@ -435,7 +435,7 @@ public class Receiver {
             builder.endElement();
 
             builder.startElement("", "cumulativeProcessingTime", "cumulativeProcessingTime", null);
-            Duration duration = dtFactory.newDuration(stats.getCumulatedProcessingTime());
+            final Duration duration = dtFactory.newDuration(stats.getCumulatedProcessingTime());
             builder.characters(duration.toString());
             builder.endElement();
 
@@ -456,9 +456,9 @@ public class Receiver {
     /**
      * Helper method to give resources back
      */
-    private void closeAllSilently(Context context, Connection connection, Session session) {
+    private void closeAllSilently(final Context context, final Connection connection, final Session session) {
 
-        boolean doLog = LOG.isDebugEnabled();
+        final boolean doLog = LOG.isDebugEnabled();
 
         if (session != null) {
             if (doLog) {
@@ -467,7 +467,7 @@ public class Receiver {
 
             try {
                 session.close();
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex.getMessage());
             }
         }
@@ -479,7 +479,7 @@ public class Receiver {
 
             try {
                 connection.close();
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex.getMessage());
             }
         }
@@ -491,7 +491,7 @@ public class Receiver {
 
             try {
                 context.close();
-            } catch (NamingException ex) {
+            } catch (final NamingException ex) {
                 LOG.error(ex.getMessage());
             }
         }

@@ -77,7 +77,7 @@ public class Sender  {
      *
      * @param context Xquery context, can be NULL for eXistMessageItem. Context will be copied
      */
-    public Sender(XQueryContext context) {
+    public Sender(final XQueryContext context) {
         username = context.getSubject().getName();
         xqcontext = context.copyContext();
     }
@@ -91,13 +91,13 @@ public class Sender  {
      * @return Report
      * @throws XPathException Something bad happened.
      */
-    public NodeImpl send(JmsConfiguration jmsConfig, JmsMessageProperties msgMetaProps, Item content) throws XPathException {
+    public NodeImpl send(final JmsConfiguration jmsConfig, final JmsMessageProperties msgMetaProps, final Item content) throws XPathException {
 
         // JMS specific checks
         jmsConfig.validate();
         
         // Retrieve and set JMS identifier
-        String id  = Identity.getInstance().getIdentity();    
+        final String id  = Identity.getInstance().getIdentity();
         if(StringUtils.isNotBlank(id)){
             msgMetaProps.setProperty(Constants.EXIST_INSTANCE_ID, id);
         } else {
@@ -111,51 +111,51 @@ public class Sender  {
     
 
         // Retrieve relevant values
-        String initialContextFactory = jmsConfig.getInitialContextFactory();
-        String providerURL = jmsConfig.getBrokerURL();  
-        String destinationValue = jmsConfig.getDestination();
+        final String initialContextFactory = jmsConfig.getInitialContextFactory();
+        final String providerURL = jmsConfig.getBrokerURL();
+        final String destinationValue = jmsConfig.getDestination();
 
         Connection connection = null;
 
         try {
-            Properties props = new Properties();
+            final Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
             props.setProperty(Context.PROVIDER_URL, providerURL);
-            javax.naming.Context context = new InitialContext(props);
+            final javax.naming.Context context = new InitialContext(props);
 
             // Get connection factory
-            ConnectionFactory cf = getConnectionFactoryInstance(context, jmsConfig);
+            final ConnectionFactory cf = getConnectionFactoryInstance(context, jmsConfig);
 
             if (cf == null) {
                 throw new XPathException("Unable to create connection factory");
             }
             
             // Setup username/password when required
-            String userName = jmsConfig.getConnectionUserName();
-            String password = jmsConfig.getConnectionPassword();
+            final String userName = jmsConfig.getConnectionUserName();
+            final String password = jmsConfig.getConnectionPassword();
             
             connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password))
                     ? cf.createConnection()
                     : cf.createConnection(userName, password);
             
             // Set clientId when set and not empty
-            String clientId=jmsConfig.getClientId();
+            final String clientId=jmsConfig.getClientId();
             if(StringUtils.isNotBlank(clientId)){
                 connection.setClientID(clientId);
             }
             
             // Lookup queue
-            Destination destination = (Destination) context.lookup(destinationValue);
+            final Destination destination = (Destination) context.lookup(destinationValue);
 
             // Create session
-            Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
+            final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
             // Create message producer
-            MessageProducer producer = session.createProducer(destination);
+            final MessageProducer producer = session.createProducer(destination);
 
             // Create message, depending on incoming object type
-            boolean isExistMessageItem = (content instanceof eXistMessageItem);
-            Message message = isExistMessageItem
+            final boolean isExistMessageItem = (content instanceof eXistMessageItem);
+            final Message message = isExistMessageItem
                     ? createMessageFromExistMessageItem(session, (eXistMessageItem) content, msgMetaProps)
                     : createMessageFromItem(session, content, msgMetaProps, xqcontext);
 
@@ -164,13 +164,13 @@ public class Sender  {
 
 
             // Set time-to-live (when available)
-            Long timeToLive = jmsConfig.getTimeToLive();
+            final Long timeToLive = jmsConfig.getTimeToLive();
             if (timeToLive != null) {
                 producer.setTimeToLive(timeToLive);
             }
 
             // Set priority (when available)
-            Integer priority = jmsConfig.getPriority();
+            final Integer priority = jmsConfig.getPriority();
             if (priority != null) {
                 producer.setPriority(priority);
             }
@@ -181,7 +181,7 @@ public class Sender  {
             // Return report
             return createReport(message, producer, jmsConfig);
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex);
             throw new XPathException(ex.getMessage());
 
@@ -191,7 +191,7 @@ public class Sender  {
                     // Close connection
                     connection.close();
                 }
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(String.format("Problem closing connection, ignored. %s (%s)", ex.getMessage(), ex.getErrorCode()));
             }
         }
@@ -200,23 +200,23 @@ public class Sender  {
     /**
      * Get connection factory
      */
-    private ConnectionFactory getConnectionFactoryInstance(javax.naming.Context context, JmsConfiguration jmsConfig) throws NamingException {
+    private ConnectionFactory getConnectionFactoryInstance(final javax.naming.Context context, final JmsConfiguration jmsConfig) throws NamingException {
 
-        ConnectionFactory retVal;
+        final ConnectionFactory retVal;
  
         // check if Pooling is needed
-        String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL);
+        final String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL);
         if (StringUtils.isNotBlank(poolValue)) {
 
             // Get URL to broker
-            String providerURL = jmsConfig.getBrokerURL();
+            final String providerURL = jmsConfig.getBrokerURL();
 
             // Get ConnectionFactory
             retVal = SenderConnectionFactory.getConnectionFactoryInstance(providerURL, poolValue);
 
         } else {
             // Get name of connection factory
-            String connectionFactory = jmsConfig.getConnectionFactory();
+            final String connectionFactory = jmsConfig.getConnectionFactory();
 
             // Get connection factory, the context already contains the brokerURL.
             retVal = (ConnectionFactory) context.lookup(connectionFactory);
@@ -238,12 +238,12 @@ public class Sender  {
      * @throws JMSException When a problem occurs in the JMS domain
      * @throws XPathException When an other issue occurs
      */
-    private Message createMessageFromItem(Session session, Item item, JmsMessageProperties jmp, XQueryContext xqcontext) throws JMSException, XPathException {
+    private Message createMessageFromItem(final Session session, final Item item, final JmsMessageProperties jmp, final XQueryContext xqcontext) throws JMSException, XPathException {
 
-        Message message;
+        final Message message;
 
         jmp.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
-        boolean isCompressed = applyGZIPcompression(jmp);
+        final boolean isCompressed = applyGZIPcompression(jmp);
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
@@ -251,18 +251,18 @@ public class Sender  {
             jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
 
             if (item instanceof NodeProxy) {
-                NodeProxy np = (NodeProxy) item;
+                final NodeProxy np = (NodeProxy) item;
                 jmp.setProperty(EXIST_DOCUMENT_URI, np.getDoc().getBaseURI());
                 jmp.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDoc().getMetadata().getMimeType());
             }
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             OutputStream os = baos;
 
             // Stream content node to buffer
-            NodeValue node = (NodeValue) item;
-            Serializer serializer = xqcontext.getBroker().newSerializer();
-            InputStream is = new NodeInputStream(serializer, node);
+            final NodeValue node = (NodeValue) item;
+            final Serializer serializer = xqcontext.getBroker().newSerializer();
+            final InputStream is = new NodeInputStream(serializer, node);
 
             try {
                 if (isCompressed) {
@@ -270,7 +270,7 @@ public class Sender  {
                 }
                 IOUtils.copy(is, os);
 
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
 
@@ -280,7 +280,7 @@ public class Sender  {
             }
 
             // Create actual message, pass data
-            BytesMessage bytesMessage = session.createBytesMessage();
+            final BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
 
             // Swap
@@ -294,27 +294,27 @@ public class Sender  {
             jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
 
             if (item instanceof Base64BinaryDocument) {
-                Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
-                String uri = b64doc.getUrl();
+                final Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
+                final String uri = b64doc.getUrl();
 
                 LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
                 jmp.setProperty(EXIST_DOCUMENT_URI, uri);
                 
             }
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             OutputStream os = baos;
 
             // Copy data from item to buffer
-            BinaryValue binary = (BinaryValue) item;
-            InputStream is = binary.getInputStream();
+            final BinaryValue binary = (BinaryValue) item;
+            final InputStream is = binary.getInputStream();
             try {
                 if (isCompressed) {
                     os = new GZIPOutputStream(os);
                 }
                 IOUtils.copy(is, os);
 
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(ex);
 
@@ -324,7 +324,7 @@ public class Sender  {
             }
 
             // Create actual message, pass data
-            BytesMessage bytesMessage = session.createBytesMessage();
+            final BytesMessage bytesMessage = session.createBytesMessage();
             bytesMessage.writeBytes(baos.toByteArray());
 
             // Swap
@@ -332,33 +332,33 @@ public class Sender  {
 
         } else if (item.getType() == Type.STRING) {
             // xs:string() is mapped to a TextMessage
-            TextMessage textMessage = session.createTextMessage();
+            final TextMessage textMessage = session.createTextMessage();
             textMessage.setText(item.getStringValue());
             message = textMessage;
 
 
         } else {
-            ObjectMessage objectMessage = session.createObjectMessage();
+            final ObjectMessage objectMessage = session.createObjectMessage();
 
             switch (item.getType()) {
                 case Type.INTEGER:
-                    BigInteger intValue = item.toJavaObject(BigInteger.class);
+                    final BigInteger intValue = item.toJavaObject(BigInteger.class);
                     objectMessage.setObject(intValue);
                     break;
                 case Type.DOUBLE:
-                    Double doubleValue = item.toJavaObject(Double.class);
+                    final Double doubleValue = item.toJavaObject(Double.class);
                     objectMessage.setObject(doubleValue);
                     break;
                 case Type.FLOAT:
-                    Float foatValue = item.toJavaObject(Float.class);
+                    final Float foatValue = item.toJavaObject(Float.class);
                     objectMessage.setObject(foatValue);
                     break;
                 case Type.DECIMAL:
-                    BigDecimal decimalValue = item.toJavaObject(BigDecimal.class);
+                    final BigDecimal decimalValue = item.toJavaObject(BigDecimal.class);
                     objectMessage.setObject(decimalValue);
                     break;
                 case Type.BOOLEAN:
-                    Boolean booleanValue = item.toJavaObject(Boolean.class);
+                    final Boolean booleanValue = item.toJavaObject(Boolean.class);
                     objectMessage.setObject(booleanValue);
                     break;    
                 default:
@@ -382,15 +382,15 @@ public class Sender  {
      * @return JMS Message
      * @throws JMSException When an issue happens
      */
-    private Message createMessageFromExistMessageItem(Session session, eXistMessageItem emi, JmsMessageProperties msgMetaProps) throws JMSException {
+    private Message createMessageFromExistMessageItem(final Session session, final eXistMessageItem emi, final JmsMessageProperties msgMetaProps) throws JMSException {
 
         // Create bytes message
-        BytesMessage message = session.createBytesMessage();
+        final BytesMessage message = session.createBytesMessage();
 
         // Set payload when available
-        eXistMessage em = emi.getData();
+        final eXistMessage em = emi.getData();
 
-        byte[] payload = em.getPayload();
+        final byte[] payload = em.getPayload();
 
         if (payload == null) {
             LOG.debug("No payload for replication");
@@ -410,7 +410,7 @@ public class Sender  {
      * @return TRUE if not set or has value 'gzip' else FALSE.
      *
      */
-    private boolean applyGZIPcompression(JmsMessageProperties mdd) {
+    private boolean applyGZIPcompression(final JmsMessageProperties mdd) {
         // 
         String compressionValue = mdd.getProperty(EXIST_DOCUMENT_COMPRESSION);
         if (StringUtils.isBlank(compressionValue)) {
@@ -421,7 +421,7 @@ public class Sender  {
         return COMPRESSION_TYPE_GZIP.equals(compressionValue);
     }
 
-    private void setMessagePropertiesFromMap(JmsMessageProperties msgMetaProps, Message message) throws JMSException {
+    private void setMessagePropertiesFromMap(final JmsMessageProperties msgMetaProps, final Message message) throws JMSException {
 
         if (msgMetaProps == null) {
             LOG.debug("No JmsMessageProperties was provided");
@@ -429,10 +429,10 @@ public class Sender  {
         }
 
         // Write message properties
-        for (Map.Entry<Object, Object> entry : msgMetaProps.entrySet()) {
+        for (final Map.Entry<Object, Object> entry : msgMetaProps.entrySet()) {
 
-            String key = (String) entry.getKey();
-            Object value = entry.getValue();
+            final String key = (String) entry.getKey();
+            final Object value = entry.getValue();
 
             if (value instanceof String) {
                 message.setStringProperty(key, (String) value);
@@ -458,48 +458,48 @@ public class Sender  {
     /**
      * Create messaging results report
      */
-    private NodeImpl createReport(Message message, MessageProducer producer, JmsConfiguration config) {
+    private NodeImpl createReport(final Message message, final MessageProducer producer, final JmsConfiguration config) {
 
-        MemTreeBuilder builder = new MemTreeBuilder();
+        final MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
 
         // start root element
-        int nodeNr = builder.startElement("", JMS, JMS, null);
+        final int nodeNr = builder.startElement("", JMS, JMS, null);
 
         /*
          * Message
          */
         if (message != null) {
             try {
-                String txt = message.getJMSMessageID();
+                final String txt = message.getJMSMessageID();
                 if (txt != null) {
                     builder.startElement("", JMS_MESSAGE_ID, JMS_MESSAGE_ID, null);
                     builder.characters(txt);
                     builder.endElement();
                 }
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex);
             }
 
             try {
-                String txt = message.getJMSCorrelationID();
+                final String txt = message.getJMSCorrelationID();
                 if (txt != null) {
                     builder.startElement("", JMS_CORRELATION_ID, JMS_CORRELATION_ID, null);
                     builder.characters(txt);
                     builder.endElement();
                 }
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex);
             }
 
             try {
-                String txt = message.getJMSType();
+                final String txt = message.getJMSType();
                 if (StringUtils.isNotEmpty(txt)) {
                     builder.startElement("", JMS_TYPE, JMS_TYPE, null);
                     builder.characters(txt);
                     builder.endElement();
                 }
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex);
             }
         }
@@ -509,20 +509,20 @@ public class Sender  {
          */
         if (producer != null) {
             try {
-                long timeToLive = producer.getTimeToLive();
+                final long timeToLive = producer.getTimeToLive();
                 builder.startElement("", PRODUCER_TTL, PRODUCER_TTL, null);
                 builder.characters("" + timeToLive);
                 builder.endElement();
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex);
             }
 
             try {
-                long priority = producer.getPriority();
+                final long priority = producer.getPriority();
                 builder.startElement("", PRODUCER_PRIORITY, PRODUCER_PRIORITY, null);
                 builder.characters("" + priority);
                 builder.endElement();
-            } catch (JMSException ex) {
+            } catch (final JMSException ex) {
                 LOG.error(ex);
             }
         }
@@ -547,7 +547,7 @@ public class Sender  {
             builder.characters(config.getDestination());
             builder.endElement();
 
-            String userName = config.getConnectionUserName();
+            final String userName = config.getConnectionUserName();
             if (StringUtils.isNotBlank(userName)) {
                 builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
                 builder.characters(userName);

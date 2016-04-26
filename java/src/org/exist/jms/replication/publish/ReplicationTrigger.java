@@ -72,7 +72,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
             // Yes :-)
             isOriginIdAvailable = true;
 
-        } catch (java.lang.ClassNotFoundException error) {
+        } catch (final java.lang.ClassNotFoundException error) {
 
             // Running an old version of eXist-db
             LOGGER.info("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
@@ -87,10 +87,10 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
      *
      * @return TRUE when started from JMS else FALSE.
      */
-    private boolean isJMSOrigin(Txn transaction) {
+    private boolean isJMSOrigin(final Txn transaction) {
 
         // only try to get OriginId when metjod is available.
-        String originId = isOriginIdAvailable ? transaction.getOriginId() : null;
+        final String originId = isOriginIdAvailable ? transaction.getOriginId() : null;
 
         return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
     }
@@ -98,8 +98,8 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     //
     // Document Triggers
     //
-    private void afterUpdateCreateDocument(DBBroker broker, Txn transaction, DocumentImpl document, 
-                                           eXistMessage.ResourceOperation operation) /* throws TriggerException */ {
+    private void afterUpdateCreateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document,
+                                           final eXistMessage.ResourceOperation operation) /* throws TriggerException */ {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(document.getURI().toString());
@@ -112,13 +112,13 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.DOCUMENT);
         msg.setResourceOperation(operation);
         msg.setResourcePath(document.getURI().toString());
 
         // Retrieve Metadata
-        Map<String, Object> md = msg.getMetadata();
+        final Map<String, Object> md = msg.getMetadata();
         MessageHelper.retrieveDocMetadata(md, document.getMetadata());
         MessageHelper.retrieveFromDocument(md, document);
         MessageHelper.retrievePermission(md, document.getPermissions());
@@ -131,7 +131,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         try {
             msg.setPayload(MessageHelper.gzipSerialize(broker, document));
 
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOGGER.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s",                                    
                     document.getContentLength(), ex.getMessage()), ex);
             //throw new TriggerException("Unable to retrieve message payload: " + ex.getMessage());
@@ -142,7 +142,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
     
     @Override
-    public void afterCreateDocument(DBBroker broker, Txn transaction,  DocumentImpl document) throws TriggerException {
+    public void afterCreateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(document.getURI().toString());
@@ -157,7 +157,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterUpdateDocument(DBBroker broker, Txn transaction, DocumentImpl document) throws TriggerException {
+    public void afterUpdateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(document.getURI().toString());
@@ -172,7 +172,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterCopyDocument(DBBroker broker, Txn transaction, DocumentImpl document, XmldbURI oldUri) throws TriggerException {
+    public void afterCopyDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
@@ -184,7 +184,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.DOCUMENT);
         msg.setResourceOperation(eXistMessage.ResourceOperation.COPY);
         msg.setResourcePath(oldUri.toString());
@@ -195,7 +195,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterMoveDocument(DBBroker broker, Txn transaction, DocumentImpl document, XmldbURI oldUri) throws TriggerException {
+    public void afterMoveDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
@@ -207,7 +207,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.DOCUMENT);
         msg.setResourceOperation(eXistMessage.ResourceOperation.MOVE);
         msg.setResourcePath(oldUri.toString());
@@ -218,7 +218,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterDeleteDocument(DBBroker broker, Txn transaction, XmldbURI uri) throws TriggerException {
+    public void afterDeleteDocument(final DBBroker broker, final Txn transaction, final XmldbURI uri) throws TriggerException {
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(uri.toString());
@@ -230,7 +230,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.DOCUMENT);
         msg.setResourceOperation(eXistMessage.ResourceOperation.DELETE);
         msg.setResourcePath(uri.toString());
@@ -243,7 +243,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     // Collection Triggers
     //
     @Override
-    public void afterCreateCollection(DBBroker broker, Txn transaction, Collection collection) throws TriggerException {
+    public void afterCreateCollection(final DBBroker broker, final Txn transaction, final Collection collection) throws TriggerException {
         
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(collection.getURI().toString());
@@ -254,12 +254,12 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.COLLECTION);
         msg.setResourceOperation(eXistMessage.ResourceOperation.CREATE);
         msg.setResourcePath(collection.getURI().toString());
 
-        Map<String, Object> md = msg.getMetadata();
+        final Map<String, Object> md = msg.getMetadata();
         MessageHelper.retrievePermission(md, collection.getPermissions());
 
         // Send Message   
@@ -267,7 +267,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterCopyCollection(DBBroker broker, Txn transaction, Collection collection, XmldbURI oldUri) throws TriggerException {
+    public void afterCopyCollection(final DBBroker broker, final Txn transaction, final Collection collection, final XmldbURI oldUri) throws TriggerException {
         
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
@@ -278,7 +278,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.COLLECTION);
         msg.setResourceOperation(eXistMessage.ResourceOperation.COPY);
         msg.setResourcePath(oldUri.toString());
@@ -289,7 +289,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterMoveCollection(DBBroker broker, Txn transaction, Collection collection, XmldbURI oldUri) throws TriggerException {
+    public void afterMoveCollection(final DBBroker broker, final Txn transaction, final Collection collection, final XmldbURI oldUri) throws TriggerException {
         
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
@@ -301,7 +301,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.COLLECTION);
         msg.setResourceOperation(eXistMessage.ResourceOperation.MOVE);
         msg.setResourcePath(oldUri.toString());
@@ -312,7 +312,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     }
 
     @Override
-    public void afterDeleteCollection(DBBroker broker, Txn transaction, XmldbURI uri) throws TriggerException {
+    public void afterDeleteCollection(final DBBroker broker, final Txn transaction, final XmldbURI uri) throws TriggerException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(uri.toString());
         }
@@ -323,7 +323,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.COLLECTION);
         msg.setResourceOperation(eXistMessage.ResourceOperation.DELETE);
         msg.setResourcePath(uri.toString());
@@ -337,7 +337,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     //    
 
     @Override
-    public void afterUpdateDocumentMetadata(DBBroker broker, Txn transaction, DocumentImpl document) throws TriggerException {
+    public void afterUpdateDocumentMetadata(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
         
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug(document.getURI().toString());
@@ -352,13 +352,13 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         }
 
         // Create Message
-        eXistMessage msg = new eXistMessage();
+        final eXistMessage msg = new eXistMessage();
         msg.setResourceType(eXistMessage.ResourceType.DOCUMENT);
         msg.setResourceOperation(eXistMessage.ResourceOperation.METADATA);
         msg.setResourcePath(document.getURI().toString());
 
         // Retrieve Metadata
-        Map<String, Object> md = msg.getMetadata();
+        final Map<String, Object> md = msg.getMetadata();
         MessageHelper.retrieveDocMetadata(md, document.getMetadata());
         MessageHelper.retrieveFromDocument(md, document);
         MessageHelper.retrievePermission(md, document.getPermissions());
@@ -371,7 +371,7 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     // Misc         
     //
     @Override
-    public void configure(DBBroker broker, Collection parentCollection, Map<String, List<?>> parameters) throws TriggerException {
+    public void configure(final DBBroker broker, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
         super.configure(broker, parentCollection, parameters);
         this.parameters = parameters;
 
@@ -381,17 +381,17 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
      * Send 'trigger' message with parameters set using
      * {@link #configure(org.exist.storage.DBBroker, org.exist.collections.Collection, java.util.Map)}
      */
-    private void sendMessage(eXistMessage msg) /* throws TriggerException  */ {
+    private void sendMessage(final eXistMessage msg) /* throws TriggerException  */ {
         // Send Message   
-        JMSMessageSender sender = new JMSMessageSender(parameters);
+        final JMSMessageSender sender = new JMSMessageSender(parameters);
         try {
             sender.sendMessage(msg);
 
-        } catch (TransportException ex) {
+        } catch (final TransportException ex) {
             LOGGER.error(ex.getMessage(), ex);
             //throw new TriggerException(ex.getMessage(), ex);
             
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOGGER.error(ex.getMessage(), ex);
             //throw new TriggerException(ex.getMessage(), ex);
         }
@@ -402,88 +402,88 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
      */
     //@Override
     @Deprecated
-    public void prepare(int event, DBBroker broker, Txn transaction,
-            XmldbURI documentPath, DocumentImpl existingDocument) throws TriggerException {
+    public void prepare(final int event, final DBBroker broker, final Txn transaction,
+                        final XmldbURI documentPath, final DocumentImpl existingDocument) throws TriggerException {
         // Ignored
     }
 
     //@Override
     @Deprecated
-    public void finish(int event, DBBroker broker, Txn transaction,
-            XmldbURI documentPath, DocumentImpl document) {
+    public void finish(final int event, final DBBroker broker, final Txn transaction,
+                       final XmldbURI documentPath, final DocumentImpl document) {
         // Ignored
     }
 
     @Override
-    public void beforeCreateDocument(DBBroker broker, Txn transaction,
-            XmldbURI uri) throws TriggerException {
+    public void beforeCreateDocument(final DBBroker broker, final Txn transaction,
+                                     final XmldbURI uri) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeUpdateDocument(DBBroker broker, Txn transaction,
-            DocumentImpl document) throws TriggerException {
+    public void beforeUpdateDocument(final DBBroker broker, final Txn transaction,
+                                     final DocumentImpl document) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeCopyDocument(DBBroker broker, Txn transaction,
-            DocumentImpl document, XmldbURI newUri) throws TriggerException {
+    public void beforeCopyDocument(final DBBroker broker, final Txn transaction,
+                                   final DocumentImpl document, final XmldbURI newUri) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeMoveDocument(DBBroker broker, Txn transaction,
-            DocumentImpl document, XmldbURI newUri) throws TriggerException {
+    public void beforeMoveDocument(final DBBroker broker, final Txn transaction,
+                                   final DocumentImpl document, final XmldbURI newUri) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeDeleteDocument(DBBroker broker, Txn transaction,
-            DocumentImpl document) throws TriggerException {
+    public void beforeDeleteDocument(final DBBroker broker, final Txn transaction,
+                                     final DocumentImpl document) throws TriggerException {
         // Ignored
     }
     
     @Override
-    public void beforeUpdateDocumentMetadata(DBBroker broker, Txn txn, DocumentImpl document) throws TriggerException {
+    public void beforeUpdateDocumentMetadata(final DBBroker broker, final Txn txn, final DocumentImpl document) throws TriggerException {
         // Ignored
     }
 
     //@Override
     @Deprecated
-    public void prepare(int event, DBBroker broker, Txn transaction, Collection collection,
-            Collection newCollection) throws TriggerException {
+    public void prepare(final int event, final DBBroker broker, final Txn transaction, final Collection collection,
+                        final Collection newCollection) throws TriggerException {
         // Ignored
     }
 
     //@Override
     @Deprecated
-    public void finish(int event, DBBroker broker, Txn transaction, Collection collection,
-            Collection newCollection) {
+    public void finish(final int event, final DBBroker broker, final Txn transaction, final Collection collection,
+                       final Collection newCollection) {
         // Ignored
     }
 
     @Override
-    public void beforeCreateCollection(DBBroker broker, Txn transaction,
-            XmldbURI uri) throws TriggerException {
+    public void beforeCreateCollection(final DBBroker broker, final Txn transaction,
+                                       final XmldbURI uri) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeCopyCollection(DBBroker broker, Txn transaction, Collection collection,
-            XmldbURI newUri) throws TriggerException {
+    public void beforeCopyCollection(final DBBroker broker, final Txn transaction, final Collection collection,
+                                     final XmldbURI newUri) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeMoveCollection(DBBroker broker, Txn transaction, Collection collection,
-            XmldbURI newUri) throws TriggerException {
+    public void beforeMoveCollection(final DBBroker broker, final Txn transaction, final Collection collection,
+                                     final XmldbURI newUri) throws TriggerException {
         // Ignored
     }
 
     @Override
-    public void beforeDeleteCollection(DBBroker broker, Txn transaction,
-            Collection collection) throws TriggerException {
+    public void beforeDeleteCollection(final DBBroker broker, final Txn transaction,
+                                       final Collection collection) throws TriggerException {
         // Ignored
     }
     
