@@ -171,7 +171,7 @@ public class eXistMessage {
      * Get one-liner report of message, including the JMS properties.
      * @return Report of message
      */
-    public String getReport() {
+    public String getFullReport() {
         final StringBuilder sb = new StringBuilder();
         
         sb.append("Message summary: ");
@@ -201,6 +201,16 @@ public class eXistMessage {
             });
         }
         
+        return sb.toString();
+    }
+
+    public String getReport() {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("type='").append(resourceType.toString()).append("' ");
+        sb.append("resource='").append(path).append("' ");
+        sb.append("operation='").append(resourceOperation).append("'");
+
         return sb.toString();
     }
     

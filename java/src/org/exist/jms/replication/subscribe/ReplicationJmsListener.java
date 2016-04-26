@@ -135,7 +135,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
                 // Report some details into logging
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(em.getReport());
+                    LOG.debug(em.getFullReport());
+                } else {
+                    LOG.info(em.getReport());
                 }
 
                 // First step: distinct between update for documents and messsages
@@ -639,7 +641,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
             final Collection collection = broker.openCollection(sourcePath, Lock.READ_LOCK);
             if (collection != null) {
-                LOG.debug(String.format("Collection %s already exists", sourcePath));
                 releaseLock(collection, Lock.READ_LOCK);
                 return collection; // Just return the already existent collection
             }

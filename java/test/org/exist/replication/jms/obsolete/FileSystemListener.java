@@ -143,7 +143,7 @@ public class FileSystemListener implements MessageListener {
 
     private void handleDocument(eXistMessage em) {
         
-        LOG.info(em.getReport());
+        LOG.info(em.getFullReport());
 
         // Get original path
         String resourcePath = em.getResourcePath();
