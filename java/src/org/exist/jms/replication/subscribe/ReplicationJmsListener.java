@@ -445,7 +445,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final XmldbURI colURI = sourcePath.removeLastSegment();
         final XmldbURI docURI = sourcePath.lastSegment();
 
-        // Get mime, or NULL when not available
+        // Get mime, or binary type when not available
         MimeType mime = MimeTable.getInstance().getContentTypeFor(docURI.toString());
         if (mime == null) {
             mime = MimeType.BINARY_TYPE;
@@ -501,6 +501,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (mimeType != null) {
                 resource.getMetadata().setMimeType(mimeType);
             }
+
+            // Make persistent
+            broker.storeMetadata(txn, resource);
 
             // Commit change
             txn.commit();
@@ -860,6 +863,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (mode != null) {
                 permission.setMode(mode);
             }
+
+            // Make persistent
+            broker.saveCollection(txn, collection);
 
             // Commit change
             txn.commit();
