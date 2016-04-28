@@ -934,7 +934,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         String mimeType = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MIMETYPE);
         if (prop != null && prop instanceof String) {
-            final MimeType mT = mimeTable.getContentTypeFor((String) prop);
+            final MimeType mT = mimeTable.getContentType((String) prop);
             if (mT != null) {
                 mimeType = mT.getName();
             }
