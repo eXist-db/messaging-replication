@@ -52,7 +52,7 @@ public abstract class ClientParameters {
     protected Properties props = new Properties();
 
     /**
-     *  Get all JMS  settings from supplied parameters.
+     *  Get all JMS  settings from supplied parameters. Get first value from list when available.
      * 
      * @param params Multi value parameters
      */
@@ -96,7 +96,7 @@ public abstract class ClientParameters {
      *
      * @param params Map containing all parameter values
      * @param name Name of configuration item
-     * @return Value of item, or NULL if not existent or existent and not a
+     * @return String value of first item, or NULL if not existent or existent and not a
      * String object
      */
     private static String getConfigurationValue(final Map<String, List<?>> params, final String name) {
