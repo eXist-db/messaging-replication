@@ -27,9 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import org.exist.collections.Collection;
-import org.exist.collections.triggers.CollectionTrigger;
-import org.exist.collections.triggers.FilteringTrigger;
-import org.exist.collections.triggers.TriggerException;
+import org.exist.collections.triggers.*;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.jms.replication.shared.MessageHelper;
@@ -44,7 +42,7 @@ import org.exist.xmldb.XmldbURI;
  *
  * @author Dannes Wessels (dannes@exist-db.org)
  */
-public class ReplicationTrigger extends FilteringTrigger implements CollectionTrigger {
+public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, CollectionTrigger {
 
     private final static Logger LOGGER = LogManager.getLogger(ReplicationTrigger.class);
     
@@ -263,6 +261,34 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
         MessageHelper.retrievePermission(md, collection.getPermissions());
 
         // Send Message   
+        sendMessage(msg);
+    }
+
+    //@Override
+    public void beforeUpdateCollectionMetadata(DBBroker broker, Txn txn, Collection collection) throws TriggerException {
+        // ignored
+    }
+
+    //@Override
+    public void afterUpdateCollectionMetadata(DBBroker broker, Txn txn, Collection collection) throws TriggerException {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(collection.getURI().toString());
+        }
+
+        if (isJMSOrigin(txn)) {
+            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+        }
+
+        // Create Message
+        final eXistMessage msg = new eXistMessage();
+        msg.setResourceType(eXistMessage.ResourceType.COLLECTION);
+        msg.setResourceOperation(eXistMessage.ResourceOperation.METADATA);
+        msg.setResourcePath(collection.getURI().toString());
+
+        final Map<String, Object> md = msg.getMetadata();
+        MessageHelper.retrievePermission(md, collection.getPermissions());
+
+        // Send Message
         sendMessage(msg);
     }
 
