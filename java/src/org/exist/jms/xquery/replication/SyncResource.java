@@ -26,6 +26,8 @@ import org.exist.collections.CollectionConfiguration;
 import org.exist.collections.CollectionConfigurationException;
 import org.exist.collections.CollectionConfigurationManager;
 import org.exist.collections.triggers.DocumentTrigger;
+import org.exist.collections.triggers.Trigger;
+import org.exist.collections.triggers.TriggerException;
 import org.exist.collections.triggers.TriggerProxy;
 import org.exist.dom.QName;
 import org.exist.dom.persistent.DocumentImpl;
@@ -38,17 +40,11 @@ import org.exist.storage.lock.Lock;
 import org.exist.storage.txn.TransactionManager;
 import org.exist.storage.txn.Txn;
 import org.exist.util.LockException;
-import org.exist.util.ParametersExtractor;
 import org.exist.xmldb.XmldbURI;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import java.util.List;
-import java.util.Map;
-
-import static org.exist.collections.CollectionConfiguration.NAMESPACE;
 
 /**
  * Implementation of the replication:register() function.
@@ -62,7 +58,7 @@ public class SyncResource extends BasicFunction {
                     new QName("sync", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Synchronize resource", new SequenceType[]{
                     new FunctionParameterSequenceType("path", Type.STRING, Cardinality.EXACTLY_ONE, "Path to resource"),},
-                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "No return value")
             ),};
 
     public SyncResource(final XQueryContext context, final FunctionSignature signature) {
@@ -81,40 +77,39 @@ public class SyncResource extends BasicFunction {
             throw ex;
         }
 
+        final DBBroker broker = context.getBroker();
+        final TransactionManager txnManager = broker.getBrokerPool().getTransactionManager();
+
         try {
 
             // Get JMS configuration
-            final String resource = (String) args[0].itemAt(0).getStringValue();
-
+            final String resource = args[0].itemAt(0).getStringValue();
 
             // Determine
             final XmldbURI sourcePathURI = XmldbURI.create(resource);
             final XmldbURI parentCollectionURI = sourcePathURI.removeLastSegment();
             final XmldbURI resourceURI = sourcePathURI.lastSegment();
 
-            ReplicationTrigger trigger = new ReplicationTrigger();
 
-            final DBBroker broker = context.getBroker();
-            final TransactionManager txnManager = broker.getBrokerPool().getTransactionManager();
+            // Get parent collection
+            Collection parentCollection = getCollection(broker, parentCollectionURI);
 
-            final Collection parentCollection = getCollection(broker, parentCollectionURI);
-
-
-            // TODO
-            final Map<String, List<?>> parameters = getParameters(broker, parentCollection);
+            // Get trigger, if existent
+            ReplicationTrigger trigger = getParameters(broker, parentCollection);
+            if (trigger == null) {
+                throw new XPathException(String.format("No trigger configuration found for collection %s", parentCollection));
+            }
+//            parentCollection.release(Lock.READ_LOCK);
 
 
             try (Txn txn = txnManager.beginTransaction()) {
-
-                // Configure with collection that contains the resouce
-                trigger.configure(broker, parentCollection, parameters);
 
                 if (isCollection(broker, sourcePathURI)) {
 
                     // resource points to a collection
                     final Collection theCollection = getCollection(broker, sourcePathURI);
                     trigger.afterUpdateCollectionMetadata(broker, txn, theCollection);
-                    theCollection.release(Lock.READ_LOCK);
+//                    theCollection.release(Lock.READ_LOCK);
 
                 } else {
                     // resource points to a document
@@ -122,45 +117,47 @@ public class SyncResource extends BasicFunction {
                     trigger.afterUpdateDocumentMetadata(broker, txn, theDoc);
                     theDoc.getUpdateLock().release(Lock.READ_LOCK);
                 }
+
+                // Cleanup
+                txn.commit();
             }
 
-            // Return identification
-            return new StringValue("foobar");
-
         } catch (final XPathException ex) {
+
             LOG.error(ex.getMessage());
             ex.setLocation(this.line, this.column, this.getSource());
             throw ex;
 
         } catch (final Throwable t) {
             LOG.error(t);
-
             throw new XPathException(this, t);
         }
+
+
+        return Sequence.EMPTY_SEQUENCE;
     }
 
 
-    private Map<String, List<?>> getParameters(DBBroker broker, Collection parentCollection) throws LockException, CollectionConfigurationException, EXistException, PermissionDeniedException {
+    private ReplicationTrigger getParameters(DBBroker broker, Collection parentCollection) throws LockException, CollectionConfigurationException, EXistException, PermissionDeniedException, TriggerException {
 
         CollectionConfigurationManager cmm = new CollectionConfigurationManager(broker);
         CollectionConfiguration config = cmm.getOrCreateCollectionConfiguration(broker, parentCollection);
 
         List<TriggerProxy<? extends DocumentTrigger>> triggerProxies = config.documentTriggers();
-//        for(TriggerProxy proxy : triggerProxies){
-//            proxy.
-//        }
+        for (TriggerProxy proxy : triggerProxies) {
+            Trigger trigger = proxy.newInstance(broker, parentCollection);
 
-
-        Element triggerElement = null;
-        final NodeList nlParameter = triggerElement.getElementsByTagNameNS(NAMESPACE, "parameter");
-        final Map<String, List<? extends Object>> parameters = ParametersExtractor.extract(nlParameter);
+            if (trigger instanceof ReplicationTrigger) {
+                return (ReplicationTrigger) trigger;
+            }
+        }
 
         return null;
     }
 
     private Collection getCollection(DBBroker broker, XmldbURI collectionURI) throws XPathException, PermissionDeniedException {
 
-        Collection collection = broker.openCollection(collectionURI, Lock.READ_LOCK);
+        Collection collection = broker.openCollection(collectionURI, Lock.NO_LOCK);
         if (collection == null) {
             throw new XPathException(String.format("Collection not found: %s", collectionURI));
         }
@@ -170,9 +167,9 @@ public class SyncResource extends BasicFunction {
 
     private boolean isCollection(DBBroker broker, XmldbURI collectionURI) throws XPathException, PermissionDeniedException {
 
-        Collection collection = broker.openCollection(collectionURI, Lock.READ_LOCK);
+        Collection collection = broker.openCollection(collectionURI, Lock.NO_LOCK);
         if (collection != null) {
-            collection.getLock().release(Lock.READ_LOCK);
+//            collection.getLock().release(Lock.READ_LOCK);
             return true;
         }
         return false;

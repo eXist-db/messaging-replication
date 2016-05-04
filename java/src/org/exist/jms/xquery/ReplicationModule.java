@@ -21,9 +21,12 @@ package org.exist.jms.xquery;
 
 
 import org.exist.jms.xquery.replication.RegisterReceiver;
+
 import java.util.List;
 import java.util.Map;
+
 import org.exist.dom.QName;
+import org.exist.jms.xquery.replication.SyncResource;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
@@ -39,14 +42,16 @@ public class ReplicationModule extends AbstractInternalModule {
     public final static String PREFIX = "replication";
     public final static String INCLUSION_DATE = "2014-04-10";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
-    
+
     public final static FunctionDef[] functions = {
-        new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
+            new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
+            new FunctionDef(SyncResource.signatures[0], SyncResource.class)
+
     };
-    
+
     public final static QName EXCEPTION_QNAME =
             new QName("exception", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX);
-    
+
     public final static QName EXCEPTION_MESSAGE_QNAME =
             new QName("exception-message", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX);
 
