@@ -484,7 +484,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             final String userName = getUserName(metaData);
             if (userName != null) {
-                perms.setGroup(userName);
+                perms.setOwner(userName);
             }
 
             final String groupName = getGroupName(metaData);
