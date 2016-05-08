@@ -45,7 +45,8 @@ public class ReplicationModule extends AbstractInternalModule {
 
     public final static FunctionDef[] functions = {
             new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
-            new FunctionDef(SyncResource.signatures[0], SyncResource.class)
+            new FunctionDef(SyncResource.signatures[0], SyncResource.class),
+            new FunctionDef(SyncResource.signatures[1], SyncResource.class),
 
     };
 
