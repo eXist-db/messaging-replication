@@ -121,25 +121,30 @@ public class SyncResource extends BasicFunction {
                     // resource points to a collection
                     final Collection theCollection = getCollection(broker, sourcePathURI, true, false);
 
-                    if(fullSync) {
-                        trigger.afterCreateCollection(broker, txn, theCollection);
-                    } else {
-                        trigger.afterUpdateCollectionMetadata(broker, txn, theCollection);
+                    try {
+                        if (fullSync) {
+                            trigger.afterCreateCollection(broker, txn, theCollection);
+                        } else {
+                            trigger.afterUpdateCollectionMetadata(broker, txn, theCollection);
+                        }
+                    } finally {
+                        theCollection.release(Lock.READ_LOCK);
                     }
-
-                    theCollection.release(Lock.READ_LOCK);
 
                 } else {
                     // resource points to a document
                     final DocumentImpl theDoc = getDocument(broker, parentCollectionURI, resourceURI);
 
-                    if(fullSync) {
-                        trigger.afterUpdateDocument(broker, txn, theDoc);
-                    } else {
-                        trigger.afterUpdateDocumentMetadata(broker, txn, theDoc);
-                    }
+                    try {
+                        if (fullSync) {
+                            trigger.afterUpdateDocument(broker, txn, theDoc);
+                        } else {
+                            trigger.afterUpdateDocumentMetadata(broker, txn, theDoc);
+                        }
 
-                    theDoc.getUpdateLock().release(Lock.READ_LOCK);
+                    } finally {
+                        theDoc.getUpdateLock().release(Lock.READ_LOCK);
+                    }
                 }
 
                 // Cleanup
