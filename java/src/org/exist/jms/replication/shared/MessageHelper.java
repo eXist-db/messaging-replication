@@ -31,6 +31,7 @@ import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.exist.collections.Collection;
 import org.exist.dom.persistent.BinaryDocument;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.dom.persistent.DocumentMetadata;
@@ -52,6 +53,8 @@ public class MessageHelper {
     public static final String EXIST_RESOURCE_DOCUMENTID = "exist.resource.documentid";
     public static final String EXIST_RESOURCE_GROUP = "exist.resource.group";
     public static final String EXIST_RESOURCE_MIMETYPE = "exist.resource.mimetype";
+    public static final String EXIST_RESOURCE_LASTMODIFIED = "exist.resource.lastmodified";
+    public static final String EXIST_RESOURCE_CREATED = "exist.resource.created";
     public static final String EXIST_RESOURCE_OWNER = "exist.resource.owner";
     public static final String EXIST_RESOURCE_TYPE = "exist.resource.type";
     public static final String EXIST_RESOURCE_MODE = "exist.resource.permission.mode";
@@ -153,7 +156,9 @@ public class MessageHelper {
             LOG.error("no metadata supplied");
 
         } else {
-            props.put(EXIST_RESOURCE_MIMETYPE, docMetadata.getMimeType()); 
+            props.put(EXIST_RESOURCE_MIMETYPE, docMetadata.getMimeType());
+            props.put(EXIST_RESOURCE_LASTMODIFIED, docMetadata.getLastModified());
+            props.put(EXIST_RESOURCE_CREATED, docMetadata.getCreated());
         }
     }
     
@@ -176,5 +181,9 @@ public class MessageHelper {
             props.put(EXIST_RESOURCE_DOCUMENTID, document.getDocId()); 
             props.put(EXIST_RESOURCE_CONTENTLENGTH, document.getContentLength()); 
         
+    }
+
+    public static void retrieveFromCollection(final Map<String, Object> props, final Collection collection){
+        props.put(EXIST_RESOURCE_CREATED, collection.getCreationTime());
     }
 }
