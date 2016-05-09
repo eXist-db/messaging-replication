@@ -21,41 +21,50 @@
  */
 package org.exist.replication.jms.obsolete;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.exist.jms.shared.eXistMessage;
+
+import javax.jms.*;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.zip.GZIPInputStream;
-import javax.jms.*;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.exist.jms.shared.eXistMessage;
 
 
 /**
  * Listener for actual handling of JMS message.
  *
  * @author Dannes Wessels
- *
  */
 public class FileSystemListener implements MessageListener {
 
+    private final static Logger LOG = Logger.getLogger(FileSystemListener.class);
     private static File baseDir;
+
+    public FileSystemListener() {
+        baseDir = new File("clusteringTest");
+        if (!baseDir.exists()) {
+            LOG.info("Creating " + baseDir.getAbsolutePath());
+            baseDir.mkdirs();
+        }
+    }
 
     private eXistMessage convertMessage(BytesMessage bm) {
         eXistMessage em = new eXistMessage();
 
         try {
             Enumeration e = bm.getPropertyNames();
-            while(e.hasMoreElements()){
+            while (e.hasMoreElements()) {
                 Object next = e.nextElement();
-                if(next instanceof String){
-                    em.getMetadata().put( (String) next, bm.getObjectProperty( (String) next) );
+                if (next instanceof String) {
+                    em.getMetadata().put((String) next, bm.getObjectProperty((String) next));
                 }
-            } 
-                
+            }
+
             String value = bm.getStringProperty(eXistMessage.EXIST_RESOURCE_TYPE);
             eXistMessage.ResourceType resourceType = eXistMessage.ResourceType.valueOf(value);
             em.setResourceType(resourceType);
@@ -86,15 +95,6 @@ public class FileSystemListener implements MessageListener {
 
     }
 
-    public FileSystemListener() {
-        baseDir = new File("clusteringTest");
-        if (!baseDir.exists()) {
-            LOG.info("Creating " + baseDir.getAbsolutePath());
-            baseDir.mkdirs();
-        }
-    }
-    private final static Logger LOG = Logger.getLogger(FileSystemListener.class);
-
     @Override
     public void onMessage(Message message) {
         try {
@@ -104,7 +104,7 @@ public class FileSystemListener implements MessageListener {
 
             // Write properties
             Enumeration names = message.getPropertyNames();
-            for (Enumeration<?> e = names; e.hasMoreElements();) {
+            for (Enumeration<?> e = names; e.hasMoreElements(); ) {
                 String key = (String) e.nextElement();
                 sb.append("'" + key + "='" + message.getStringProperty(key) + "' ");
             }
@@ -142,7 +142,7 @@ public class FileSystemListener implements MessageListener {
     }
 
     private void handleDocument(eXistMessage em) {
-        
+
         LOG.info(em.getFullReport());
 
         // Get original path

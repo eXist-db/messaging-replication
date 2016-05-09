@@ -21,25 +21,29 @@
 
 package org.exist.jms.shared;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.jms.shared.ReportItem.CONTEXT;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * Reporting class
- * 
+ *
  * @author Dannes Wessels
  */
 public class Report {
 
+    /**
+     * Storage for errors
+     */
+    private final List<ReportItem> errors = new ArrayList<>();
     /*
      * Raw times
      */
     long startTime = -1;
     long stopTime = -1;
-
     /**
      * Number of messages
      */
@@ -49,10 +53,6 @@ public class Report {
      * Cumulated time successful messages
      */
     private long totalTime = 0;
-    /**
-     * Storage for errors
-     */
-    private final List<ReportItem> errors = new ArrayList<>();
 
     /**
      * Increase the nr of total received messages
@@ -95,6 +95,7 @@ public class Report {
     public void addCumulatedProcessingTime() {
         this.totalTime += (stopTime - startTime);
     }
+
     /**
      * @return Total processing time
      */

@@ -103,7 +103,8 @@ public class SyncResource extends BasicFunction {
 
 
             // Get parent collection
-            /* Collection */ parentCollection = getCollection(broker, parentCollectionURI, false, true);
+            /* Collection */
+            parentCollection = getCollection(broker, parentCollectionURI, false, true);
 
             // Get trigger, if existent
             Optional<ReplicationTrigger> replicationTrigger = getReplicationTrigger(broker, parentCollection);
@@ -170,9 +171,9 @@ public class SyncResource extends BasicFunction {
 
 
     /**
-     *  Retrieve configured replication trigger, when existent
+     * Retrieve configured replication trigger, when existent
      *
-     * @param broker The broker
+     * @param broker           The broker
      * @param parentCollection The collection contaiing the resource
      * @return The trigger wrapped as optional
      */

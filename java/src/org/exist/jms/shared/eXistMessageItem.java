@@ -19,11 +19,8 @@
  */
 package org.exist.jms.shared;
 
-import java.util.Arrays;
-import java.util.Properties;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
 import org.exist.dom.memtree.DocumentBuilderReceiver;
 import org.exist.dom.persistent.NodeHandle;
 import org.exist.numbering.NodeId;
@@ -34,9 +31,11 @@ import org.exist.xquery.value.AtomicValue;
 import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.Type;
-
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+import java.util.Arrays;
+import java.util.Properties;
 
 /**
  * Container wrapper for the eXistMessage object.

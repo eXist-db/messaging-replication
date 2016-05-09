@@ -23,7 +23,7 @@ package org.exist.jms.replication.shared;
 
 /**
  * Class for reporting problems during communication;
- * 
+ *
  * @author Dannes Wessels
  */
 public class TransportException extends Exception {
@@ -35,11 +35,11 @@ public class TransportException extends Exception {
     public TransportException(final String msg) {
         super(msg);
     }
-    
+
     public TransportException(final Throwable t) {
         super(t);
     }
-    
+
     public TransportException(final String msg, final Throwable t) {
         super(msg, t);
     }

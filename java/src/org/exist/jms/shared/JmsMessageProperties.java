@@ -19,12 +19,13 @@
  */
 package org.exist.jms.shared;
 
-import java.util.Properties;
 import org.exist.jms.replication.shared.ClientParameters;
 
+import java.util.Properties;
+
 /**
- *  Class for containing JMS Message properties (application specific)
- * 
+ * Class for containing JMS Message properties (application specific)
+ *
  * @author Dannes Wessels
  */
 public class JmsMessageProperties extends MessagingConfiguration {

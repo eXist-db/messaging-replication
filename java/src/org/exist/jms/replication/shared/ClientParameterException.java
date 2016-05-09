@@ -22,7 +22,6 @@
 package org.exist.jms.replication.shared;
 
 /**
- *
  * @author aretter
  */
 public class ClientParameterException extends Exception {

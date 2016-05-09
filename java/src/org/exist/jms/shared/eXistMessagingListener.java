@@ -20,15 +20,17 @@
  */
 package org.exist.jms.shared;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 import javax.jms.MessageListener;
 import javax.jms.Session;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
- * Interface definition 
+ * Interface definition
+ *
  * @author wessels
  */
 public abstract class eXistMessagingListener implements MessageListener, ExceptionListener {
@@ -37,11 +39,12 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
 
 
     private final Report report = new Report();
-
+    private Session session;
+    private String id = "?";
 
     /**
-     *  Get report of the JMS listener.
-     * 
+     * Get report of the JMS listener.
+     *
      * @return The report
      */
     public Report getReport() {
@@ -49,14 +52,15 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
     }
 
     /**
-     *  Get they way the listener is used.
+     * Get they way the listener is used.
+     *
      * @return Description how listener is used.
      */
     abstract public String getUsageType();
 
-
-    private Session session;
-    private String id = "?";
+    public Session getSession() {
+        return session;
+    }
 
     /**
      * Set the JMS session so the listener can control the session.
@@ -67,8 +71,8 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
         this.session = session;
     }
 
-    public Session getSession() {
-        return session;
+    public String getIdentification() {
+        return id;
     }
 
     /**
@@ -79,11 +83,6 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
     public void setIdentification(final String id) {
         this.id = id;
     }
-
-    public String getIdentification() {
-        return id;
-    }
-
 
     @Override
     public void onException(final JMSException jmse) {
@@ -107,5 +106,5 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
             LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
         }
     }
-    
+
 }

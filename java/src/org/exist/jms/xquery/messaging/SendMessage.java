@@ -20,40 +20,36 @@
 package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
-import org.exist.jms.shared.Constants;
 import org.exist.jms.send.Sender;
+import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.JmsMessageProperties;
 import org.exist.jms.xquery.MessagingModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
+import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
- *  Implementation of the jms:send() function.
- * 
+ * Implementation of the jms:send() function.
+ *
  * @author Dannes Wessels
  */
 
 public class SendMessage extends BasicFunction {
-    
+
     public final static FunctionSignature signatures[] = {
 
-        new FunctionSignature(
-            new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-            "Send JMS message",
-            new SequenceType[]{
-            new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
-            new FunctionParameterSequenceType("jmsMessageProperties", Type.MAP, Cardinality.ZERO_OR_ONE, "Application-defined property values"),
-            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.ONE, "JMS configuration settings")
-            },
-            new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Confirmation message")
-        ),
-        
+            new FunctionSignature(
+                    new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+                    "Send JMS message",
+                    new SequenceType[]{
+                            new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
+                            new FunctionParameterSequenceType("jmsMessageProperties", Type.MAP, Cardinality.ZERO_OR_ONE, "Application-defined property values"),
+                            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.ONE, "JMS configuration settings")
+                    },
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Confirmation message")
+            ),
+
     };
 
     public SendMessage(final XQueryContext context, final FunctionSignature signature) {
@@ -99,5 +95,5 @@ public class SendMessage extends BasicFunction {
             LOG.error(t.getMessage());
             throw new XPathException(this, t);
         }
-    }    
+    }
 }

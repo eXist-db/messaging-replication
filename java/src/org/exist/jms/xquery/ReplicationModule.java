@@ -20,16 +20,15 @@
 package org.exist.jms.xquery;
 
 
-import org.exist.jms.xquery.replication.RegisterReceiver;
-
-import java.util.List;
-import java.util.Map;
-
 import org.exist.dom.QName;
+import org.exist.jms.xquery.replication.RegisterReceiver;
 import org.exist.jms.xquery.replication.SyncResource;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * JMS replication module

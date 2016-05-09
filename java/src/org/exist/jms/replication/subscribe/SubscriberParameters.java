@@ -21,15 +21,15 @@
  */
 package org.exist.jms.replication.subscribe;
 
-import javax.naming.Context;
-
-import org.exist.jms.shared.Constants;
 import org.exist.jms.replication.shared.ClientParameterException;
 import org.exist.jms.replication.shared.ClientParameters;
+import org.exist.jms.shared.Constants;
+
+import javax.naming.Context;
 
 /**
  * Subscriber  specific properties.
- * 
+ *
  * @author Dannes Wessels dannes@exist-db.org
  */
 public class SubscriberParameters extends ClientParameters {
@@ -38,12 +38,12 @@ public class SubscriberParameters extends ClientParameters {
     public static final String MESSAGE_SELECTOR = Constants.MESSAGE_SELECTOR; //"messageselector";
     public static final String DURABLE = Constants.DURABLE; //"durable";
     public static final String NO_LOCAL = Constants.NO_LOCAL; //"nolocal";
-    
+
     private String subscriberName;
     private String messageSelector;
-    
-    private boolean noLocal=Boolean.TRUE;
-    private boolean durable=Boolean.TRUE;
+
+    private boolean noLocal = Boolean.TRUE;
+    private boolean durable = Boolean.TRUE;
 
     public boolean isDurable() {
         return durable;
@@ -66,15 +66,15 @@ public class SubscriberParameters extends ClientParameters {
 
         // Fill defaults when net set
         fillActiveMQbrokerDefaults();
-        
+
         // java.naming.factory.initial
-        String value = props.getProperty( Context.INITIAL_CONTEXT_FACTORY );
-        initialContextFactory=value;
-        
+        String value = props.getProperty(Context.INITIAL_CONTEXT_FACTORY);
+        initialContextFactory = value;
+
         // java.naming.provider.url
-        value = props.getProperty( Context.PROVIDER_URL );
-        providerUrl=value;
-        
+        value = props.getProperty(Context.PROVIDER_URL);
+        providerUrl = value;
+
         // Connection factory
         value = props.getProperty(Constants.CONNECTION_FACTORY);
         if (value == null || value.equals("")) {
@@ -105,7 +105,6 @@ public class SubscriberParameters extends ClientParameters {
         }
 
 
-
         // Get subscribername
         value = props.getProperty(SUBSCRIBER_NAME);
         if (value == null || value.equals("")) {
@@ -113,7 +112,7 @@ public class SubscriberParameters extends ClientParameters {
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }
-        subscriberName=value;
+        subscriberName = value;
 
         // Get messageSelector
         value = props.getProperty(MESSAGE_SELECTOR);
@@ -139,7 +138,7 @@ public class SubscriberParameters extends ClientParameters {
             }
 
         }
-        
+
         // Get Durable value, 
         value = props.getProperty(DURABLE);
         if (value != null) {
@@ -156,14 +155,14 @@ public class SubscriberParameters extends ClientParameters {
                 throw new ClientParameterException(errorText);
             }
         }
-        
+
         // FOr a durable connection (default) a clientId must be set
         if (durable && clientId == null) {
             final String errorText = "For durable connections the " + Constants.CLIENT_ID + " must be set.";
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
         }
-        
+
         // Get connection authentication
         connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
         connectionPassword = props.getProperty(Constants.JMS_CONNECTION_PASSWORD);

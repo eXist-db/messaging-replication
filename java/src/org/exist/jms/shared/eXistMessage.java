@@ -21,13 +21,14 @@
  */
 package org.exist.jms.shared;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import javax.jms.JMSException;
+import javax.jms.Message;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Container class for clustering messages.
@@ -40,57 +41,40 @@ public class eXistMessage {
      * Header to describe operation on resource, e.g. CREATE UPDATE
      */
     public final static String EXIST_RESOURCE_OPERATION = "exist.resource.operation";
-    
+
     /**
      * Header to describe resource, DOCUMENT or COLLECTION
      */
     public final static String EXIST_RESOURCE_TYPE = "exist.resource.type";
-    
+
     /**
      * Header to describe path of resource
      */
     public final static String EXIST_SOURCE_PATH = "exist.source.path";
-    
+
     /**
      * Header to describe destination path, for COPY and MOVE operation
      */
     public final static String EXIST_DESTINATION_PATH = "exist.destination.path";
-    
+
     private ResourceOperation resourceOperation = ResourceOperation.UNDEFINED;
     private ResourceType resourceType = ResourceType.UNDEFINED;
     private ContentType contentType = ContentType.UNDEFINED;
-    
+
     private String path;
     private String destination;
     private byte[] payload;
-    
+
     private Map<String, Object> metaData = new HashMap<>();
-
-    /**
-     * Atomic operations on resources
-     */
-    public enum ResourceOperation {
-        CREATE, UPDATE, DELETE, MOVE, COPY, METADATA, UNDEFINED
-    }
-
-    /**
-     * Types of exist-db resources
-     */
-    public enum ResourceType {
-        DOCUMENT, COLLECTION, UNDEFINED
-    }
-    
-    /**
-     * Types of exist-db resources
-     */
-    public enum ContentType {
-        XML, BINARY, UNDEFINED
-    }
 
     public void setResourceOperation(final ResourceOperation type) {
         resourceOperation = type;
     }
-    
+
+    public ResourceOperation getResourceOperation() {
+        return resourceOperation;
+    }
+
     /**
      * Set resource operation
      *
@@ -101,14 +85,14 @@ public class eXistMessage {
         resourceOperation = ResourceOperation.valueOf(type.toUpperCase(Locale.ENGLISH));
     }
 
-    public ResourceOperation getResourceOperation() {
-        return resourceOperation;
-    }
-
     public void setResourceType(final ResourceType type) {
         resourceType = type;
     }
-    
+
+    public ResourceType getResourceType() {
+        return resourceType;
+    }
+
     /**
      * Set Resource type.
      *
@@ -119,24 +103,20 @@ public class eXistMessage {
         resourceType = eXistMessage.ResourceType.valueOf(type.toUpperCase(Locale.ENGLISH));
     }
 
-    public ResourceType getResourceType() {
-        return resourceType;
+    public String getResourcePath() {
+        return path;
     }
 
     public void setResourcePath(final String path) {
         this.path = path;
     }
 
-    public String getResourcePath() {
-        return path;
+    public String getDestinationPath() {
+        return destination;
     }
 
     public void setDestinationPath(final String path) {
         destination = path;
-    }
-
-    public String getDestinationPath() {
-        return destination;
     }
 
     public byte[] getPayload() {
@@ -146,61 +126,62 @@ public class eXistMessage {
     public void setPayload(final byte[] data) {
         payload = data;
     }
-    
-    public void resetPayload(){
+
+    public void resetPayload() {
         payload = new byte[0];
+    }
+
+    public Map<String, Object> getMetadata() {
+        return metaData;
     }
 
     public void setMetadata(final Map<String, Object> props) {
         metaData = props;
     }
 
-    public Map<String, Object> getMetadata() {
-        return metaData;
-    }
-    
     public ContentType getDocumentType() {
         return contentType;
     }
-    
+
     public void setDocumentType(final ContentType documentType) {
         this.contentType = documentType;
     }
-    
+
     /**
      * Get one-liner report of message, including the JMS properties.
+     *
      * @return Report of message
      */
     public String getFullReport() {
         final StringBuilder sb = new StringBuilder();
-        
+
         sb.append("Message summary: ");
         sb.append("ResourceType='").append(resourceType.toString()).append("'  ");
         sb.append("ResourceOperation='").append(resourceOperation).append("'  ");
-        
+
         sb.append("ResourcePath='").append(path).append("'  ");
-        
-        if(destination!=null){
+
+        if (destination != null) {
             sb.append("DestinationPath='").append(resourceType.toString()).append("'  ");
         }
-        
-        if(payload!=null && payload.length>0){
+
+        if (payload != null && payload.length > 0) {
             sb.append("PayloadSize='").append(payload.length).append("'  ");
         }
-        
+
         // Iterate over properties if present
         final Set<String> keys = metaData.keySet();
-        if(!keys.isEmpty()){
+        if (!keys.isEmpty()) {
             sb.append("###  ");
 
             keys.stream().forEach((key) -> {
-                final Object val=metaData.get(key);
+                final Object val = metaData.get(key);
                 if (val != null) {
                     sb.append(key).append("='").append(val.toString()).append("'  ");
                 }
             });
         }
-        
+
         return sb.toString();
     }
 
@@ -213,9 +194,9 @@ public class eXistMessage {
 
         return sb.toString();
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
 
@@ -263,5 +244,26 @@ public class eXistMessage {
                 message.setStringProperty(item, "" + value);
             }
         }
+    }
+
+    /**
+     * Atomic operations on resources
+     */
+    public enum ResourceOperation {
+        CREATE, UPDATE, DELETE, MOVE, COPY, METADATA, UNDEFINED
+    }
+
+    /**
+     * Types of exist-db resources
+     */
+    public enum ResourceType {
+        DOCUMENT, COLLECTION, UNDEFINED
+    }
+
+    /**
+     * Types of exist-db resources
+     */
+    public enum ContentType {
+        XML, BINARY, UNDEFINED
     }
 }

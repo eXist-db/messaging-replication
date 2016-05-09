@@ -416,7 +416,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (lastModified != null) {
                 doc.getMetadata().setLastModified(lastModified);
             }
-            if(createTime != null){
+            if (createTime != null) {
                 doc.getMetadata().setCreated(createTime);
             }
 
@@ -514,12 +514,12 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             final Long createTime = getCreationTime(metaData);
-            if(createTime != null){
+            if (createTime != null) {
                 resource.getMetadata().setCreated(createTime);
             }
 
             final Long lastModified = getLastModified(metaData);
-            if(lastModified != null){
+            if (lastModified != null) {
                 resource.getMetadata().setLastModified(lastModified);
             }
 
@@ -705,7 +705,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             // Set Create time only
-            if(createTime != null){
+            if (createTime != null) {
                 newCollection.setCreationTime(createTime);
             }
 
@@ -892,7 +892,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 permission.setMode(mode);
             }
 
-            if(created!=null){
+            if (created != null) {
                 collection.setCreationTime(created);
             }
 

@@ -1,11 +1,11 @@
 package org.exist.messaging.misc;
 
-import javax.jms.ExceptionListener;
-import javax.jms.JMSException;
 import org.apache.log4j.Logger;
 
+import javax.jms.ExceptionListener;
+import javax.jms.JMSException;
+
 /**
- *
  * @author wessels
  */
 public class MyExceptionListener implements ExceptionListener {

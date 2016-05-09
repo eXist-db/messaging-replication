@@ -21,21 +21,22 @@
  */
 package org.exist.replication.jms.obsolete;
 
-import java.util.Properties;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import java.util.Properties;
 
 /**
  * Helperclass for receiving JMS messages
- * 
+ *
  * @author Dannes Wessels
  */
 public class ResourceReplicator {
-    
+
     private final static Logger LOG = Logger.getLogger(ResourceReplicator.class);
 
     /**
@@ -45,7 +46,7 @@ public class ResourceReplicator {
 
         BasicConfigurator.resetConfiguration();
         BasicConfigurator.configure();
-        
+
         try {
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
@@ -72,11 +73,10 @@ public class ResourceReplicator {
 
 
             LOG.info("Receiver is ready");
-            
-        } catch (Throwable t) {
-            LOG.error(t.getMessage(),t);
-        }
 
+        } catch (Throwable t) {
+            LOG.error(t.getMessage(), t);
+        }
 
 
     }

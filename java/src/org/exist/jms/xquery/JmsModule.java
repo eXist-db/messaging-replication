@@ -19,14 +19,15 @@
  */
 package org.exist.jms.xquery;
 
-import java.util.List;
-import java.util.Map;
 import org.exist.dom.QName;
 import org.exist.jms.xquery.management.ListReceivers;
 import org.exist.jms.xquery.management.ManageReceivers;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
 import org.exist.xquery.XPathException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * JMS module
@@ -39,19 +40,19 @@ public class JmsModule extends AbstractInternalModule {
     public final static String PREFIX = "jms";
     public final static String INCLUSION_DATE = "2013-11-01";
     public final static String RELEASED_IN_VERSION = "eXist-2.2";
-    
-    public final static FunctionDef[] functions = {       
-        new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
 
-        new FunctionDef(ManageReceivers.signatures[0], ManageReceivers.class),
-        new FunctionDef(ManageReceivers.signatures[1], ManageReceivers.class),
-        new FunctionDef(ManageReceivers.signatures[2], ManageReceivers.class),
-        new FunctionDef(ManageReceivers.signatures[3], ManageReceivers.class),
+    public final static FunctionDef[] functions = {
+            new FunctionDef(ListReceivers.signatures[0], ListReceivers.class),
+
+            new FunctionDef(ManageReceivers.signatures[0], ManageReceivers.class),
+            new FunctionDef(ManageReceivers.signatures[1], ManageReceivers.class),
+            new FunctionDef(ManageReceivers.signatures[2], ManageReceivers.class),
+            new FunctionDef(ManageReceivers.signatures[3], ManageReceivers.class),
     };
-    
+
     public final static QName EXCEPTION_QNAME =
             new QName("exception", JmsModule.NAMESPACE_URI, JmsModule.PREFIX);
-    
+
     public final static QName EXCEPTION_MESSAGE_QNAME =
             new QName("exception-message", JmsModule.NAMESPACE_URI, JmsModule.PREFIX);
 

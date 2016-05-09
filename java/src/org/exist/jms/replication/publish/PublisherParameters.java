@@ -21,23 +21,23 @@
  */
 package org.exist.jms.replication.publish;
 
-import javax.naming.Context;
-
-import org.exist.jms.shared.Constants;
 import org.exist.jms.replication.shared.ClientParameters;
 import org.exist.jms.replication.shared.TransportException;
+import org.exist.jms.shared.Constants;
+
+import javax.naming.Context;
 
 
 /**
  * Publisher specific properties.
- * 
+ *
  * @author Dannes Wessels dannes@exist-db.org
  */
 public class PublisherParameters extends ClientParameters {
 
     public static final String TIME_TO_LIVE = Constants.PRODUCER_TTL; //"time-to-live";
     public static final String PRIORITY = Constants.PRODUCER_PRIORITY; //"priority";
-    
+
     private Long timeToLive;
     private Integer priority;
 
@@ -51,18 +51,18 @@ public class PublisherParameters extends ClientParameters {
 
     @Override
     public void processParameters() throws TransportException {
-        
+
         // Fill defaults when net set
         fillActiveMQbrokerDefaults();
-        
+
         // java.naming.factory.initial
-        String value = props.getProperty( Context.INITIAL_CONTEXT_FACTORY );
-        initialContextFactory=value;
-        
+        String value = props.getProperty(Context.INITIAL_CONTEXT_FACTORY);
+        initialContextFactory = value;
+
         // java.naming.provider.url
-        value = props.getProperty( Context.PROVIDER_URL );
-        providerUrl=value;
-        
+        value = props.getProperty(Context.PROVIDER_URL);
+        providerUrl = value;
+
         // Connection factory
         value = props.getProperty(Constants.CONNECTION_FACTORY);
         if (value == null || value.equals("")) {
@@ -70,7 +70,7 @@ public class PublisherParameters extends ClientParameters {
             LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
         }
         connectionFactory = value;
-        
+
 
         // Setup destination
         value = props.getProperty(Constants.DESTINATION);
@@ -81,7 +81,7 @@ public class PublisherParameters extends ClientParameters {
         }
         topic = value;
 
-        
+
         // Client ID, when set
         value = props.getProperty(Constants.CLIENT_ID);
         if (value != null && !value.equals("")) {
@@ -114,7 +114,7 @@ public class PublisherParameters extends ClientParameters {
                 throw new TransportException(errorText);
             }
         }
-        
+
         // Get connection authentication
         connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
         connectionPassword = props.getProperty(Constants.JMS_CONNECTION_PASSWORD);

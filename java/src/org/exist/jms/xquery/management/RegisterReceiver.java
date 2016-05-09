@@ -19,42 +19,37 @@
  */
 package org.exist.jms.xquery.management;
 
-import org.exist.jms.shared.Receiver;
 import org.exist.dom.QName;
-import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.messaging.MessagingJmsListener;
-import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.Receiver;
+import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.xquery.MessagingModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-
+import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
- *  Implementation of the jms:register() function.
- * 
+ * Implementation of the jms:register() function.
+ *
  * @author Dannes Wessels
  */
 public class RegisterReceiver extends BasicFunction {
-    
-    
+
+
     public final static FunctionSignature signatures[] = {
 
-        new FunctionSignature(
-            new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
-            "Register function to receive JMS messages.",
-            new SequenceType[]{
-            new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.EXACTLY_ONE, "Function called when a JMS message is received"),
-            new FunctionParameterSequenceType("parameters", Type.ITEM, Cardinality.ZERO_OR_MORE, "Additional function parameters"),
-            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
-        ),
-      
+            new FunctionSignature(
+                    new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
+                    "Register function to receive JMS messages.",
+                    new SequenceType[]{
+                            new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.EXACTLY_ONE, "Function called when a JMS message is received"),
+                            new FunctionParameterSequenceType("parameters", Type.ITEM, Cardinality.ZERO_OR_MORE, "Additional function parameters"),
+                            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
+            ),
+
     };
 
     public RegisterReceiver(final XQueryContext context, final FunctionSignature signature) {
