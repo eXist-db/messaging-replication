@@ -333,7 +333,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         // Last modified
         final Long lastModified = getLastModified(metaData);
-        final Long createTime = getCreated(metaData);
+        final Long createTime = getCreationTime(metaData);
 
         // Check for collection, create if not existent
         try {
@@ -513,7 +513,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 resource.getMetadata().setMimeType(mimeType);
             }
 
-            final Long createTime = getCreated(metaData);
+            final Long createTime = getCreationTime(metaData);
             if(createTime != null){
                 resource.getMetadata().setCreated(createTime);
             }
@@ -655,7 +655,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final String userName = getUserName(metaData);
         final String groupName = getGroupName(metaData);
         final Integer mode = getMode(metaData);
-        final Long createTime = getCreated(metaData);
+        final Long createTime = getCreationTime(metaData);
 
         getOrCreateCollection(sourcePath, userName, groupName, mode, createTime);
     }
@@ -864,7 +864,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final String groupName = getGroupName(metaData);
         final Integer mode = getMode(metaData);
 
-        final Long created = getCreated(metaData);
+        final Long created = getCreationTime(metaData);
 
         Collection collection = null;
 
@@ -980,17 +980,17 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     }
 
-    private Long getCreated(final Map<String, Object> metaData) {
+    private Long getCreationTime(final Map<String, Object> metaData) {
 
-        Long lastModified = null;
-        final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_CREATED);
+        Long creationTime = null;
+        final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_CREATIONTIME);
         if (prop != null && prop instanceof Long) {
-            lastModified = (Long) prop;
+            creationTime = (Long) prop;
         } else {
-            LOG.debug("No created provided");
+            LOG.debug("No creationtime provided");
         }
 
-        return lastModified;
+        return creationTime;
 
     }
 

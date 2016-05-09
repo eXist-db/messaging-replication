@@ -259,6 +259,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         final Map<String, Object> md = msg.getMetadata();
         MessageHelper.retrievePermission(md, collection.getPermissions());
+        MessageHelper.retrieveFromCollection(md, collection);
 
         // Send Message   
         sendMessage(msg);

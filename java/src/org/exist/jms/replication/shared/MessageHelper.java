@@ -54,7 +54,7 @@ public class MessageHelper {
     public static final String EXIST_RESOURCE_GROUP = "exist.resource.group";
     public static final String EXIST_RESOURCE_MIMETYPE = "exist.resource.mimetype";
     public static final String EXIST_RESOURCE_LASTMODIFIED = "exist.resource.lastmodified";
-    public static final String EXIST_RESOURCE_CREATED = "exist.resource.created";
+    public static final String EXIST_RESOURCE_CREATIONTIME = "exist.resource.creationtime";
     public static final String EXIST_RESOURCE_OWNER = "exist.resource.owner";
     public static final String EXIST_RESOURCE_TYPE = "exist.resource.type";
     public static final String EXIST_RESOURCE_MODE = "exist.resource.permission.mode";
@@ -158,7 +158,7 @@ public class MessageHelper {
         } else {
             props.put(EXIST_RESOURCE_MIMETYPE, docMetadata.getMimeType());
             props.put(EXIST_RESOURCE_LASTMODIFIED, docMetadata.getLastModified());
-            props.put(EXIST_RESOURCE_CREATED, docMetadata.getCreated());
+            props.put(EXIST_RESOURCE_CREATIONTIME, docMetadata.getCreated());
         }
     }
     
@@ -184,6 +184,6 @@ public class MessageHelper {
     }
 
     public static void retrieveFromCollection(final Map<String, Object> props, final Collection collection){
-        props.put(EXIST_RESOURCE_CREATED, collection.getCreationTime());
+        props.put(EXIST_RESOURCE_CREATIONTIME, collection.getCreationTime());
     }
 }
