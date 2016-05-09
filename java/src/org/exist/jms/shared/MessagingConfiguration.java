@@ -19,34 +19,24 @@
  */
 package org.exist.jms.shared;
 
-import java.util.Properties;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
-import org.exist.xquery.value.AtomicValue;
-import org.exist.xquery.value.BooleanValue;
-import org.exist.xquery.value.DoubleValue;
-import org.exist.xquery.value.FloatValue;
-import org.exist.xquery.value.IntegerValue;
-import org.exist.xquery.value.Item;
-import org.exist.xquery.value.Sequence;
-import org.exist.xquery.value.SequenceIterator;
-import org.exist.xquery.value.StringValue;
-import org.exist.xquery.value.ValueSequence;
+import org.exist.xquery.value.*;
+
+import java.util.Properties;
 
 /**
- *  Wrapper for properties object.
- * 
+ * Wrapper for properties object.
+ *
  * @author Dannes Wessels
  */
 public class MessagingConfiguration extends Properties {
-    
+
     protected final static Logger LOG = LogManager.getLogger(MessagingConfiguration.class);
-    
-   /**
+
+    /**
      * Load data from XQuery map-type.
      *
      * @param map The XQuery map
@@ -56,19 +46,19 @@ public class MessagingConfiguration extends Properties {
 
         // Get all keys
         final Sequence keys = map.keys();
-        
+
 
         // Iterate over all keys
-        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
+        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext(); ) {
 
             // Get next item
             final Item key = i.nextItem();
-            
+
             // Only use Strings as key, as required by JMS
             final String keyValue = key.getStringValue();
-            
+
             // Get values
-            final Sequence values = map.get((AtomicValue)key);
+            final Sequence values = map.get((AtomicValue) key);
 
             // Parse data only if the key is a String
             if (values instanceof StringValue) {
@@ -82,18 +72,18 @@ public class MessagingConfiguration extends Properties {
             } else if (values instanceof DoubleValue) {
                 final DoubleValue singleValue = (DoubleValue) values;
                 put(keyValue, singleValue.toJavaObject(Double.class));
-                
+
             } else if (values instanceof BooleanValue) {
                 final BooleanValue singleValue = (BooleanValue) values;
                 put(keyValue, singleValue.toJavaObject(Boolean.class));
-                
+
             } else if (values instanceof FloatValue) {
                 final FloatValue singleValue = (FloatValue) values;
                 put(keyValue, singleValue.toJavaObject(Float.class));
-                
+
             } else if (values instanceof ValueSequence) {
                 LOG.info(String.format("Cannot convert a sequence of values for key '%s' into JMS message properties", keyValue));
-                
+
             } else {
                 LOG.info(String.format("Cannot convert map entry '%s'/'%s' into a JMS message property", keyValue, values.getStringValue()));
             }

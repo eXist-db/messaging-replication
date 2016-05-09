@@ -24,18 +24,18 @@ package org.exist.jms.replication.shared;
 import org.exist.jms.shared.eXistMessage;
 
 /**
- *  Generic send-message interface
- * 
+ * Generic send-message interface
+ *
  * @author Dannes Wessels (dizzzz@exist-db.org)
  */
 public interface MessageSender {
-    
+
     /**
-     *  Send {@link eXistMessage} to message broker.
-     * 
+     * Send {@link eXistMessage} to message broker.
+     *
      * @param em the message that needs to be sent
      * @throws TransportException when something bad happens.
      */
     void sendMessage(eXistMessage em) throws TransportException;
-    
+
 }

@@ -1,22 +1,16 @@
 package org.exist.messaging.misc;
 
-import java.util.Properties;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import java.util.Properties;
+
 /**
- *  Simple JMS data logger. Writes all incoming JMS data to the logger.
- * 
+ * Simple JMS data logger. Writes all incoming JMS data to the logger.
+ *
  * @author Dannes Wessels
  */
 public class MessageLogger {
@@ -27,7 +21,7 @@ public class MessageLogger {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        
+
         // Configure logger
         BasicConfigurator.resetConfiguration();
         BasicConfigurator.configure();
@@ -37,7 +31,7 @@ public class MessageLogger {
         try {
             // Setup listener
             MyJMSListener myListener = new MyJMSListener();
-            
+
             // Setup Context
             Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
@@ -48,7 +42,7 @@ public class MessageLogger {
             ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");
             Connection connection = connectionFactory.createConnection();
             connection.setExceptionListener(new MyExceptionListener());
-            
+
             // Setup session
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 

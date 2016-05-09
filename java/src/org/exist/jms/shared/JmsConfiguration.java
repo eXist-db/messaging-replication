@@ -19,17 +19,13 @@
  */
 package org.exist.jms.shared;
 
-import javax.naming.Context;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.commons.lang3.math.NumberUtils;
-
 import org.exist.jms.replication.publish.PublisherParameters;
 import org.exist.jms.replication.subscribe.SubscriberParameters;
-
 import org.exist.xquery.XPathException;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.AtomicValue;
@@ -37,16 +33,18 @@ import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
 
+import javax.naming.Context;
+
 
 /**
  * Wrapper for managing JMS configuration items.
- * 
+ *
  * @author Dannes Wessels
  */
 public class JmsConfiguration extends MessagingConfiguration {
-    
+
     private static final String CONFIG_ERROR_MSG = "Missing configuration item '%s'";
-    
+
     /**
      * Load data from XQuery map-type and convert the data into String key/value pairs.
      *
@@ -57,18 +55,18 @@ public class JmsConfiguration extends MessagingConfiguration {
     public void loadConfiguration(final AbstractMapType map) throws XPathException {
         // Get all keys
         final Sequence keys = map.keys();
-        
+
         // Iterate over all keys
-        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext();) {
+        for (final SequenceIterator i = keys.unorderedIterator(); i.hasNext(); ) {
 
             // Get next item
             final Item key = i.nextItem();
-            
+
             // Only use Strings as key, as required by JMS
             final String keyValue = key.getStringValue();
-            
+
             // Get values
-            final Sequence values = map.get((AtomicValue)key);
+            final Sequence values = map.get((AtomicValue) key);
 
             // Purely set String values
             setProperty(keyValue, values.getStringValue());
@@ -84,7 +82,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         setLocalProperty(Constants.DESTINATION, params.getDestination());
         setLocalProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
         setLocalProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
-        
+
         setLocalProperty(Constants.JMS_CONNECTION_USERNAME, params.getConnectionUsername());
         setLocalProperty(Constants.JMS_CONNECTION_PASSWORD, params.getConnectionPassword());
     }
@@ -111,7 +109,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         }
     }
 
-    
+
     public String getConnectionFactory() {
         return getProperty(Constants.CONNECTION_FACTORY);
     }
@@ -119,34 +117,34 @@ public class JmsConfiguration extends MessagingConfiguration {
     public String getDestination() {
         return getProperty(Constants.DESTINATION);
     }
-    
-    public String getInitialContextFactory(){
+
+    public String getInitialContextFactory() {
         return getProperty(Context.INITIAL_CONTEXT_FACTORY);
     }
 
     /**
      * Get URL to broker.
      *
-     * @see Context#PROVIDER_URL
      * @return URL
+     * @see Context#PROVIDER_URL
      */
     public String getBrokerURL() {
         return getProperty(Context.PROVIDER_URL);
     }
-    
-    public String getConnectionUserName(){
+
+    public String getConnectionUserName() {
         return getProperty(Constants.JMS_CONNECTION_USERNAME);
     }
-    
-    public String getConnectionPassword(){
+
+    public String getConnectionPassword() {
         return getProperty(Constants.JMS_CONNECTION_PASSWORD);
     }
-    
-    public String getMessageSelector(){
+
+    public String getMessageSelector() {
         return getProperty(Constants.MESSAGE_SELECTOR);
     }
-    
-    public String getClientId(){
+
+    public String getClientId() {
         return getProperty(Constants.CLIENT_ID);
     }
 
@@ -179,34 +177,34 @@ public class JmsConfiguration extends MessagingConfiguration {
 
         return retVal;
     }
-    
+
     /**
      * Verify if all required data is available.
-     * 
+     *
      * @throws XPathException Data is missing.
      */
     public void validate() throws XPathException {
-        
+
         final String initialContextFactory = getInitialContextFactory();
-        if(initialContextFactory==null){
+        if (initialContextFactory == null) {
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.INITIAL_CONTEXT_FACTORY));
         }
-        
+
         final String providerURL = getBrokerURL();
-        if(providerURL==null){
+        if (providerURL == null) {
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.PROVIDER_URL));
         }
-        
+
         final String connectionFactory = getConnectionFactory();
-        if(connectionFactory==null){
+        if (connectionFactory == null) {
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.CONNECTION_FACTORY));
         }
-        
+
         final String destination = getDestination();
-        if(destination==null){
+        if (destination == null) {
             throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.DESTINATION));
         }
-        
+
     }
 
 

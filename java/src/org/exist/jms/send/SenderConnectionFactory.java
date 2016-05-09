@@ -19,13 +19,14 @@
  */
 package org.exist.jms.send;
 
-import java.util.HashMap;
-import java.util.Map;
-import javax.jms.ConnectionFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.jms.ConnectionFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Helper class for creating and buffering ConnectionFactory instances.
@@ -34,8 +35,8 @@ import org.apache.logging.log4j.LogManager;
  */
 class SenderConnectionFactory {
 
+    public static final String ACTIVEMQ_POOLED_CONNECTION_FACTORY = "org.apache.activemq.pool.PooledConnectionFactory";
     private final static Logger LOG = LogManager.getLogger(SenderConnectionFactory.class);
-
     private static final Map<String, ConnectionFactory> connectionFactories = new HashMap<>();
 
     /**
@@ -71,7 +72,7 @@ class SenderConnectionFactory {
                 connectionFactories.put(brokerURL, cf);
 
                 // Return to requester
-                retVal =  cf;
+                retVal = cf;
 
             } catch (final Throwable t) {
                 LOG.error(t);
@@ -83,6 +84,5 @@ class SenderConnectionFactory {
 
         return retVal;
     }
-    public static final String ACTIVEMQ_POOLED_CONNECTION_FACTORY = "org.apache.activemq.pool.PooledConnectionFactory";
 
 }

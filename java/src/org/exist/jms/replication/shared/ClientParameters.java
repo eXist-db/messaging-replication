@@ -21,26 +21,26 @@
  */
 package org.exist.jms.replication.shared;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import javax.naming.Context;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.naming.Context;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
- *
  * @author Dannes Wessels
  */
 public abstract class ClientParameters {
 
     protected final static Logger LOG = LogManager.getLogger(ClientParameters.class);
-    
+
 //    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
 //    public static final String DESTINATION = Constants.DESTINATION;  //"topic";
 //    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
 //    public static final String PARAMETER_GROUPING = "..";
-   
+
     protected String connectionFactory = null;
     protected String clientId = null;
     protected String topic = null;
@@ -52,8 +52,30 @@ public abstract class ClientParameters {
     protected Properties props = new Properties();
 
     /**
-     *  Get all JMS  settings from supplied parameters.
-     * 
+     * Retrieve configuration value when available as String.
+     *
+     * @param params Map containing all parameter values
+     * @param name   Name of configuration item
+     * @return String value of first item, or NULL if not existent or existent and not a
+     * String object
+     */
+    private static String getConfigurationValue(final Map<String, List<?>> params, final String name) {
+
+        String retVal = null;
+
+        final List<?> value = params.get(name);
+        if (value != null) {
+            if (value.size() > 0) {
+                retVal = value.get(0).toString();
+            }
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Get all JMS  settings from supplied parameters. Get first value from list when available.
+     *
      * @param params Multi value parameters
      */
     public void setMultiValueParameters(final Map<String, List<?>> params) {
@@ -75,10 +97,9 @@ public abstract class ClientParameters {
     }
 
     /**
-     *  Get all JMS settings from supplied parameters.
-     * 
+     * Get all JMS settings from supplied parameters.
+     *
      * @param params Single valued parameters.
-
      */
     public void setSingleValueParameters(final Map<String, List<?>> params) {
 
@@ -92,33 +113,10 @@ public abstract class ClientParameters {
     }
 
     /**
-     * Retrieve configuration value when available as String.
-     *
-     * @param params Map containing all parameter values
-     * @param name Name of configuration item
-     * @return Value of item, or NULL if not existent or existent and not a
-     * String object
-     */
-    private static String getConfigurationValue(final Map<String, List<?>> params, final String name) {
-
-        String retVal = null;
-
-        final List<?> value = params.get(name);
-        if(value != null) {
-            if(value.size() > 0) {
-                retVal = value.get(0).toString();
-            }
-        }
-
-        return retVal;
-    }
-
-    /**
      * Fill properties object with default values for
      * java.naming.factory.initial and java.naming.provider.url if not provided.
      * Defaults are set to match the Apache ActiveMQ message broker on
      * localhost.
-     *
      */
     protected void fillActiveMQbrokerDefaults() {
 
@@ -135,32 +133,32 @@ public abstract class ClientParameters {
         }
 
     }
-    
+
     /**
      * Retrieve initial context properties, e.g. {@link Context#INITIAL_CONTEXT_FACTORY} and
      * {@link Context#PROVIDER_URL}. Only properties with key starting with     * ".java" are added to the result.
      *
      * @return Initial context properties
      */
-    public Properties getInitialContextProps(){
+    public Properties getInitialContextProps() {
         final Properties contextProps = new Properties();
-        
+
         // Copy all properties that start with "java."
         props.stringPropertyNames().stream().filter((key) -> (key.startsWith("java."))).forEach((key) -> contextProps.setProperty(key, props.getProperty(key)));
-                
+
         return contextProps;
     }
-    
+
     abstract public void processParameters() throws TransportException, ClientParameterException;
-    
+
     abstract public String getReport();
-    
+
     public String getConnectionFactory() {
         return connectionFactory;
     }
 
     public String getClientId() {
-        return clientId; 
+        return clientId;
     }
 
     public String getDestination() {
@@ -170,7 +168,7 @@ public abstract class ClientParameters {
     public Properties getProps() {
         return props;
     }
-    
+
     public String getInitialContextFactory() {
         return initialContextFactory;
     }
@@ -178,21 +176,21 @@ public abstract class ClientParameters {
     public String getProviderUrl() {
         return providerUrl;
     }
-    
+
     public String getConnectionUsername() {
         return connectionUsername;
     }
-    
+
     public String getConnectionPassword() {
         return connectionPassword;
     }
-    
-    public String getParameterValue(final String key){
+
+    public String getParameterValue(final String key) {
         return props.getProperty(key);
     }
-    
+
 //     public String getParameterValue(String group, String key){
 //        return props.getProperty(group + PARAMETER_GROUPING + key);
 //    }
-    
+
 }

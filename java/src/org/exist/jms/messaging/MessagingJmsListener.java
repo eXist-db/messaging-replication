@@ -62,18 +62,16 @@ import static org.exist.jms.shared.Constants.*;
 public class MessagingJmsListener extends eXistMessagingListener {
 
     private final static Logger LOG = LogManager.getLogger(MessagingJmsListener.class);
-    
-    private Subject subject;
     private final FunctionReference functionReference;
     private final XQueryContext xqueryContext;
     private final Sequence functionParams;
-    
-    private  Report report = null;
-    
-    private Session session;
-    private String id="?";
+    private Subject subject;
+    private Report report = null;
 
-    
+    private Session session;
+    private String id = "?";
+
+
 //    public void setSession(Session session){
 //        this.session=session;
 //    }
@@ -88,19 +86,19 @@ public class MessagingJmsListener extends eXistMessagingListener {
         this.xqueryContext = xqueryContext;
         this.functionParams = functionParams;
         this.report = getReport();
-        this.subject =subject;
+        this.subject = subject;
     }
 
     @Override
     public void onMessage(final Message msg) {
-        
+
         // Make a copy, just in case
         functionReference.setContext(xqueryContext.copyContext());
 
         id = getIdentification();
-        
-        final String logString=String.format("{%s} ", id);
-        
+
+        final String logString = String.format("{%s} ", id);
+
         report.start();
 
         // Log incoming message
@@ -126,7 +124,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
              * broker is not being used at all.
              */
             brokerPool = BrokerPool.getInstance();
-            
+
             // Actually the subject in the next line influences the subject used 
             // executing the callback function. Must be same userid in which
             // the query was started.
@@ -134,7 +132,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 subject = brokerPool.getSecurityManager().getGuestSubject();
             }
 
-            try(DBBroker dummyBroker = brokerPool.get(Optional.of(subject))) {
+            try (DBBroker dummyBroker = brokerPool.get(Optional.of(subject))) {
 
 
                 // Copy message and jms configuration details into Maptypes
@@ -177,9 +175,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
             try {
                 session.close();
             } catch (final JMSException ex1) {
-                 LOG.error(logString + ex1.getMessage());
+                LOG.error(logString + ex1.getMessage());
             }
-            
+
             // DW: Not needed anymore?
             // throw new RuntimeException(ex.getMessage());
 
@@ -194,12 +192,11 @@ public class MessagingJmsListener extends eXistMessagingListener {
     }
 
     /**
-     *  Convert JMS message into a sequence of data.
-     * 
-     * @param msg The JMS message object
+     * Convert JMS message into a sequence of data.
+     *
+     * @param msg       The JMS message object
      * @param logString Additional information used in logging
      * @return Sequence representing the JMS message
-     * 
      * @throws IOException    An internal IO error occurred.
      * @throws XPathException An eXist-db object could not be  handled.
      * @throws JMSException   A problem occurred handling an JMS object.
@@ -208,47 +205,47 @@ public class MessagingJmsListener extends eXistMessagingListener {
         // This sequence shall contain the actual conten that will be passed
         // to the callback function
         Sequence content = null;
-        
+
         // Switch based on type incoming object
         if (msg instanceof TextMessage) {
-            
+
             // xs:string values are passed as regular Text messages
             content = new StringValue(((TextMessage) msg).getText());
-            
+
         } else if (msg instanceof ObjectMessage) {
-            
+
             // the supported other types are wrapped into a corresponding
             // Java object inside the ObjectMessage
             content = handleObjectMessage((ObjectMessage) msg);
-            
+
         } else if (msg instanceof BytesMessage) {
-            
+
             // XML nodes and base64 (binary) data are sent as an array of bytes
             final BytesMessage bm = (BytesMessage) msg;
-            
+
             // Read data into byte buffer
             final byte[] data = new byte[(int) bm.getBodyLength()];
             bm.readBytes(data);
-            
+
             final String value = msg.getStringProperty(EXIST_DOCUMENT_COMPRESSION);
             final boolean isCompressed = (StringUtils.isNotBlank(value) && COMPRESSION_TYPE_GZIP.equals(value));
-            
+
             // Serialize data
             if (DATA_TYPE_XML.equalsIgnoreCase(bm.getStringProperty(EXIST_DATA_TYPE))) {
                 // XML(fragment)
                 content = processXML(data, isCompressed);
-                
+
             } else {
                 // Binary data
                 InputStream is = new ByteArrayInputStream(data);
-                
+
                 if (isCompressed) {
                     is = new GZIPInputStream(is);
                 }
                 content = Base64BinaryDocument.getInstance(xqueryContext, is);
                 IOUtils.closeQuietly(is);
             }
-            
+
         } else {
             // Unsupported JMS message type
             final String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
@@ -262,9 +259,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
     }
 
     /**
-     *  Convert JMS message properties into an eXist-db map.
-     * 
-     * @param msg The JMS message
+     * Convert JMS message properties into an eXist-db map.
+     *
+     * @param msg           The JMS message
      * @param xqueryContext eXist-db query context
      * @return eXist-db map containing the properties
      */
@@ -275,38 +272,38 @@ public class MessagingJmsListener extends eXistMessagingListener {
         final Enumeration props = msg.getPropertyNames();
         while (props.hasMoreElements()) {
             final String key = (String) props.nextElement();
-            
+
             final Object obj = msg.getObjectProperty(key);
 
-            if(obj instanceof String){
+            if (obj instanceof String) {
                 final String value = msg.getStringProperty(key);
                 addStringKV(map, key, value);
-                
+
             } else if (obj instanceof Integer) {
                 final Integer localValue = msg.getIntProperty(key);
                 final ValueSequence vs = new ValueSequence(new IntegerValue(localValue));
                 addKV(map, key, vs);
-   
+
             } else if (obj instanceof Double) {
                 final Double localValue = msg.getDoubleProperty(key);
                 final ValueSequence vs = new ValueSequence(new DoubleValue(localValue));
                 addKV(map, key, vs);
-            
-            } else if (obj instanceof Boolean) {   
+
+            } else if (obj instanceof Boolean) {
                 final Boolean localValue = msg.getBooleanProperty(key);
                 final ValueSequence vs = new ValueSequence(new BooleanValue(localValue));
                 addKV(map, key, vs);
-                
+
             } else if (obj instanceof Float) {
                 final Float localValue = msg.getFloatProperty(key);
                 final ValueSequence vs = new ValueSequence(new FloatValue(localValue));
                 addKV(map, key, vs);
-                
-            } else {             
+
+            } else {
                 final String value = msg.getStringProperty(key);
                 addStringKV(map, key, value);
-                
-                if(LOG.isDebugEnabled()){
+
+                if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("Unable to convert '%s'/'%s' into a map. Falling back to String value", key, value));
                 }
             }
@@ -316,9 +313,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
     }
 
     /**
-     *  Convert JMS connection properties into an eXist-db map.
-     * 
-     * @param msg The JMS message
+     * Convert JMS connection properties into an eXist-db map.
+     *
+     * @param msg           The JMS message
      * @param xqueryContext eXist-db query context
      * @return eXist-db map containing the properties
      */
@@ -336,13 +333,12 @@ public class MessagingJmsListener extends eXistMessagingListener {
         return map;
     }
 
-     /**
-     *  Add key-value pair to map.
-     * 
-     * @param map Target for key-value data.
-     * @param key The key value to retrieve the data.
+    /**
+     * Add key-value pair to map.
+     *
+     * @param map   Target for key-value data.
+     * @param key   The key value to retrieve the data.
      * @param value Data corresponding to the key.
-     * 
      * @throws XPathException A map operation failed.
      */
     private void addStringKV(final MapType map, final String key, final String value) throws XPathException {
@@ -350,26 +346,25 @@ public class MessagingJmsListener extends eXistMessagingListener {
             map.add(new StringValue(key), new ValueSequence(new StringValue(value)));
         }
     }
-    
+
     /**
-     *  Add key-value pair to map.
-     * 
-     * @param map Target for key-value data.
-     * @param key The key value to retrieve the data.
+     * Add key-value pair to map.
+     *
+     * @param map           Target for key-value data.
+     * @param key           The key value to retrieve the data.
      * @param valueSequence Data corresponding to the key.
-     * 
      * @throws XPathException A map operation failed.
      */
     private void addKV(final MapType map, final String key, final ValueSequence valueSequence) throws XPathException {
         if (map != null && StringUtils.isNotBlank(key) && valueSequence != null) {
-            map.add(new StringValue(key), valueSequence);    
+            map.add(new StringValue(key), valueSequence);
         }
     }
 
     /**
      * Convert JMS' objectmessage into an Xquery sequence with one value.
-     * 
-     * @throws JMSException if the JMS provider fails to set the object due to some internal error.
+     *
+     * @throws JMSException   if the JMS provider fails to set the object due to some internal error.
      * @throws XPathException Object type is not supported.
      */
     private Sequence handleObjectMessage(final ObjectMessage msg) throws JMSException, XPathException {
@@ -406,11 +401,10 @@ public class MessagingJmsListener extends eXistMessagingListener {
     /**
      * Parse an byte-array containing (compressed) XML data into
      * an eXist-db document.
-     * 
+     *
      * @param data      Byte array containg the XML data.
      * @param isGzipped Set TRUE is data is in GZIP format
-     * @return  Sequence containing the XML as DocumentImpl
-     * 
+     * @return Sequence containing the XML as DocumentImpl
      * @throws XPathException Something bad happened.
      */
     private Sequence processXML(final byte[] data, final boolean isGzipped) throws XPathException {

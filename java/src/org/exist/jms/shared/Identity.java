@@ -19,6 +19,10 @@
  */
 package org.exist.jms.shared;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.exist.util.ConfigurationHelper;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,57 +31,52 @@ import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.exist.util.ConfigurationHelper;
 
 /**
  * Helper class to obtain a unique identifier for this eXist-db / JMS instance
- * 
+ *
  * @author Dannes Wessels
  */
 public class Identity {
 
     private final static Logger LOG = LogManager.getLogger(Identity.class);
-    
+
     private static final String IDENTITY_PROP = "identity";
 
     private static Identity instance = null;
-
-    public static synchronized Identity getInstance() {
-        if(instance==null){
-            instance = new Identity();
-        }
-        return instance;
-    }
-    
     private Path identityFile = null;
     private String identity = null;
-
     private Identity() {
         findIdentityFile();
         getIdentityFromFile();
     }
-    
-    public String getIdentity(){
+
+    public static synchronized Identity getInstance() {
+        if (instance == null) {
+            instance = new Identity();
+        }
+        return instance;
+    }
+
+    public String getIdentity() {
         return identity;
     }
 
     /**
      * Find identity file
      */
-    private void findIdentityFile(){
-        
+    private void findIdentityFile() {
+
         if (identityFile == null) {
             final Optional<Path> existHome = ConfigurationHelper.getExistHome();
-           
-            if(existHome.isPresent()){
+
+            if (existHome.isPresent()) {
                 final Path dataDir = existHome.get().resolve("webapp/WEB-INF/data");
-                identityFile = (Files.exists(dataDir)) ? dataDir.resolve("jms.identity") : existHome.get().resolve("jms.identity"); 
+                identityFile = (Files.exists(dataDir)) ? dataDir.resolve("jms.identity") : existHome.get().resolve("jms.identity");
             } else {
                 LOG.error("eXist_home not found");
             }
- 
+
         }
     }
 
@@ -90,26 +89,26 @@ public class Identity {
 
         // Read if possible
         if (Files.exists(identityFile)) {
-            
+
             LOG.info(String.format("Read jms identity from %s", identityFile.toString()));
-   
+
             try {
                 try (InputStream is = Files.newInputStream(identityFile)) {
-                    props.load(is);              
+                    props.load(is);
                     identity = props.getProperty(IDENTITY_PROP);
                 }
-                
+
             } catch (final IOException ex) {
                 LOG.error(ex.getMessage());
             }
-            
+
         }
 
         // Create and write when needed
         if (Files.notExists(identityFile) || identity == null) {
-            
+
             LOG.info(String.format("Create new jms identity into %s", identityFile.toString()));
-            
+
             identity = UUID.randomUUID().toString();
             props.setProperty(IDENTITY_PROP, identity);
 
@@ -117,14 +116,14 @@ public class Identity {
                 try (OutputStream os = Files.newOutputStream(identityFile)) {
                     props.store(os, "");
                 }
-                
+
             } catch (final IOException ex) {
                 LOG.error(ex.getMessage());
-            } 
+            }
 
         }
 
     }
 
-    
+
 }

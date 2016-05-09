@@ -21,16 +21,10 @@
  */
 package org.exist.jms.replication.shared;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.Map;
-import java.util.Properties;
-import java.util.zip.GZIPOutputStream;
-import javax.xml.transform.OutputKeys;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.exist.collections.Collection;
 import org.exist.dom.persistent.BinaryDocument;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.dom.persistent.DocumentMetadata;
@@ -41,26 +35,34 @@ import org.exist.storage.serializers.EXistOutputKeys;
 import org.exist.storage.serializers.Serializer;
 import org.xml.sax.SAXException;
 
+import javax.xml.transform.OutputKeys;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.Map;
+import java.util.Properties;
+import java.util.zip.GZIPOutputStream;
+
 /**
- *  Helper class for retrieving (meta)data from an in eXist stored document.
- * 
+ * Helper class for retrieving (meta)data from an in eXist stored document.
+ *
  * @author Dannes Wessels
  */
 public class MessageHelper {
-    
+
     public static final String EXIST_RESOURCE_CONTENTLENGTH = "exist.resource.contentlength";
     public static final String EXIST_RESOURCE_DOCUMENTID = "exist.resource.documentid";
     public static final String EXIST_RESOURCE_GROUP = "exist.resource.group";
     public static final String EXIST_RESOURCE_MIMETYPE = "exist.resource.mimetype";
+    public static final String EXIST_RESOURCE_LASTMODIFIED = "exist.resource.lastmodified";
+    public static final String EXIST_RESOURCE_CREATIONTIME = "exist.resource.creationtime";
     public static final String EXIST_RESOURCE_OWNER = "exist.resource.owner";
     public static final String EXIST_RESOURCE_TYPE = "exist.resource.type";
     public static final String EXIST_RESOURCE_MODE = "exist.resource.permission.mode";
     public static final String EXIST_MESSAGE_CONTENTENCODING = "exist.message.content-encoding";
-
-    private final static Logger LOG = LogManager.getLogger(MessageHelper.class);
-    
     //	Copied from webdav interface ; there is a better one
     public final static Properties OUTPUT_PROPERTIES = new Properties();
+    private final static Logger LOG = LogManager.getLogger(MessageHelper.class);
 
     static {
         OUTPUT_PROPERTIES.setProperty(OutputKeys.INDENT, "yes");
@@ -69,24 +71,24 @@ public class MessageHelper {
         OUTPUT_PROPERTIES.setProperty(EXistOutputKeys.EXPAND_XINCLUDES, "no");
         OUTPUT_PROPERTIES.setProperty(EXistOutputKeys.PROCESS_XSL_PI, "no");
     }
-    
+
 
     /**
-     *  Serialize document to byte array as gzipped document.
-     * 
+     * Serialize document to byte array as gzipped document.
+     *
      * @param broker
      * @param document
      * @return document as bytes
-     * @throws IOException 
+     * @throws IOException
      */
     public static byte[] gzipSerialize(final DBBroker broker, final DocumentImpl document) throws IOException {
-        
+
         // This is the weak spot, the data is serialized into
         // a byte array. Better to have an overloap to a file,
         byte[] payload;
 
         if (document.getResourceType() == DocumentImpl.XML_FILE) {
-            
+
             // Stream XML document
             final Serializer serializer = broker.getSerializer();
             serializer.reset();
@@ -96,7 +98,7 @@ public class MessageHelper {
                 serializer.setProperties(OUTPUT_PROPERTIES);
 
                 try (GZIPOutputStream gos = new GZIPOutputStream(baos);
-                        Writer w = new OutputStreamWriter(gos, "UTF-8")) {
+                     Writer w = new OutputStreamWriter(gos, "UTF-8")) {
                     serializer.serialize(document, w);
                     w.flush();
                 }
@@ -119,9 +121,9 @@ public class MessageHelper {
         } else {
             // Stream NON-XML document
 
-            try {          
+            try {
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
- 
+
                 try (GZIPOutputStream gos = new GZIPOutputStream(baos)) {
                     // DW: check classtype before using
                     broker.readBinaryResource((BinaryDocument) document, gos);
@@ -153,28 +155,34 @@ public class MessageHelper {
             LOG.error("no metadata supplied");
 
         } else {
-            props.put(EXIST_RESOURCE_MIMETYPE, docMetadata.getMimeType()); 
+            props.put(EXIST_RESOURCE_MIMETYPE, docMetadata.getMimeType());
+            props.put(EXIST_RESOURCE_LASTMODIFIED, docMetadata.getLastModified());
+            props.put(EXIST_RESOURCE_CREATIONTIME, docMetadata.getCreated());
         }
     }
-    
-    public static void retrievePermission(final Map<String, Object> props, final Permission perm){
-            if (perm == null) {
-                LOG.error("no permissions supplied");
-                
-            } else {
-                props.put(EXIST_RESOURCE_OWNER, perm.getOwner().getName());
-                props.put(EXIST_RESOURCE_GROUP, perm.getGroup().getName());
-                props.put(EXIST_RESOURCE_MODE, perm.getMode());
-            }
+
+    public static void retrievePermission(final Map<String, Object> props, final Permission perm) {
+        if (perm == null) {
+            LOG.error("no permissions supplied");
+
+        } else {
+            props.put(EXIST_RESOURCE_OWNER, perm.getOwner().getName());
+            props.put(EXIST_RESOURCE_GROUP, perm.getGroup().getName());
+            props.put(EXIST_RESOURCE_MODE, perm.getMode());
+        }
     }
-    
-    
-    public static void retrieveFromDocument(final Map<String, Object> props, final DocumentImpl document){
-            // We do not differ between DOCUMENT subtypes,
-	        // mime-type is set in document metadata EXIST_RESOURCE_MIMETYPE. /ljo
-            props.put(EXIST_RESOURCE_TYPE, eXistMessage.ResourceType.DOCUMENT); 
-            props.put(EXIST_RESOURCE_DOCUMENTID, document.getDocId()); 
-            props.put(EXIST_RESOURCE_CONTENTLENGTH, document.getContentLength()); 
-        
+
+
+    public static void retrieveFromDocument(final Map<String, Object> props, final DocumentImpl document) {
+        // We do not differ between DOCUMENT subtypes,
+        // mime-type is set in document metadata EXIST_RESOURCE_MIMETYPE. /ljo
+        props.put(EXIST_RESOURCE_TYPE, eXistMessage.ResourceType.DOCUMENT);
+        props.put(EXIST_RESOURCE_DOCUMENTID, document.getDocId());
+        props.put(EXIST_RESOURCE_CONTENTLENGTH, document.getContentLength());
+
+    }
+
+    public static void retrieveFromCollection(final Map<String, Object> props, final Collection collection) {
+        props.put(EXIST_RESOURCE_CREATIONTIME, collection.getCreationTime());
     }
 }

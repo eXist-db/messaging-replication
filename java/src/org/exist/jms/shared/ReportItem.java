@@ -19,12 +19,13 @@
  */
 package org.exist.jms.shared;
 
-import java.util.Date;
-import java.util.Locale;
-import javax.jms.JMSException;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.MemTreeBuilder;
+
+import javax.jms.JMSException;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Container for reporting a problem with some meta data.
@@ -33,21 +34,14 @@ import org.exist.dom.memtree.MemTreeBuilder;
  */
 public class ReportItem {
 
-    public enum CONTEXT {
-        RECEIVER, LISTENER, CONNECTION, NOTDEFINED
-    }
-
-
+    private final Date timestamp;
+    private Throwable throwable = new Throwable("EMPTY");
+    private CONTEXT context = CONTEXT.NOTDEFINED;
     public ReportItem(final Throwable throwable, final CONTEXT context) {
         this.timestamp = new Date();
         this.throwable = throwable;
         this.context = context;
     }
-
-    private Throwable throwable = new Throwable("EMPTY");
-    private CONTEXT context = CONTEXT.NOTDEFINED;
-
-    private final Date timestamp;
 
     public void setThrowable(final Throwable throwable) {
         this.throwable = throwable;
@@ -77,7 +71,7 @@ public class ReportItem {
 
         String msg = getMessage();
         final Throwable t = getThowable();
-        if ( t instanceof JMSException) {
+        if (t instanceof JMSException) {
             final JMSException jmse = (JMSException) t;
             if (jmse.getErrorCode() != null) {
                 msg = msg + " (code=" + jmse.getErrorCode() + ")";
@@ -86,5 +80,9 @@ public class ReportItem {
 
         builder.characters(msg);
         builder.endElement();
+    }
+
+    public enum CONTEXT {
+        RECEIVER, LISTENER, CONNECTION, NOTDEFINED
     }
 }

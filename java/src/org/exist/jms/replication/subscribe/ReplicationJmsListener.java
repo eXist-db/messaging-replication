@@ -89,16 +89,16 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      * @param transaction The eXist-db transaction
      */
     private void setOrigin(final Txn transaction) {
-            transaction.setOriginId(this.getClass().getName());
+        transaction.setOriginId(this.getClass().getName());
     }
 
     /**
      * Release lock on collection
      *
      * @param collection The collection, null is allowed
-     * @param lockMode The lock mode.
+     * @param lockMode   The lock mode.
      */
-    private void releaseLock(final Collection collection, final int lockMode){
+    private void releaseLock(final Collection collection, final int lockMode) {
         if (collection != null) {
             collection.release(lockMode);
         }
@@ -186,6 +186,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     //
     // The code below handles the incoming message ; DW: should be moved to seperate class
     //
+
     /**
      * Convert JMS ByteMessage into an eXist-db specific message.
      *
@@ -330,16 +331,18 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Get MODE
         final Integer mode = getMode(metaData);
 
+        // Last modified
+        final Long lastModified = getLastModified(metaData);
+        final Long createTime = getCreationTime(metaData);
+
         // Check for collection, create if not existent
         try {
-            collection = getOrCreateCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM);
+            collection = getOrCreateCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM, null);
 
         } catch (final MessageReceiveException e) {
             LOG.error(e.getMessage());
             throw e;
-        }
-
-        catch (final Throwable t) {
+        } catch (final Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.error(t.getMessage(), t);
             } else {
@@ -409,6 +412,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 permission.setMode(mode);
             }
 
+            // Set dates
+            if (lastModified != null) {
+                doc.getMetadata().setLastModified(lastModified);
+            }
+            if (createTime != null) {
+                doc.getMetadata().setCreated(createTime);
+            }
+
             // Commit change
             txn.commit();
 
@@ -433,7 +444,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     /**
      * Metadata is updated in database
-     *
+     * <p>
      * TODO not usable yet
      */
     private void updateMetadataDocument(final eXistMessage em) {
@@ -445,7 +456,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final XmldbURI colURI = sourcePath.removeLastSegment();
         final XmldbURI docURI = sourcePath.lastSegment();
 
-        // Get mime, or NULL when not available
+        // Get mime, or binary type when not available
         MimeType mime = MimeTable.getInstance().getContentTypeFor(docURI.toString());
         if (mime == null) {
             mime = MimeType.BINARY_TYPE;
@@ -484,7 +495,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             final String userName = getUserName(metaData);
             if (userName != null) {
-                perms.setGroup(userName);
+                perms.setOwner(userName);
             }
 
             final String groupName = getGroupName(metaData);
@@ -501,6 +512,19 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (mimeType != null) {
                 resource.getMetadata().setMimeType(mimeType);
             }
+
+            final Long createTime = getCreationTime(metaData);
+            if (createTime != null) {
+                resource.getMetadata().setCreated(createTime);
+            }
+
+            final Long lastModified = getLastModified(metaData);
+            if (lastModified != null) {
+                resource.getMetadata().setLastModified(lastModified);
+            }
+
+            // Make persistent
+            broker.storeMetadata(txn, resource);
 
             // Commit change
             txn.commit();
@@ -528,7 +552,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         Collection collection = null;
 
         try (final DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
-            Txn txn = txnManager.beginTransaction()) {
+             Txn txn = txnManager.beginTransaction()) {
 
             setOrigin(txn);
 
@@ -631,11 +655,12 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final String userName = getUserName(metaData);
         final String groupName = getGroupName(metaData);
         final Integer mode = getMode(metaData);
+        final Long createTime = getCreationTime(metaData);
 
-        getOrCreateCollection(sourcePath, userName, groupName, mode);
+        getOrCreateCollection(sourcePath, userName, groupName, mode, createTime);
     }
 
-    private Collection getOrCreateCollection(final XmldbURI sourcePath, final String userName, final String groupName, final Integer mode) throws MessageReceiveException {
+    private Collection getOrCreateCollection(final XmldbURI sourcePath, final String userName, final String groupName, final Integer mode, final Long createTime) throws MessageReceiveException {
 
         // Check if collection is already there ; do not modify
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
@@ -677,6 +702,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
             if (mode != null) {
                 permission.setMode(mode);
+            }
+
+            // Set Create time only
+            if (createTime != null) {
+                newCollection.setCreationTime(createTime);
             }
 
             broker.saveCollection(txn, newCollection);
@@ -834,10 +864,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final String groupName = getGroupName(metaData);
         final Integer mode = getMode(metaData);
 
+        final Long created = getCreationTime(metaData);
 
         Collection collection = null;
 
-        try( DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
+        try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
              Txn txn = txnManager.beginTransaction()) {
 
             setOrigin(txn);
@@ -861,6 +892,13 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 permission.setMode(mode);
             }
 
+            if (created != null) {
+                collection.setCreationTime(created);
+            }
+
+            // Make persistent
+            broker.saveCollection(txn, collection);
+
             // Commit change
             txn.commit();
 
@@ -869,7 +907,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             throw new MessageReceiveException(e.getMessage());
 
         } finally {
-            releaseLock(collection,Lock.WRITE_LOCK );
+            releaseLock(collection, Lock.WRITE_LOCK);
 
         }
 
@@ -928,13 +966,41 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         return groupName;
     }
 
+    private Long getLastModified(final Map<String, Object> metaData) {
+
+        Long lastModified = null;
+        final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_LASTMODIFIED);
+        if (prop != null && prop instanceof Long) {
+            lastModified = (Long) prop;
+        } else {
+            LOG.debug("No lastmodified provided");
+        }
+
+        return lastModified;
+
+    }
+
+    private Long getCreationTime(final Map<String, Object> metaData) {
+
+        Long creationTime = null;
+        final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_CREATIONTIME);
+        if (prop != null && prop instanceof Long) {
+            creationTime = (Long) prop;
+        } else {
+            LOG.debug("No creationtime provided");
+        }
+
+        return creationTime;
+
+    }
+
     private String getMimeType(final Map<String, Object> metaData, final String defaultName) {
 
         final MimeTable mimeTable = MimeTable.getInstance();
         String mimeType = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MIMETYPE);
         if (prop != null && prop instanceof String) {
-            final MimeType mT = mimeTable.getContentTypeFor((String) prop);
+            final MimeType mT = mimeTable.getContentType((String) prop);
             if (mT != null) {
                 mimeType = mT.getName();
             }
@@ -962,6 +1028,5 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         return mode;
     }
 
-   
 
 }

@@ -20,34 +20,30 @@
 package org.exist.jms.xquery.management;
 
 import org.exist.dom.QName;
-import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.xquery.JmsModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
+import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
 /**
- *  Implementation of the jms:list() function. Provides information about the receivers.
- * 
+ * Implementation of the jms:list() function. Provides information about the receivers.
+ *
  * @author Dannes Wessels
  */
 public class ListReceivers extends BasicFunction {
-    
- public final static FunctionSignature signatures[] = {
 
-        new FunctionSignature(
-            new QName("list", JmsModule.NAMESPACE_URI, JmsModule.PREFIX),
-            "Retrieve sequence of reciever IDs",
-            new SequenceType[]{
-                          // no params              
-            },
-            new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of receiver IDs")
-        ),
-        
+    public final static FunctionSignature signatures[] = {
+
+            new FunctionSignature(
+                    new QName("list", JmsModule.NAMESPACE_URI, JmsModule.PREFIX),
+                    "Retrieve sequence of reciever IDs",
+                    new SequenceType[]{
+                            // no params
+                    },
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_MORE, "Sequence of receiver IDs")
+            ),
+
     };
 
     public ListReceivers(final XQueryContext context, final FunctionSignature signature) {
@@ -78,5 +74,5 @@ public class ListReceivers extends BasicFunction {
         // Return IDs
         return returnSequence;
     }
-    
+
 }

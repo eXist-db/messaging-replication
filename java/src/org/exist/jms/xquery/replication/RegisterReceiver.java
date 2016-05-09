@@ -20,19 +20,14 @@
 package org.exist.jms.xquery.replication;
 
 
-import org.exist.jms.shared.Receiver;
 import org.exist.dom.QName;
-import org.exist.jms.shared.JmsConfiguration;
-import org.exist.jms.shared.ReceiversManager;
-import org.exist.jms.shared.Constants;
 import org.exist.jms.replication.subscribe.ReplicationJmsListener;
+import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.Receiver;
+import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.xquery.ReplicationModule;
-import org.exist.xquery.BasicFunction;
-import org.exist.xquery.Cardinality;
-import org.exist.xquery.FunctionSignature;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-
+import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
@@ -44,12 +39,12 @@ import org.exist.xquery.value.*;
 public class RegisterReceiver extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
-        new FunctionSignature(
-        new QName("register", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
-        "Register function to receive JMS replication messages.", new SequenceType[]{
-            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
-        new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
-        ),};
+            new FunctionSignature(
+                    new QName("register", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
+                    "Register function to receive JMS replication messages.", new SequenceType[]{
+                    new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
+                    new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
+            ),};
 
     public RegisterReceiver(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
@@ -79,7 +74,7 @@ public class RegisterReceiver extends BasicFunction {
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
             final ReplicationJmsListener myListener = new ReplicationJmsListener(context.getBroker().getBrokerPool());
-            // TODO autoclose
+            // TODO autoclose broker
 
             // Create receiver
             final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?

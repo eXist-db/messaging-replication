@@ -1,28 +1,16 @@
 package org.exist.messaging.misc;
 
+import org.apache.log4j.Logger;
+import org.exist.xquery.XPathException;
+import org.exist.xquery.value.*;
+
+import javax.jms.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Enumeration;
-import javax.jms.BytesMessage;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageListener;
-import javax.jms.ObjectMessage;
-import javax.jms.TextMessage;
-
-import org.apache.log4j.Logger;
-
-import org.exist.xquery.XPathException;
-import org.exist.xquery.value.BooleanValue;
-import org.exist.xquery.value.DecimalValue;
-import org.exist.xquery.value.DoubleValue;
-import org.exist.xquery.value.FloatValue;
-import org.exist.xquery.value.IntegerValue;
 
 /**
- *  Simple JMS listener that echos incoming data to the logger.
- * 
+ * Simple JMS listener that echos incoming data to the logger.
+ *
  * @author Dannes Wessels
  */
 public class MyJMSListener implements MessageListener {
@@ -34,7 +22,7 @@ public class MyJMSListener implements MessageListener {
 
         try {
             LOG.info(String.format("msgId='%s'", msg.getJMSMessageID()));
-            
+
             // Show content
             String content = null;
             if (msg instanceof TextMessage) {
@@ -90,10 +78,10 @@ public class MyJMSListener implements MessageListener {
 
         } catch (JMSException ex) {
             LOG.error(ex);
-            
+
         } catch (XPathException ex) {
             LOG.error(ex);
-            
+
         } catch (Throwable ex) {
             LOG.error(ex);
         }

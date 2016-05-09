@@ -21,21 +21,18 @@
  */
 package org.exist.jms.replication.publish;
 
-import java.util.List;
-import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
+import org.exist.jms.replication.shared.MessageSender;
+import org.exist.jms.replication.shared.TransportException;
+import org.exist.jms.send.Sender;
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.JmsMessageProperties;
-import org.exist.jms.send.Sender;
-
 import org.exist.jms.shared.eXistMessage;
 import org.exist.jms.shared.eXistMessageItem;
 
-import org.exist.jms.replication.shared.MessageSender;
-import org.exist.jms.replication.shared.TransportException;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Specific class for sending a eXistMessage via JMS to a broker
@@ -45,14 +42,14 @@ import org.exist.jms.replication.shared.TransportException;
 public class JMSMessageSender implements MessageSender {
 
     private final static Logger LOG = LogManager.getLogger(JMSMessageSender.class);
-    
+
     private final PublisherParameters parameters = new PublisherParameters();
 
     /**
      * Constructor
      *
      * @param parameters Set of (Key,value) parameters for setting JMS routing
-     * instructions, like java.naming.* , destination and connection factory.
+     *                   instructions, like java.naming.* , destination and connection factory.
      */
     JMSMessageSender(final Map<String, List<?>> params) {
         parameters.setMultiValueParameters(params);
@@ -89,7 +86,7 @@ public class JMSMessageSender implements MessageSender {
             // but in case of probles we really need to fire this exception
             LOG.error(ex.getMessage(), ex);
             throw new TransportException(ex.getMessage(), ex);
-        } 
+        }
 
     }
 }

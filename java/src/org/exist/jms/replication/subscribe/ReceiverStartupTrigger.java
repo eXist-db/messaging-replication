@@ -19,14 +19,15 @@
  */
 package org.exist.jms.replication.subscribe;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.Receiver;
 import org.exist.jms.shared.ReceiversManager;
 import org.exist.storage.DBBroker;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Startup Trigger to fire-up a message receiver. Typically this trigger is started by
@@ -37,7 +38,7 @@ import org.exist.storage.DBBroker;
 public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger {
 
     private final static Logger LOG = LogManager.getLogger(ReceiverStartupTrigger.class);
-   
+
 
     /*
      * Entry point for starting the trigger.
@@ -46,11 +47,11 @@ public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger 
     public void execute(final DBBroker broker, final Map<String, List<?>> params) {
 
         final ReceiversManager manager = ReceiversManager.getInstance();
-        
+
         // Get from .xconf file, fill defaults when needed
         final SubscriberParameters parameters = new SubscriberParameters();
         parameters.setSingleValueParameters(params);
-        
+
         try {
             // Get parameters, fill defaults when needed
             parameters.processParameters();
@@ -69,7 +70,7 @@ public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger 
 
             LOG.info("Subscription was successful.");
 
-        } catch (final Throwable t) {            
+        } catch (final Throwable t) {
             LOG.error(String.format("Unable to start subscription: %s", t.getMessage()), t);
         }
     }

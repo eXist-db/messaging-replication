@@ -19,6 +19,25 @@
  */
 package org.exist.jms.send;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.exist.dom.memtree.MemTreeBuilder;
+import org.exist.dom.memtree.NodeImpl;
+import org.exist.dom.persistent.NodeProxy;
+import org.exist.jms.shared.*;
+import org.exist.storage.serializers.Serializer;
+import org.exist.validation.internal.node.NodeInputStream;
+import org.exist.xquery.XPathException;
+import org.exist.xquery.XQueryContext;
+import org.exist.xquery.value.*;
+
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,44 +47,17 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
-import javax.jms.*;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
+import static org.exist.jms.shared.Constants.*;
 
 //import org.exist.dom.persistent.NodeProxy;
-import org.exist.dom.memtree.MemTreeBuilder;
-import org.exist.dom.memtree.NodeImpl;
-import org.exist.dom.persistent.NodeProxy;
-import org.exist.jms.shared.JmsConfiguration;
-import org.exist.jms.shared.JmsMessageProperties;
-import org.exist.jms.shared.Constants;
-
-import org.exist.storage.serializers.Serializer;
-import org.exist.validation.internal.node.NodeInputStream;
-import org.exist.xquery.XPathException;
-import org.exist.xquery.XQueryContext;
-import org.exist.xquery.value.*;
-
-import static org.exist.jms.shared.Constants.*;
-import org.exist.jms.shared.Identity;
-import org.exist.jms.shared.eXistMessage;
-import org.exist.jms.shared.eXistMessageItem;
 
 /**
- *
  * @author Dannes Wessels
  */
-public class Sender  {
+public class Sender {
 
     private final static Logger LOG = LogManager.getLogger(Sender.class);
-    
+    private static final String EXIST_CONNECTION_POOL = "exist.connection.pool";
     private XQueryContext xqcontext;
     private String username;
 
@@ -85,9 +77,9 @@ public class Sender  {
     /**
      * Send content to JMS broker.
      *
-     * @param jmsConfig JMS configuration
+     * @param jmsConfig    JMS configuration
      * @param msgMetaProps JMS message properties
-     * @param content The content to be transferred
+     * @param content      The content to be transferred
      * @return Report
      * @throws XPathException Something bad happened.
      */
@@ -95,10 +87,10 @@ public class Sender  {
 
         // JMS specific checks
         jmsConfig.validate();
-        
+
         // Retrieve and set JMS identifier
-        final String id  = Identity.getInstance().getIdentity();
-        if(StringUtils.isNotBlank(id)){
+        final String id = Identity.getInstance().getIdentity();
+        if (StringUtils.isNotBlank(id)) {
             msgMetaProps.setProperty(Constants.EXIST_INSTANCE_ID, id);
         } else {
             LOG.error(String.format("An empty value was provided for '%s'", Constants.EXIST_INSTANCE_ID));
@@ -108,7 +100,7 @@ public class Sender  {
         if (username != null) {
             msgMetaProps.setProperty("exist.user", username);
         }
-    
+
 
         // Retrieve relevant values
         final String initialContextFactory = jmsConfig.getInitialContextFactory();
@@ -129,21 +121,21 @@ public class Sender  {
             if (cf == null) {
                 throw new XPathException("Unable to create connection factory");
             }
-            
+
             // Setup username/password when required
             final String userName = jmsConfig.getConnectionUserName();
             final String password = jmsConfig.getConnectionPassword();
-            
+
             connection = (StringUtils.isBlank(userName) || StringUtils.isBlank(password))
                     ? cf.createConnection()
                     : cf.createConnection(userName, password);
-            
+
             // Set clientId when set and not empty
-            final String clientId=jmsConfig.getClientId();
-            if(StringUtils.isNotBlank(clientId)){
+            final String clientId = jmsConfig.getClientId();
+            if (StringUtils.isNotBlank(clientId)) {
                 connection.setClientID(clientId);
             }
-            
+
             // Lookup queue
             final Destination destination = (Destination) context.lookup(destinationValue);
 
@@ -203,7 +195,7 @@ public class Sender  {
     private ConnectionFactory getConnectionFactoryInstance(final javax.naming.Context context, final JmsConfiguration jmsConfig) throws NamingException {
 
         final ConnectionFactory retVal;
- 
+
         // check if Pooling is needed
         final String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL);
         if (StringUtils.isNotBlank(poolValue)) {
@@ -225,17 +217,15 @@ public class Sender  {
         return retVal;
     }
 
-    private static final String EXIST_CONNECTION_POOL = "exist.connection.pool";
-
     /**
      * Convert messaging-function originated data into a JMS message.
      *
-     * @param session The JMS session
-     * @param item The XQuery item containing data
-     * @param jmp JMS message properties
+     * @param session   The JMS session
+     * @param item      The XQuery item containing data
+     * @param jmp       JMS message properties
      * @param xqcontext The XQuery context form the original query
      * @return JMS message
-     * @throws JMSException When a problem occurs in the JMS domain
+     * @throws JMSException   When a problem occurs in the JMS domain
      * @throws XPathException When an other issue occurs
      */
     private Message createMessageFromItem(final Session session, final Item item, final JmsMessageProperties jmp, final XQueryContext xqcontext) throws JMSException, XPathException {
@@ -247,7 +237,7 @@ public class Sender  {
 
         if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
             LOG.debug("Streaming element or document node");
-            
+
             jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
 
             if (item instanceof NodeProxy) {
@@ -288,7 +278,7 @@ public class Sender  {
 
 
         } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
-            
+
             LOG.debug("Streaming base64 binary");
 
             jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
@@ -299,7 +289,7 @@ public class Sender  {
 
                 LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
                 jmp.setProperty(EXIST_DOCUMENT_URI, uri);
-                
+
             }
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -360,7 +350,7 @@ public class Sender  {
                 case Type.BOOLEAN:
                     final Boolean booleanValue = item.toJavaObject(Boolean.class);
                     objectMessage.setObject(booleanValue);
-                    break;    
+                    break;
                 default:
                     throw new XPathException(
                             String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
@@ -375,9 +365,9 @@ public class Sender  {
 
     /**
      * Convert replication originated data into a JMS message.
-      *
-     * @param session JMS session
-     * @param emi The data
+     *
+     * @param session      JMS session
+     * @param emi          The data
      * @param msgMetaProps Additional JMS message properties
      * @return JMS Message
      * @throws JMSException When an issue happens
@@ -408,7 +398,6 @@ public class Sender  {
      *
      * @param mdd The JMS message properties
      * @return TRUE if not set or has value 'gzip' else FALSE.
-     *
      */
     private boolean applyGZIPcompression(final JmsMessageProperties mdd) {
         // 

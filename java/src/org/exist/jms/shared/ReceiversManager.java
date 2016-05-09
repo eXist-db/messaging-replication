@@ -19,11 +19,12 @@
  */
 package org.exist.jms.shared;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * Class for managing Receivers
@@ -33,9 +34,8 @@ import org.apache.logging.log4j.LogManager;
 public class ReceiversManager {
 
     private final static Logger LOG = LogManager.getLogger(ReceiversManager.class);
-
-    private final Map<Integer, Receiver> receivers = new HashMap<>();
     private static ReceiversManager instance;
+    private final Map<Integer, Receiver> receivers = new HashMap<>();
 
     private ReceiversManager() {
         // Nop
@@ -55,7 +55,6 @@ public class ReceiversManager {
      * Register receiver, a new unique ID is assigned..
      *
      * @param receiver The receiver class
-     *
      * @throws IllegalArgumentException When the argument has value NULL.
      */
     public void register(final Receiver receiver) {

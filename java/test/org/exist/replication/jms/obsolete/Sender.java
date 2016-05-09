@@ -21,21 +21,22 @@
  */
 package org.exist.replication.jms.obsolete;
 
-import java.util.Date;
-import java.util.Properties;
-import javax.jms.*;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import java.util.Date;
+import java.util.Properties;
+
 /**
  * Helperclass for sending JMS messages
- * 
+ *
  * @author Dannes Wessels
  */
 public class Sender {
-    
+
     private final static Logger LOG = Logger.getLogger(Sender.class);
 
     /**
@@ -57,7 +58,6 @@ public class Sender {
 
             Destination destination = (Destination) context.lookup("dynamicQueues/eXistdb");
 
-           
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
@@ -67,8 +67,7 @@ public class Sender {
 
 
             producer.send(message);
-            
-            
+
 
             connection.close();
 

@@ -22,9 +22,9 @@
 package org.exist.jms.replication.subscribe;
 
 /**
- * Class for reporting problems during handling received messages. Must 
+ * Class for reporting problems during handling received messages. Must
  * be a runtime exception.
- * 
+ *
  * @author Dannes Wessels
  */
 public class MessageReceiveException extends RuntimeException {

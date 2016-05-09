@@ -19,37 +19,26 @@
  */
 package org.exist.jms.shared;
 
-import java.util.Properties;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.Session;
-import javax.jms.Topic;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
-
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-
+import org.apache.logging.log4j.Logger;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.dom.memtree.NodeImpl;
-
 import org.exist.xquery.XPathException;
+
+import javax.jms.*;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.Duration;
+import java.util.Properties;
 
 /**
  * JMS messages receiver, represents a JMS connection.
- *
+ * <p>
  * Starts a JMS listener to receive messages from the broker
  *
  * @author Dannes Wessels (dannes@exist-db.org)
@@ -57,26 +46,17 @@ import org.exist.xquery.XPathException;
 public class Receiver {
 
     private final static Logger LOG = LogManager.getLogger(Receiver.class);
-
-    private DatatypeFactory dtFactory = null;
-
-    /**
-     * States of receiver
+    private static volatile int lastId = 0;
+    /*
+     *
      */
-    private enum STATE {
-        NOT_DEFINED, STARTED, STOPPED, CLOSED, ERROR
-    }
-
+    private final JmsConfiguration jmsConfig;
+    private DatatypeFactory dtFactory = null;
     private STATE state = STATE.NOT_DEFINED;
     /**
      * The JMS listeners
      */
     private eXistMessagingListener messageListener = null;
-
-    /*
-     * 
-     */
-    private final JmsConfiguration jmsConfig;
     private Context initialContext = null;
     private ConnectionFactory connectionFactory = null;
     private Session session = null;
@@ -85,17 +65,10 @@ public class Receiver {
     private Connection connection = null;
 
     private int id = 0;
-    private static volatile int lastId = 0;
-
-    private static synchronized Integer createNewId() {
-        lastId++;
-        return lastId;
-    }
-
     /**
      * Constructor
      *
-     * @param config JMS configuration settings
+     * @param config   JMS configuration settings
      * @param listener The generic exist-db message listener
      */
     public Receiver(final JmsConfiguration config, final eXistMessagingListener listener) {
@@ -104,8 +77,8 @@ public class Receiver {
 
         // Uniq ID for Receiver
         id = createNewId();
-        
-        listener.setIdentification(""+id);
+
+        listener.setIdentification("" + id);
 
         // Initialing XML datafactory
         try {
@@ -113,6 +86,11 @@ public class Receiver {
         } catch (final DatatypeConfigurationException ex) {
             LOG.fatal(ex);
         }
+    }
+
+    private static synchronized Integer createNewId() {
+        lastId++;
+        return lastId;
     }
 
     /**
@@ -127,9 +105,8 @@ public class Receiver {
     /**
      * Start JMS connection
      *
-     * @see Connection#start()
-     *
      * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
+     * @see Connection#start()
      */
     public void start() throws XPathException {
 
@@ -187,10 +164,10 @@ public class Receiver {
 
             // Register error listener
             connection.setExceptionListener(messageListener);
-            
+
             // Set clientId when set and not empty
-            final String clientId=jmsConfig.getClientId();
-            if(StringUtils.isNotBlank(clientId)){
+            final String clientId = jmsConfig.getClientId();
+            if (StringUtils.isNotBlank(clientId)) {
                 connection.setClientID(clientId);
             }
 
@@ -203,10 +180,10 @@ public class Receiver {
             // Setup consumer with message selector
             final String messageSelector = jmsConfig.getMessageSelector();
             final String subscriberName = jmsConfig.getSubscriberName();
-            
+
             final boolean isDurable = jmsConfig.isDurable(); // TRUE if not set, special case for Durable topic
             final boolean isNoLocal = jmsConfig.isNoLocal();
-            
+
             // Interesting switch due to JMS specification
             if (destination instanceof Topic && isDurable) {
                 // Create durable subscriber for topic only when set durable manually
@@ -216,7 +193,7 @@ public class Receiver {
                 // When not a Topic OR when a Topic but not durable.....
                 messageConsumer = session.createConsumer(destination, messageSelector, isNoLocal);
             }
-            
+
             // Register listener
             messageListener.setSession(session);
             messageConsumer.setMessageListener(messageListener);
@@ -234,9 +211,9 @@ public class Receiver {
 
         } catch (final Throwable t) {
             state = STATE.ERROR;
-            
+
             closeAllSilently(initialContext, connection, session);
-            
+
             LOG.error(t.getMessage(), t);
             LOG.debug("" + jmsConfig.toString());
 
@@ -249,9 +226,8 @@ public class Receiver {
     /**
      * Stop JMS connection
      *
-     * @see Connection#stop()
-     *
      * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
+     * @see Connection#stop()
      */
     public void stop() throws XPathException {
 
@@ -280,9 +256,8 @@ public class Receiver {
     /**
      * CLose JMS connection
      *
-     * @see Connection#close()
-     *
      * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
+     * @see Connection#close()
      */
     public void close() throws XPathException {
 
@@ -326,7 +301,7 @@ public class Receiver {
 
         } catch (final JMSException ex) {
             LOG.error(ex);
-     
+
             messageListener.getReport().addReceiverError(ex);
             throw new XPathException(ex.getMessage());
         }
@@ -409,7 +384,7 @@ public class Receiver {
 
 
         /*
-         * Statistics & error reporting 
+         * Statistics & error reporting
          */
         if (messageListener != null) {
             /*
@@ -495,5 +470,12 @@ public class Receiver {
                 LOG.error(ex.getMessage());
             }
         }
+    }
+
+    /**
+     * States of receiver
+     */
+    private enum STATE {
+        NOT_DEFINED, STARTED, STOPPED, CLOSED, ERROR
     }
 }
