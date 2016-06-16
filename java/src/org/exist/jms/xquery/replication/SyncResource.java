@@ -88,7 +88,7 @@ public class SyncResource extends BasicFunction {
 
         Collection parentCollection = null;
 
-        boolean fullSync = isCalledAs("sync");
+        final boolean fullSync = isCalledAs("sync");
 
         try {
 
@@ -106,12 +106,12 @@ public class SyncResource extends BasicFunction {
             parentCollection = getCollection(broker, parentCollectionURI, false, true);
 
             // Get trigger, if existent
-            Optional<ReplicationTrigger> replicationTrigger = getReplicationTrigger(broker, parentCollection);
+            final Optional<ReplicationTrigger> replicationTrigger = getReplicationTrigger(broker, parentCollection);
             if (!replicationTrigger.isPresent()) {
                 parentCollection.release(Lock.READ_LOCK);
                 throw new XPathException(this, String.format("No trigger configuration found for collection %s", parentCollection));
             }
-            ReplicationTrigger trigger = replicationTrigger.get();
+            final ReplicationTrigger trigger = replicationTrigger.get();
 
 
             try (Txn txn = txnManager.beginTransaction()) {
@@ -178,14 +178,14 @@ public class SyncResource extends BasicFunction {
      * @param parentCollection The collection contaiing the resource
      * @return The trigger wrapped as optional
      */
-    private Optional<ReplicationTrigger> getReplicationTrigger(DBBroker broker, Collection parentCollection) throws LockException, CollectionConfigurationException, EXistException, PermissionDeniedException, TriggerException {
+    private Optional<ReplicationTrigger> getReplicationTrigger(final DBBroker broker, final Collection parentCollection) throws LockException, CollectionConfigurationException, EXistException, PermissionDeniedException, TriggerException {
 
-        CollectionConfiguration config = parentCollection.getConfiguration(broker);
+        final CollectionConfiguration config = parentCollection.getConfiguration(broker);
 
         // Iterate over list to find correct Trigger
-        List<TriggerProxy<? extends DocumentTrigger>> triggerProxies = config.documentTriggers();
-        for (TriggerProxy proxy : triggerProxies) {
-            Trigger trigger = proxy.newInstance(broker, parentCollection);
+        final List<TriggerProxy<? extends DocumentTrigger>> triggerProxies = config.documentTriggers();
+        for (final TriggerProxy proxy : triggerProxies) {
+            final Trigger trigger = proxy.newInstance(broker, parentCollection);
 
             if (trigger instanceof ReplicationTrigger) {
                 return Optional.of((ReplicationTrigger) trigger);
@@ -195,9 +195,9 @@ public class SyncResource extends BasicFunction {
         return Optional.empty();
     }
 
-    private Collection getCollection(DBBroker broker, XmldbURI collectionURI, boolean setReadLock, boolean throwExceptionWHenNotExistent) throws XPathException, PermissionDeniedException {
+    private Collection getCollection(final DBBroker broker, final XmldbURI collectionURI, final boolean setReadLock, final boolean throwExceptionWHenNotExistent) throws XPathException, PermissionDeniedException {
 
-        Collection collection = broker.openCollection(collectionURI, setReadLock ? Lock.READ_LOCK : Lock.NO_LOCK);
+        final Collection collection = broker.openCollection(collectionURI, setReadLock ? Lock.READ_LOCK : Lock.NO_LOCK);
         if (collection == null && throwExceptionWHenNotExistent) {
             throw new XPathException(this, String.format("Collection not found: %s", collectionURI));
         }
@@ -206,18 +206,18 @@ public class SyncResource extends BasicFunction {
     }
 
 
-    private boolean isCollection(DBBroker broker, XmldbURI collectionURI) throws XPathException, PermissionDeniedException {
+    private boolean isCollection(final DBBroker broker, final XmldbURI collectionURI) throws XPathException, PermissionDeniedException {
 
-        Collection collection = getCollection(broker, collectionURI, false, false);
+        final Collection collection = getCollection(broker, collectionURI, false, false);
 
         return collection != null;
 
     }
 
-    private DocumentImpl getDocument(DBBroker broker, XmldbURI collectionURI, XmldbURI documentUri) throws XPathException, PermissionDeniedException {
+    private DocumentImpl getDocument(final DBBroker broker, final XmldbURI collectionURI, final XmldbURI documentUri) throws XPathException, PermissionDeniedException {
 
         // Open collection if possible, else abort
-        Collection collection = getCollection(broker, collectionURI, true, true);
+        final Collection collection = getCollection(broker, collectionURI, true, true);
 
         // Open document if possible, else abort
         final DocumentImpl resource = collection.getDocument(broker, documentUri);
