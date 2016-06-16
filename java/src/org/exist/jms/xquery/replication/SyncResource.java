@@ -20,10 +20,8 @@
 package org.exist.jms.xquery.replication;
 
 
-import org.exist.EXistException;
 import org.exist.collections.Collection;
 import org.exist.collections.CollectionConfiguration;
-import org.exist.collections.CollectionConfigurationException;
 import org.exist.collections.triggers.DocumentTrigger;
 import org.exist.collections.triggers.Trigger;
 import org.exist.collections.triggers.TriggerException;
@@ -38,7 +36,6 @@ import org.exist.storage.DBBroker;
 import org.exist.storage.lock.Lock;
 import org.exist.storage.txn.TransactionManager;
 import org.exist.storage.txn.Txn;
-import org.exist.util.LockException;
 import org.exist.xmldb.XmldbURI;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
@@ -160,6 +157,7 @@ public class SyncResource extends BasicFunction {
         } catch (final Throwable t) {
             LOG.error(t);
             throw new XPathException(this, t);
+
         } finally {
             if (parentCollection != null) {
                 parentCollection.release(Lock.READ_LOCK);
@@ -178,7 +176,7 @@ public class SyncResource extends BasicFunction {
      * @param parentCollection The collection contaiing the resource
      * @return The trigger wrapped as optional
      */
-    private Optional<ReplicationTrigger> getReplicationTrigger(final DBBroker broker, final Collection parentCollection) throws LockException, CollectionConfigurationException, EXistException, PermissionDeniedException, TriggerException {
+    private Optional<ReplicationTrigger> getReplicationTrigger(final DBBroker broker, final Collection parentCollection) throws TriggerException {
 
         final CollectionConfiguration config = parentCollection.getConfiguration(broker);
 
