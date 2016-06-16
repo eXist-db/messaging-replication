@@ -362,8 +362,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 // Stream into database
                 // TODO migrate to other class
                 final VirtualTempFile vtf = new VirtualTempFile(em.getPayload());
-                final VirtualTempFileInputSource vt = new VirtualTempFileInputSource(vtf);
-                try {
+                try (VirtualTempFileInputSource vt = new VirtualTempFileInputSource(vtf)) {
                     final InputStream byteInputStream = vt.getByteStream();
 
                     // DW: future improvement: determine compression based on property.
@@ -383,8 +382,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                     collection.store(txn, broker, info, inputsource, false);
                     inputsource.getByteStream().close();
 
-                } finally {
-                    vt.close();
                 }
 
             } else {
