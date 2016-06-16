@@ -24,7 +24,6 @@ import org.exist.EXistException;
 import org.exist.collections.Collection;
 import org.exist.collections.CollectionConfiguration;
 import org.exist.collections.CollectionConfigurationException;
-import org.exist.collections.CollectionConfigurationManager;
 import org.exist.collections.triggers.DocumentTrigger;
 import org.exist.collections.triggers.Trigger;
 import org.exist.collections.triggers.TriggerException;
@@ -162,7 +161,9 @@ public class SyncResource extends BasicFunction {
             LOG.error(t);
             throw new XPathException(this, t);
         } finally {
-            parentCollection.release(Lock.READ_LOCK);
+            if (parentCollection != null) {
+                parentCollection.release(Lock.READ_LOCK);
+            }
         }
 
 
@@ -179,8 +180,7 @@ public class SyncResource extends BasicFunction {
      */
     private Optional<ReplicationTrigger> getReplicationTrigger(DBBroker broker, Collection parentCollection) throws LockException, CollectionConfigurationException, EXistException, PermissionDeniedException, TriggerException {
 
-        CollectionConfigurationManager cmm = new CollectionConfigurationManager(broker);
-        CollectionConfiguration config = cmm.getOrCreateCollectionConfiguration(broker, parentCollection);
+        CollectionConfiguration config = parentCollection.getConfiguration(broker);
 
         // Iterate over list to find correct Trigger
         List<TriggerProxy<? extends DocumentTrigger>> triggerProxies = config.documentTriggers();
