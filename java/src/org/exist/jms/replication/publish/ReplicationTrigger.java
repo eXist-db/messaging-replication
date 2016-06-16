@@ -249,6 +249,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         if (isJMSOrigin(transaction)) {
             LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            return;
         }
 
         // Create Message
@@ -278,6 +279,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         if (isJMSOrigin(txn)) {
             LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            return;
         }
 
         // Create Message
@@ -303,6 +305,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         if (isJMSOrigin(transaction)) {
             LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            return;
         }
 
         // Create Message
