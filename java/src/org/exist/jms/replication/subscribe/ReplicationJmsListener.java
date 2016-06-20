@@ -24,6 +24,7 @@ package org.exist.jms.replication.subscribe;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.exist.EXistException;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.persistent.DocumentImpl;
@@ -32,6 +33,9 @@ import org.exist.jms.shared.*;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.Permission;
+import org.exist.security.PermissionDeniedException;
+import org.exist.security.internal.aider.GroupAider;
+import org.exist.security.internal.aider.UserAider;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.storage.lock.Lock;
@@ -322,8 +326,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         }
 
         // Get OWNER and Group
-        final String userName = getUserName(metaData);
-        final String groupName = getGroupName(metaData);
+        final Optional<String> groupName = getOrCreateGroupName(metaData);
+        final Optional<String> userName = getOrCreateUserName(metaData);
 
         // Get MIME_TYPE
         final String mimeType = getMimeType(metaData, mime.getName());
@@ -399,11 +403,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Set owner,group and permissions
             final Permission permission = doc.getPermissions();
-            if (userName != null) {
-                permission.setOwner(userName);
+            if (userName.isPresent()) {
+                permission.setOwner(userName.get());
             }
-            if (groupName != null) {
-                permission.setGroup(groupName);
+            if (groupName.isPresent()) {
+                permission.setGroup(groupName.get());
             }
             if (mode != null) {
                 permission.setMode(mode);
@@ -490,14 +494,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             final Permission perms = resource.getPermissions();
 
-            final String userName = getUserName(metaData);
-            if (userName != null) {
-                perms.setOwner(userName);
+            final Optional<String> userName = getOrCreateUserName(metaData);
+            if (userName.isPresent()) {
+                perms.setOwner(userName.get());
             }
 
-            final String groupName = getGroupName(metaData);
-            if (groupName != null) {
-                perms.setGroup(groupName);
+            final Optional<String> groupName = getOrCreateGroupName(metaData);
+            if (groupName.isPresent()) {
+                perms.setGroup(groupName.get());
             }
 
             final Integer mode = getMode(metaData);
@@ -649,15 +653,15 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final Map<String, Object> metaData = em.getMetadata();
 
         // Get OWNER/GROUP/MODE
-        final String userName = getUserName(metaData);
-        final String groupName = getGroupName(metaData);
+        final Optional<String> userName = getOrCreateUserName(metaData);
+        final Optional<String> groupName = getOrCreateGroupName(metaData);
         final Integer mode = getMode(metaData);
         final Long createTime = getCreationTime(metaData);
 
         getOrCreateCollection(sourcePath, userName, groupName, mode, createTime);
     }
 
-    private Collection getOrCreateCollection(final XmldbURI sourcePath, final String userName, final String groupName, final Integer mode, final Long createTime) throws MessageReceiveException {
+    private Collection getOrCreateCollection(final XmldbURI sourcePath, final Optional<String> userName, final Optional<String> groupName, final Integer mode, final Long createTime) throws MessageReceiveException {
 
         // Check if collection is already there ; do not modify
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
@@ -691,11 +695,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Set owner,group and permissions
             final Permission permission = newCollection.getPermissions();
-            if (userName != null) {
-                permission.setOwner(userName);
+            if (userName.isPresent()) {
+                permission.setOwner(userName.get());
             }
-            if (groupName != null) {
-                permission.setGroup(groupName);
+            if (groupName.isPresent()) {
+                permission.setGroup(groupName.get());
             }
             if (mode != null) {
                 permission.setMode(mode);
@@ -857,8 +861,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final Map<String, Object> metaData = em.getMetadata();
 
         // Get OWNER/GROUP/MODE
-        final String userName = getUserName(metaData);
-        final String groupName = getGroupName(metaData);
+        final Optional<String> userName = getOrCreateUserName(metaData);
+        final Optional<String> groupName = getOrCreateGroupName(metaData);
         final Integer mode = getMode(metaData);
 
         final Long created = getCreationTime(metaData);
@@ -879,11 +883,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             final Permission permission = collection.getPermissions();
-            if (userName != null) {
-                permission.setOwner(userName);
+            if (userName.isPresent()) {
+                permission.setOwner(userName.get());
             }
-            if (groupName != null) {
-                permission.setGroup(groupName);
+            if (groupName.isPresent()) {
+                permission.setGroup(groupName.get());
             }
             if (mode != null) {
                 permission.setMode(mode);
@@ -912,9 +916,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
 
     /**
-     * Get valid username for database, else system subject if not valid.
+     * Get valid username for database, else system subject if not valid. If no username is supplied,
+     * the ownership of a resource shall not be touched.
      */
-    private String getUserName(final Map<String, Object> metaData) {
+    private Optional<String> getOrCreateUserName(final Map<String, Object> metaData) {
 
         String userName = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_OWNER);
@@ -922,25 +927,37 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             userName = (String) prop;
         } else {
             LOG.debug("No username provided");
-            return userName;
+            return Optional.empty();
         }
 
         Account account = securityManager.getAccount(userName);
         if (account == null) {
-            final String errorText = String.format("Username %s does not exist.", userName);
-            LOG.error(errorText);
+            LOG.error(String.format("Username %s does not exist.", userName));
 
-            account = securityManager.getSystemSubject();
-            userName = account.getName();
+            final Account user = new UserAider(userName);
+            try {
+                securityManager.addAccount(user);
+                account = user;
+            } catch (PermissionDeniedException | EXistException e) {
+                LOG.error(String.format("Unable to create user %s. Fall back to default.", userName));
+            }
+
+
         }
 
-        return userName;
+        // Fallback
+        if (account == null) {
+            account = securityManager.getSystemSubject();
+        }
+
+        return Optional.of(account.getName());
     }
 
     /**
-     * Get valid groupname for database for database, else system subject if not existent
+     * Get valid groupname for database for database, else system subject if not existent. If no groupname is supplied,
+     * the ownership of a resource shall not be touched.
      */
-    private String getGroupName(final Map<String, Object> metaData) {
+    private Optional<String> getOrCreateGroupName(final Map<String, Object> metaData) {
 
         String groupName = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_GROUP);
@@ -948,19 +965,28 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             groupName = (String) prop;
         } else {
             LOG.debug("No groupname provided");
-            return groupName;
+            return Optional.empty();
         }
 
         Group group = securityManager.getGroup(groupName);
         if (group == null) {
-            final String errorText = String.format("Group %s does not exist.", groupName);
-            LOG.error(errorText);
+            LOG.info(String.format("Group %s does not exist. Will be created.", groupName));
 
-            group = securityManager.getSystemSubject().getDefaultGroup();
-            groupName = group.getName();
+            try {
+                Group newGroup = new GroupAider(groupName);
+                securityManager.addGroup(newGroup);
+                group = newGroup;
+            } catch (PermissionDeniedException | EXistException e) {
+                LOG.error(String.format("Unable to create group %s. Fall back to default.", groupName));
+            }
         }
 
-        return groupName;
+        // Fallback
+        if (group == null) {
+            group = securityManager.getSystemSubject().getDefaultGroup();
+        }
+
+        return Optional.of(group.getName());
     }
 
     private Long getLastModified(final Map<String, Object> metaData) {
