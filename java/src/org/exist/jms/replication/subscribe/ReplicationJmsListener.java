@@ -333,15 +333,15 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         final String mimeType = getMimeType(metaData, mime.getName());
 
         // Get MODE
-        final Integer mode = getMode(metaData);
+        final Optional<Integer> mode = getMode(metaData);
 
         // Last modified
-        final Long lastModified = getLastModified(metaData);
-        final Long createTime = getCreationTime(metaData);
+        final Optional<Long> lastModified = getLastModified(metaData);
+        final Optional<Long> createTime = getCreationTime(metaData);
 
         // Check for collection, create if not existent
         try {
-            collection = getOrCreateCollection(colURI, userName, groupName, Permission.DEFAULT_COLLECTION_PERM, null);
+            collection = getOrCreateCollection(colURI, userName, groupName, Optional.of(Permission.DEFAULT_COLLECTION_PERM), null);
 
         } catch (final MessageReceiveException e) {
             LOG.error(e.getMessage());
@@ -409,16 +409,16 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (groupName.isPresent()) {
                 permission.setGroup(groupName.get());
             }
-            if (mode != null) {
-                permission.setMode(mode);
+            if (mode.isPresent()) {
+                permission.setMode(mode.get());
             }
 
             // Set dates
-            if (lastModified != null) {
-                doc.getMetadata().setLastModified(lastModified);
+            if (lastModified.isPresent()) {
+                doc.getMetadata().setLastModified(lastModified.get());
             }
-            if (createTime != null) {
-                doc.getMetadata().setCreated(createTime);
+            if (createTime.isPresent()) {
+                doc.getMetadata().setCreated(createTime.get());
             }
 
             // Commit change
@@ -504,9 +504,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 perms.setGroup(groupName.get());
             }
 
-            final Integer mode = getMode(metaData);
-            if (mode != null) {
-                perms.setMode(mode);
+            final Optional<Integer> mode = getMode(metaData);
+            if (mode.isPresent()) {
+                perms.setMode(mode.get());
             }
 
             final String mimeType = getMimeType(metaData, mime.getName());
@@ -514,14 +514,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 resource.getMetadata().setMimeType(mimeType);
             }
 
-            final Long createTime = getCreationTime(metaData);
-            if (createTime != null) {
-                resource.getMetadata().setCreated(createTime);
+            final Optional<Long> createTime = getCreationTime(metaData);
+            if (createTime.isPresent()) {
+                resource.getMetadata().setCreated(createTime.get());
             }
 
-            final Long lastModified = getLastModified(metaData);
-            if (lastModified != null) {
-                resource.getMetadata().setLastModified(lastModified);
+            final Optional<Long> lastModified = getLastModified(metaData);
+            if (lastModified.isPresent()) {
+                resource.getMetadata().setLastModified(lastModified.get());
             }
 
             // Make persistent
@@ -655,13 +655,15 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Get OWNER/GROUP/MODE
         final Optional<String> userName = getOrCreateUserName(metaData);
         final Optional<String> groupName = getOrCreateGroupName(metaData);
-        final Integer mode = getMode(metaData);
-        final Long createTime = getCreationTime(metaData);
+        final Optional<Integer> mode = getMode(metaData);
+        final Optional<Long> createTime = getCreationTime(metaData);
 
         getOrCreateCollection(sourcePath, userName, groupName, mode, createTime);
     }
 
-    private Collection getOrCreateCollection(final XmldbURI sourcePath, final Optional<String> userName, final Optional<String> groupName, final Integer mode, final Long createTime) throws MessageReceiveException {
+    private Collection getOrCreateCollection(final XmldbURI sourcePath, final Optional<String> userName,
+                                             final Optional<String> groupName, final Optional<Integer> mode,
+                                             final Optional<Long> createTime) throws MessageReceiveException {
 
         // Check if collection is already there ; do not modify
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()))) {
@@ -701,13 +703,13 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (groupName.isPresent()) {
                 permission.setGroup(groupName.get());
             }
-            if (mode != null) {
-                permission.setMode(mode);
+            if (mode.isPresent()) {
+                permission.setMode(mode.get());
             }
 
             // Set Create time only
-            if (createTime != null) {
-                newCollection.setCreationTime(createTime);
+            if (createTime.isPresent()) {
+                newCollection.setCreationTime(createTime.get());
             }
 
             broker.saveCollection(txn, newCollection);
@@ -863,9 +865,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Get OWNER/GROUP/MODE
         final Optional<String> userName = getOrCreateUserName(metaData);
         final Optional<String> groupName = getOrCreateGroupName(metaData);
-        final Integer mode = getMode(metaData);
+        final Optional<Integer> mode = getMode(metaData);
 
-        final Long created = getCreationTime(metaData);
+        final Optional<Long> created = getCreationTime(metaData);
 
         Collection collection = null;
 
@@ -889,12 +891,12 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (groupName.isPresent()) {
                 permission.setGroup(groupName.get());
             }
-            if (mode != null) {
-                permission.setMode(mode);
+            if (mode.isPresent()) {
+                permission.setMode(mode.get());
             }
 
-            if (created != null) {
-                collection.setCreationTime(created);
+            if (created.isPresent()) {
+                collection.setCreationTime(created.get());
             }
 
             // Make persistent
@@ -989,7 +991,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         return Optional.of(group.getName());
     }
 
-    private Long getLastModified(final Map<String, Object> metaData) {
+    private Optional<Long> getLastModified(final Map<String, Object> metaData) {
 
         Long lastModified = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_LASTMODIFIED);
@@ -997,13 +999,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             lastModified = (Long) prop;
         } else {
             LOG.debug("No lastmodified provided");
+            return Optional.empty();
         }
 
-        return lastModified;
+        return Optional.of(lastModified);
 
     }
 
-    private Long getCreationTime(final Map<String, Object> metaData) {
+    private Optional<Long> getCreationTime(final Map<String, Object> metaData) {
 
         Long creationTime = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_CREATIONTIME);
@@ -1011,9 +1014,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             creationTime = (Long) prop;
         } else {
             LOG.debug("No creationtime provided");
+            return Optional.empty();
         }
 
-        return creationTime;
+        return Optional.of(creationTime);
 
     }
 
@@ -1038,7 +1042,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     }
 
-    private Integer getMode(final Map<String, Object> metaData) {
+    private Optional<Integer> getMode(final Map<String, Object> metaData) {
         // Get/Set permissions
         Integer mode = null;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MODE);
@@ -1046,9 +1050,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             mode = (Integer) prop;
         } else {
             LOG.debug("No mode provided");
-            return mode;
+            return java.util.Optional.empty();
         }
-        return mode;
+        return Optional.of(mode);
     }
 
 
