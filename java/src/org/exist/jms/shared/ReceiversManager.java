@@ -63,8 +63,8 @@ public class ReceiversManager {
             throw new IllegalArgumentException("Receiver should not be null");
         }
 
-        LOG.info(String.format("Registering receiver %s", receiver.getId()));
-        receivers.put(receiver.getId(), receiver);
+        LOG.info(String.format("Registering receiver %s", receiver.getReceiverId()));
+        receivers.put(receiver.getReceiverId(), receiver);
     }
 
     /**

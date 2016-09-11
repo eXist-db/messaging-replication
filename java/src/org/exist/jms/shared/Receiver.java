@@ -76,9 +76,9 @@ public class Receiver {
         this.messageListener = listener;
 
         // Uniq ID for Receiver
-        id = createNewId();
+        id = getIncrementedID();
 
-        listener.setIdentification("" + id);
+        listener.setReceiverID(id);
 
         // Initialing XML datafactory
         try {
@@ -88,7 +88,7 @@ public class Receiver {
         }
     }
 
-    private static synchronized Integer createNewId() {
+    private static synchronized Integer getIncrementedID() {
         lastId++;
         return lastId;
     }
@@ -98,7 +98,7 @@ public class Receiver {
      *
      * @return ID of receiver
      */
-    public Integer getId() {
+    public Integer getReceiverId() {
         return id;
     }
 
