@@ -40,7 +40,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
 
     private final Report report = new Report();
     private Session session;
-    private String id = "?";
+    private int id = -1;
 
     /**
      * Get report of the JMS listener.
@@ -71,7 +71,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
         this.session = session;
     }
 
-    public String getIdentification() {
+    public int getReceiverID() {
         return id;
     }
 
@@ -80,7 +80,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
      *
      * @param id Identifier
      */
-    public void setIdentification(final String id) {
+    public void setReceiverID(final int id) {
         this.id = id;
     }
 

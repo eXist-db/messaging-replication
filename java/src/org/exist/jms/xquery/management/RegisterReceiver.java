@@ -96,7 +96,7 @@ public class RegisterReceiver extends BasicFunction {
             receiver.start();
 
             // Return identification
-            return new IntegerValue(receiver.getId());
+            return new IntegerValue(receiver.getReceiverId());
 
         } catch (final XPathException ex) {
             LOG.error(ex.getMessage());

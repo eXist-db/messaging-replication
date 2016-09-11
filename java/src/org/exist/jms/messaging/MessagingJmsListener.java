@@ -68,16 +68,16 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private Subject subject;
     private Report report = null;
 
-    private Session session;
-    private String id = "?";
+//    private Session session;
+    private int receiverID = -1;
 
 
 //    public void setSession(Session session){
 //        this.session=session;
 //    }
 //    
-//    public void setIdentification(String id){
-//        this.id=id;
+//    public void setReceiverID(String receiverID){
+//        this.receiverID=receiverID;
 //    }
 
     public MessagingJmsListener(final Subject subject, final FunctionReference functionReference, final Sequence functionParams, final XQueryContext xqueryContext) {
@@ -95,23 +95,21 @@ public class MessagingJmsListener extends eXistMessagingListener {
         // Make a copy, just in case
         functionReference.setContext(xqueryContext.copyContext());
 
-        id = getIdentification();
-
-        final String logString = String.format("{%s} ", id);
+        receiverID = getReceiverID();
 
         report.start();
 
         // Log incoming message
         try {
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("%sReceived message: messageId=%s javaClass=%s", logString, msg.getJMSMessageID(), msg.getClass().getSimpleName()));
+                LOG.debug("Received message: receiverID={} messageId={} javaClass={}", receiverID, msg.getJMSMessageID(), msg.getClass().getSimpleName());
             } else {
-                LOG.info(String.format("%sReceived message: messageId=%s", logString, msg.getJMSMessageID()));
+                LOG.info("Received message: receiverID={} messageId={}", receiverID, msg.getJMSMessageID());
             }
 
         } catch (final JMSException ex) {
             report.addListenerError(ex);
-            LOG.error(logString + ex.getMessage());
+            LOG.error(String.format("%s (Receiver=%s)", ex.getMessage(), receiverID), ex);
         }
 
         // Placeholder for broker
@@ -140,7 +138,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 final MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
                 // Retrieve content of message
-                final Sequence content = getContent(msg, logString);
+                final Sequence content = getContent(msg);
 
                 // Setup parameters callback function
                 final Sequence[] params = new Sequence[4];
@@ -150,17 +148,17 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 params[3] = jmsProperties;
 
                 // Execute callback function
-                LOG.debug(logString + "call evalFunction");
+                LOG.debug("Receiver={} : call evalFunction", receiverID);
                 final Sequence result = functionReference.evalFunction(null, null, params);
 
                 // Done
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("%s : Function returned %s", logString, result.getStringValue()));
+                    LOG.debug("Reciever={} : Function returned %s", receiverID, result.getStringValue());
                 }
 
                 // Acknowledge processing
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(logString + "call acknowledge");
+                    LOG.debug("Receiver={} : call acknowledge", receiverID);
                 }
                 msg.acknowledge();
 
@@ -170,16 +168,17 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
         } catch (final Throwable ex) {
             report.addListenerError(ex);
-            LOG.error(logString + ex.getMessage());
+            LOG.error(String.format("%s (Receiver=%s)", ex.getMessage(), receiverID), ex);
 
+            final Session session = getSession();
             try {
-                session.close();
+                if (session != null) {
+                    session.close();
+                }
             } catch (final JMSException ex1) {
-                LOG.error(logString + ex1.getMessage());
+                LOG.error(String.format("%s (Receiver=%s)", ex1.getMessage(), receiverID), ex1);
             }
 
-            // DW: Not needed anymore?
-            // throw new RuntimeException(ex.getMessage());
 
         } finally {
 
@@ -195,13 +194,12 @@ public class MessagingJmsListener extends eXistMessagingListener {
      * Convert JMS message into a sequence of data.
      *
      * @param msg       The JMS message object
-     * @param logString Additional information used in logging
      * @return Sequence representing the JMS message
      * @throws IOException    An internal IO error occurred.
      * @throws XPathException An eXist-db object could not be  handled.
      * @throws JMSException   A problem occurred handling an JMS object.
      */
-    private Sequence getContent(final Message msg, final String logString) throws IOException, XPathException, JMSException {
+    private Sequence getContent(final Message msg) throws IOException, XPathException, JMSException {
         // This sequence shall contain the actual conten that will be passed
         // to the callback function
         Sequence content = null;

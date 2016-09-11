@@ -111,6 +111,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     @Override
     public void onMessage(final Message msg) {
 
+        final int receiverID = getReceiverID();
+        LOG.debug("Receiver={}", receiverID);
+
         // Start reporting
         report.start();
 
