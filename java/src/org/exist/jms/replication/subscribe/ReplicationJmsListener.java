@@ -329,8 +329,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         }
 
         // Get OWNER and Group
-        final Optional<String> groupName = getOrCreateGroupName(metaData);
         final Optional<String> userName = getOrCreateUserName(metaData);
+        final Optional<String> groupName = getOrCreateGroupName(metaData);
 
         // Get MIME_TYPE
         final String mimeType = getMimeType(metaData, mime.getName());
@@ -658,6 +658,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Get OWNER/GROUP/MODE
         final Optional<String> userName = getOrCreateUserName(metaData);
         final Optional<String> groupName = getOrCreateGroupName(metaData);
+
         final Optional<Integer> mode = getMode(metaData);
         final Optional<Long> createTime = getCreationTime(metaData);
 
@@ -868,6 +869,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         // Get OWNER/GROUP/MODE
         final Optional<String> userName = getOrCreateUserName(metaData);
         final Optional<String> groupName = getOrCreateGroupName(metaData);
+
         final Optional<Integer> mode = getMode(metaData);
 
         final Optional<Long> created = getCreationTime(metaData);
@@ -939,19 +941,19 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         if (account == null) {
             LOG.error(String.format("Username %s does not exist.", userName));
 
-            final Account user = new UserAider(userName);
-            try {
-                securityManager.addAccount(user);
-                account = user;
-            } catch (PermissionDeniedException | EXistException e) {
-                LOG.error(String.format("Unable to create user %s. Fall back to default.", userName));
-            }
-
-
-        }
-
-        // Fallback
-        if (account == null) {
+//            final Account user = new UserAider(userName);
+//            try {
+//                securityManager.addAccount(user);
+//                account = user;
+//            } catch (PermissionDeniedException | EXistException e) {
+//                LOG.error(String.format("Unable to create user %s. Fall back to default. %s", userName,e.getMessage()));
+//            }
+//
+//
+//        }
+//
+//        // Fallback
+//        if (account == null) {
             account = securityManager.getSystemSubject();
         }
 
@@ -975,19 +977,19 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         Group group = securityManager.getGroup(groupName);
         if (group == null) {
-            LOG.info(String.format("Group %s does not exist. Will be created.", groupName));
-
-            try {
-                Group newGroup = new GroupAider(groupName);
-                securityManager.addGroup(newGroup);
-                group = newGroup;
-            } catch (PermissionDeniedException | EXistException e) {
-                LOG.error(String.format("Unable to create group %s. Fall back to default.", groupName));
-            }
-        }
-
-        // Fallback
-        if (group == null) {
+            LOG.info(String.format("Group %s does not exist.", groupName));
+//
+//            try {
+//                Group newGroup = new GroupAider(groupName);
+//                securityManager.addGroup(newGroup);
+//                group = newGroup;
+//            } catch (PermissionDeniedException | EXistException e) {
+//                LOG.error(String.format("Unable to create group %s. Fall back to default. %s", groupName, e.getMessage()));
+//            }
+//        }
+//
+//        // Fallback
+//        if (group == null) {
             group = securityManager.getSystemSubject().getDefaultGroup();
         }
 
