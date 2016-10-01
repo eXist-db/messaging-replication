@@ -50,9 +50,9 @@ import java.util.Map;
 public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, CollectionTrigger {
 
     public static final String JMS_EXTENSION_PKG = "org.exist.jms";
+    public static final String REPLICATION_OFF = "Resource operation not replicated: replication is switched off";
     private final static Logger LOGGER = LogManager.getLogger(ReplicationTrigger.class);
     private static final String BLOCKED_MESSAGE = "Prevented re-replication of '{}'";
-    public static final String REPLICATION_OFF = "Resource operation not replicated: replication is switched off";
     private final ReplicationGuard guard = ReplicationGuard.getInstance();
     private Map<String, List<?>> parameters;
 
@@ -110,11 +110,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCreateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Create document '{}'", document.getURI().toString());
-        }
+        LOGGER.info("Create document '{}'", document.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -130,11 +128,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterUpdateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Update document '{}'", document.getURI().toString());
-        }
-
-        if(guard.getReplicationEnabled()){
+        LOGGER.info("Update document '{}'", document.getURI().toString());
+        
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -150,11 +146,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCopyDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Copy document '{}' from '{}'", document.getURI().toString(), oldUri.toString());
-        }
+        LOGGER.info("Copy document from '{}' to '{}'", oldUri.toString(), document.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -178,11 +172,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterMoveDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Move document '{}' from '{}'", document.getURI().toString(), oldUri.toString());
-        }
+        LOGGER.info("Move document from '{}' to '{}'", oldUri.toString(), , document.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -206,11 +198,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterDeleteDocument(final DBBroker broker, final Txn transaction, final XmldbURI uri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Delete document '{}'", uri.toString());
-        }
+        LOGGER.info("Delete document '{}'", uri.toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -236,11 +226,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCreateCollection(final DBBroker broker, final Txn transaction, final Collection collection) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Create collection '{}'", collection.getURI().toString());
-        }
+        LOGGER.info("Create collection '{}'", collection.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -271,11 +259,10 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
     //@Override
     public void afterUpdateCollectionMetadata(final DBBroker broker, final Txn txn, final Collection collection) throws TriggerException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Update collection metadata '{}'", collection.getURI().toString());
-        }
 
-        if(guard.getReplicationEnabled()){
+        LOGGER.info("Update collection metadata '{}'", collection.getURI().toString());
+
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -302,11 +289,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCopyCollection(final DBBroker broker, final Txn transaction, final Collection collection, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Copy collection to '{}' from '{}'", collection.getURI().toString(), oldUri.toString());
-        }
+        LOGGER.info("Copy collection from '{}' to '{}'", oldUri.toString(), collection.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -330,11 +315,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterMoveCollection(final DBBroker broker, final Txn transaction, final Collection collection, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Move collection to '{}' from '{}'", collection.getURI().toString(), oldUri.toString());
-        }
+        LOGGER.info("Move collection from '{}' to '{}'", oldUri.toString(), collection.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -357,11 +340,10 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
     @Override
     public void afterDeleteCollection(final DBBroker broker, final Txn transaction, final XmldbURI uri) throws TriggerException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Delete collection '{}'", uri.toString());
-        }
 
-        if(guard.getReplicationEnabled()){
+        LOGGER.info("Delete collection '{}'", uri.toString());
+
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -388,11 +370,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterUpdateDocumentMetadata(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Update document metadata '{}'", document.getURI().toString());
-        }
+        LOGGER.info("Update document metadata '{}'", document.getURI().toString());
 
-        if(guard.getReplicationEnabled()){
+        if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
