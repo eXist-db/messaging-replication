@@ -24,6 +24,9 @@
         <!-- ActiveMQ jms pool -->
         <dependency org="org.apache.activemq" name="activemq-jms-pool" rev="5.14.0" conf="*->*" transitive="false"/>
         
+        <!-- Additional dependancy -->
+        <dependency org="org.apache.commons" name="commons-pool2" rev="2.4.2" conf="*->*" transitive="false"/>
+        
     </dependencies>
     
 </ivy-module>
