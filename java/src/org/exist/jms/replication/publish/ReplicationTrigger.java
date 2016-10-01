@@ -53,42 +53,17 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     private static final String BLOCKED_MESSAGE = "Prevented re-replication of '%s'";
     private Map<String, List<?>> parameters;
 
-    private boolean isOriginIdAvailable = false;
-
-    /**
-     * Constructor.
-     * <p>
-     * Verifies if new-enough version of eXist-db is used.
-     */
-    public ReplicationTrigger() {
-
-        super();
-
-        try {
-            // Verify if method does exist
-            Class.forName("org.exist.Transaction");
-
-            // Yes :-)
-            isOriginIdAvailable = true;
-
-        } catch (final java.lang.ClassNotFoundException error) {
-
-            // Running an old version of eXist-db
-            LOGGER.info("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
-        }
-
-    }
 
     /**
      * Verify if the transaction is started by the JMX extension
      *
      * @param transaction The original transaction
-     * @return TRUE when started from JMS else FALSE.
+     * @return TRUE when started from the eXist-db JMS else FALSE.
      */
     private boolean isJMSOrigin(final Txn transaction) {
 
-        // only try to get OriginId when metjod is available.
-        final String originId = isOriginIdAvailable ? transaction.getOriginId() : null;
+        // Get originId.
+        final String originId =  transaction.getOriginId();
 
         return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
     }
