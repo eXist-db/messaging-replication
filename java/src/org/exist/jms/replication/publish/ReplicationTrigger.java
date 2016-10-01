@@ -31,6 +31,7 @@ import org.exist.collections.triggers.SAXTrigger;
 import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
+import org.exist.jms.replication.shared.ReplicationGuard;
 import org.exist.jms.replication.shared.TransportException;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.storage.DBBroker;
@@ -49,46 +50,22 @@ import java.util.Map;
 public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, CollectionTrigger {
 
     public static final String JMS_EXTENSION_PKG = "org.exist.jms";
+    public static final String REPLICATION_OFF = "Resource operation not replicated: replication is switched off";
+    public static final String BLOCKED_MESSAGE = "Prevented re-replication of '{}'";
     private final static Logger LOGGER = LogManager.getLogger(ReplicationTrigger.class);
-    private static final String BLOCKED_MESSAGE = "Prevented re-replication of '%s'";
+    private final ReplicationGuard guard = ReplicationGuard.getInstance();
     private Map<String, List<?>> parameters;
-
-    private boolean isOriginIdAvailable = false;
-
-    /**
-     * Constructor.
-     * <p>
-     * Verifies if new-enough version of eXist-db is used.
-     */
-    public ReplicationTrigger() {
-
-        super();
-
-        try {
-            // Verify if method does exist
-            Class.forName("org.exist.Transaction");
-
-            // Yes :-)
-            isOriginIdAvailable = true;
-
-        } catch (final java.lang.ClassNotFoundException error) {
-
-            // Running an old version of eXist-db
-            LOGGER.info("Method Txn.getOriginId() is not available. Please upgrade to eXist-db 2.2 or newer. " + error.getMessage());
-        }
-
-    }
 
     /**
      * Verify if the transaction is started by the JMX extension
      *
      * @param transaction The original transaction
-     * @return TRUE when started from JMS else FALSE.
+     * @return TRUE when started from the eXist-db JMS else FALSE.
      */
     private boolean isJMSOrigin(final Txn transaction) {
 
-        // only try to get OriginId when metjod is available.
-        final String originId = isOriginIdAvailable ? transaction.getOriginId() : null;
+        // Get originId.
+        final String originId = transaction.getOriginId();
 
         return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
     }
@@ -99,15 +76,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     private void afterUpdateCreateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document,
                                            final eXistMessage.ResourceOperation operation) /* throws TriggerException */ {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(document.getURI().toString());
-        }
-
-        /** TODO: make optional? (for lJO) */
-        if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
-            return;
-        }
+        // note: checks and logs are done in calling methods.
 
         // Create Message
         final eXistMessage msg = new eXistMessage();
@@ -132,7 +101,6 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
         } catch (final Throwable ex) {
             LOGGER.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s",
                     document.getContentLength(), ex.getMessage()), ex);
-            //throw new TriggerException("Unable to retrieve message payload: " + ex.getMessage());
         }
 
         // Send Message   
@@ -142,12 +110,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCreateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(document.getURI().toString());
+        LOGGER.info("Create document '{}'", document.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, document.getURI().toString());
             return;
         }
 
@@ -157,12 +128,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterUpdateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(document.getURI().toString());
+        LOGGER.info("Update document '{}'", document.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, document.getURI().toString());
             return;
         }
 
@@ -172,12 +146,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCopyDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
+        LOGGER.info("Copy document from '{}' to '{}'", oldUri.toString(), document.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, document.getURI().toString());
             return;
         }
 
@@ -195,12 +172,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterMoveDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("%s %s", document.getURI().toString(), oldUri.toString()));
+        LOGGER.info("Move document from '{}' to '{}'", oldUri.toString(), document.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, document.getURI().toString());
             return;
         }
 
@@ -218,12 +198,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterDeleteDocument(final DBBroker broker, final Txn transaction, final XmldbURI uri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(uri.toString());
+        LOGGER.info("Delete document '{}'", uri.toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, uri.toString()));
+            LOGGER.info(BLOCKED_MESSAGE, uri.toString());
             return;
         }
 
@@ -243,12 +226,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCreateCollection(final DBBroker broker, final Txn transaction, final Collection collection) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(collection.getURI().toString());
+        LOGGER.info("Create collection '{}'", collection.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, collection.getURI().toString());
             return;
         }
 
@@ -267,18 +253,22 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     }
 
     //@Override
-    public void beforeUpdateCollectionMetadata(DBBroker broker, Txn txn, Collection collection) throws TriggerException {
+    public void beforeUpdateCollectionMetadata(final DBBroker broker, final Txn txn, final Collection collection) throws TriggerException {
         // ignored
     }
 
     //@Override
-    public void afterUpdateCollectionMetadata(DBBroker broker, Txn txn, Collection collection) throws TriggerException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(collection.getURI().toString());
+    public void afterUpdateCollectionMetadata(final DBBroker broker, final Txn txn, final Collection collection) throws TriggerException {
+
+        LOGGER.info("Update collection metadata '{}'", collection.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(txn)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, collection.getURI().toString());
             return;
         }
 
@@ -299,12 +289,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterCopyCollection(final DBBroker broker, final Txn transaction, final Collection collection, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
+        LOGGER.info("Copy collection from '{}' to '{}'", oldUri.toString(), collection.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, collection.getURI().toString());
             return;
         }
 
@@ -322,12 +315,15 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterMoveCollection(final DBBroker broker, final Txn transaction, final Collection collection, final XmldbURI oldUri) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format("%s %s", collection.getURI().toString(), oldUri.toString()));
+        LOGGER.info("Move collection from '{}' to '{}'", oldUri.toString(), collection.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, collection.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, collection.getURI().toString());
             return;
         }
 
@@ -344,12 +340,16 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
     @Override
     public void afterDeleteCollection(final DBBroker broker, final Txn transaction, final XmldbURI uri) throws TriggerException {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(uri.toString());
+
+        LOGGER.info("Delete collection '{}'", uri.toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, uri.toString()));
+            LOGGER.info(BLOCKED_MESSAGE, uri.toString());
             return;
         }
 
@@ -370,15 +370,18 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterUpdateDocumentMetadata(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(document.getURI().toString());
+        LOGGER.info("Update document metadata '{}'", document.getURI().toString());
+
+        if (!guard.getReplicationEnabled()) {
+            LOGGER.info(REPLICATION_OFF);
+            return;
         }
 
         /*
          * If the action is originated from a trigger, do not process it again
          */
         if (isJMSOrigin(transaction)) {
-            LOGGER.info(String.format(BLOCKED_MESSAGE, document.getURI().toString()));
+            LOGGER.info(BLOCKED_MESSAGE, document.getURI().toString());
             return;
         }
 
@@ -404,6 +407,11 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void configure(final DBBroker broker, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
         super.configure(broker, parentCollection, parameters);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Configuring replication trigger for collection '{}'", parentCollection.getURI());
+        }
+
         this.parameters = parameters;
 
     }
@@ -416,6 +424,10 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
         // Send Message   
         final JMSMessageSender sender = new JMSMessageSender(parameters);
         try {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Sending JMS message for '{}' on '{}'", msg.getResourceOperation().toString(), msg.getResourcePath());
+            }
+
             sender.sendMessage(msg);
 
         } catch (final TransportException ex) {
