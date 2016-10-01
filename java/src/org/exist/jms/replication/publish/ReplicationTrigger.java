@@ -129,7 +129,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     public void afterUpdateDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws TriggerException {
 
         LOGGER.info("Update document '{}'", document.getURI().toString());
-        
+
         if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
@@ -172,7 +172,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     @Override
     public void afterMoveDocument(final DBBroker broker, final Txn transaction, final DocumentImpl document, final XmldbURI oldUri) throws TriggerException {
 
-        LOGGER.info("Move document from '{}' to '{}'", oldUri.toString(), , document.getURI().toString());
+        LOGGER.info("Move document from '{}' to '{}'", oldUri.toString(), document.getURI().toString());
 
         if (guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
