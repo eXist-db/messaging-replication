@@ -51,8 +51,8 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
     public static final String JMS_EXTENSION_PKG = "org.exist.jms";
     public static final String REPLICATION_OFF = "Resource operation not replicated: replication is switched off";
+    public static final String BLOCKED_MESSAGE = "Prevented re-replication of '{}'";
     private final static Logger LOGGER = LogManager.getLogger(ReplicationTrigger.class);
-    private static final String BLOCKED_MESSAGE = "Prevented re-replication of '{}'";
     private final ReplicationGuard guard = ReplicationGuard.getInstance();
     private Map<String, List<?>> parameters;
 
@@ -112,7 +112,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Create document '{}'", document.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -130,7 +130,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Update document '{}'", document.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -148,7 +148,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Copy document from '{}' to '{}'", oldUri.toString(), document.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -174,7 +174,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Move document from '{}' to '{}'", oldUri.toString(), document.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -200,7 +200,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Delete document '{}'", uri.toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -228,7 +228,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Create collection '{}'", collection.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -262,7 +262,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Update collection metadata '{}'", collection.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -291,7 +291,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Copy collection from '{}' to '{}'", oldUri.toString(), collection.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -317,7 +317,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Move collection from '{}' to '{}'", oldUri.toString(), collection.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -343,7 +343,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Delete collection '{}'", uri.toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -372,7 +372,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         LOGGER.info("Update document metadata '{}'", document.getURI().toString());
 
-        if (guard.getReplicationEnabled()) {
+        if (!guard.getReplicationEnabled()) {
             LOGGER.info(REPLICATION_OFF);
             return;
         }
@@ -408,7 +408,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     public void configure(final DBBroker broker, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
         super.configure(broker, parentCollection, parameters);
 
-        LOGGER.info("Configuring replication trigger for collection '{}'", parentCollection.getURI());
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Configuring replication trigger for collection '{}'", parentCollection.getURI());
+        }
 
         this.parameters = parameters;
 
