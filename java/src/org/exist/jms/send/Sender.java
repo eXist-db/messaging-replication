@@ -196,8 +196,8 @@ public class Sender {
 
         final ConnectionFactory retVal;
 
-        // check if Pooling is needed
-        final String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL);
+        // Use pooling when
+        final String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL,"activemq");
         if (StringUtils.isNotBlank(poolValue)) {
 
             // Get URL to broker

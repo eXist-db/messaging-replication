@@ -43,10 +43,10 @@ class SenderConnectionFactory {
      * Get Connection Factory. Return existing factory or create new one if not existent.
      *
      * @param brokerURL URL to broker
+     * @param poolParam name of specific connection factory, or yes or true or activemq to use optimized pooled activemq factory.
      * @return the connection factory
-     * @throws NamingException
      */
-    static ConnectionFactory getConnectionFactoryInstance(final String brokerURL, String className) {
+    static ConnectionFactory getConnectionFactoryInstance(final String brokerURL, String poolParam) {
 
         // Get CF
         ConnectionFactory retVal = connectionFactories.get(brokerURL);
@@ -54,15 +54,17 @@ class SenderConnectionFactory {
         // WHen not available create a new CF
         if (retVal == null) {
             try {
-                LOG.info(String.format("Creating new PooledConnectionFactory for %s", brokerURL));
+                LOG.info("Creating new connection factory for {}", brokerURL);
 
-                if (StringUtils.isBlank(className) || "yes".equalsIgnoreCase(className)
-                        || "true".equalsIgnoreCase(className) || "activemq".equalsIgnoreCase(className)) {
-                    className = ACTIVEMQ_POOLED_CONNECTION_FACTORY;
+                if (StringUtils.isBlank(poolParam) || "yes".equalsIgnoreCase(poolParam)
+                        || "true".equalsIgnoreCase(poolParam) || "activemq".equalsIgnoreCase(poolParam)) {
+                    poolParam = ACTIVEMQ_POOLED_CONNECTION_FACTORY;
                 }
 
+                LOG.info("Connection factory: {}", poolParam);
+
                 // Construct and initialize the factory
-                final Class<?> clazz = Class.forName(className);
+                final Class<?> clazz = Class.forName(poolParam);
                 final Object object = ConstructorUtils.invokeConstructor(clazz, brokerURL);
 
                 // Convert to class
@@ -75,11 +77,11 @@ class SenderConnectionFactory {
                 retVal = cf;
 
             } catch (final Throwable t) {
-                LOG.error(t);
+                LOG.error("Unable to create new connection factory: {}", t.getMessage());
             }
 
         } else {
-            LOG.debug(String.format("Reusing existing connectionFactory for %s", brokerURL));
+            LOG.debug("Reusing existing connectionFactory for {}", brokerURL);
         }
 
         return retVal;
