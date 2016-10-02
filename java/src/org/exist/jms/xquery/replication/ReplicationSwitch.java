@@ -41,7 +41,7 @@ public class ReplicationSwitch extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
-                    new QName("enableReplication", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
+                    new QName("enable-trigger", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Globally switch on/off the replication trigger", new SequenceType[]{
                     new FunctionParameterSequenceType("newStatus", Type.BOOLEAN, Cardinality.EXACTLY_ONE, "Value true() enables replication."),},
                     new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
