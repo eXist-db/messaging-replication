@@ -48,8 +48,10 @@ class SenderConnectionFactory {
      */
     static ConnectionFactory getConnectionFactoryInstance(final String brokerURL, String poolParam) {
 
-        // Get CF
-        ConnectionFactory retVal = connectionFactories.get(brokerURL);
+        final String storeID = brokerURL + "#" + poolParam;
+
+        // Try to get CF
+        ConnectionFactory retVal = connectionFactories.get(storeID);
 
         // WHen not available create a new CF
         if (retVal == null) {
@@ -71,7 +73,7 @@ class SenderConnectionFactory {
                 final ConnectionFactory cf = (ConnectionFactory) object;
 
                 // Store newly created factory
-                connectionFactories.put(brokerURL, cf);
+                connectionFactories.put(storeID, cf);
 
                 // Return to requester
                 retVal = cf;

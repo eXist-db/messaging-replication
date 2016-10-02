@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
-    <div class="col-md-9">
-        <h1>Replication: Register JMS receiver</h1>
-        <p>
-        XQuery code example to demonstrate how to register a replication listener.
-        </p>
-        <div class="alert alert-warning">
-            <strong>Warning!</strong> For this function the user must be 'dba' or he must be in the 'jms' group.
-        </div>
+    <div class="col-md-12">
+        <h1>Replication: XQuery functions</h1>
+        <p>For more details on the functions please consult the <a href="https://github.com/eXist-db/messaging-replication/wiki/Messaging">wiki</a>.</p>
         <section>
-            <pre class="demo:display-source">(: 
- : Example: register replication receiver with configuration parameters 
- :)
-xquery version "3.0";
-
-
-import module namespace replication="http://exist-db.org/xquery/replication" 
-              at "java:org.exist.jms.xquery.ReplicationModule"; 
-
-
-let $jmsConfiguration := map {
-        "java.naming.factory.initial" 
-                := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://localhost:61616",
-        "connection-factory" := "ConnectionFactory",
-        "destination" := "dynamicTopics/eXistdb-replication-demo",
-        "subscriber.name" := "SubscriptionId",
-        "connection.client-id" := "ClientId"
-    }
-              
-return
-    replication:register($jmsConfiguration)</pre>
+            <h2>Register receiver</h2>
+            Programatically register the replication receiver. Recommended to invoke during startup via the <a href="https://github.com/eXist-db/messaging-replication/wiki/Startup-Triggers#general-xquerystartuptrigger">XQuery Startup Trigger</a> mechanism. An example can be found <a href="replication-register.html">here</a>.
+            <div class="code" data-language="xquery">
+(: Register replication receiver :)
+replication:register($jmsConfiguration as map(*))
+</div>
         </section>
+        <section>
+            <h2>Sync resource</h2>
+            Synchronize a document or collection. The function requires a <b>collection.xconf</b> configuration document in /db/system/... for the collection that contains the resource. For a collection only that collection is synchronized, not the resources in the collection.
+            <div class="code" data-language="xquery">
+(: Synchronize resource :)
+replication:sync($path as xs:string)
+</div>
+        </section>
+        <section>
+            <h2>Sync metadata of resource</h2>
+            Synchronize the metadata of a document or collection. The function requires a <b>collection.xconf</b> configuration document in /db/system/... for the collection that contains the resource. For a collection only that collection is synchronized, not the metadata of the resources in the collection.
+            <div class="code" data-language="xquery">
+(: Synchronize metadata of resource :)
+replication:sync-metadata($path as xs:string)
+</div>
+        </section>
+        <section>
+            <h2>Manage status ReplicationTrigger</h2>
+            With this function the ReplicationTrigger can be (globally) switched on and off. This is usefull in case of restoring a backup or maintenance on the database.
+            <div class="code" data-language="xquery">
+(: Synchronize metadata of resource :)
+replication:enable-trigger($newState as xs:boolean)
+</div>
+        </section>
+        
     </div>
-    <div class="col-md-3"/>
 </div>
