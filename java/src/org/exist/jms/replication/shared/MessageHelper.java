@@ -76,10 +76,10 @@ public class MessageHelper {
     /**
      * Serialize document to byte array as gzipped document.
      *
-     * @param broker
-     * @param document
-     * @return document as bytes
-     * @throws IOException
+     * @param broker The broker
+     * @param document Document to compress
+     * @return document as array of bytes
+     * @throws IOException When the
      */
     public static byte[] gzipSerialize(final DBBroker broker, final DocumentImpl document) throws IOException {
 

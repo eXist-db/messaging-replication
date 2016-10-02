@@ -22,14 +22,9 @@ package org.exist.jms.xquery.replication;
 
 import org.exist.dom.QName;
 import org.exist.jms.replication.shared.ReplicationGuard;
-import org.exist.jms.replication.subscribe.ReplicationJmsListener;
 import org.exist.jms.shared.Constants;
-import org.exist.jms.shared.JmsConfiguration;
-import org.exist.jms.shared.Receiver;
-import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.xquery.ReplicationModule;
 import org.exist.xquery.*;
-import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
 /**
@@ -64,7 +59,7 @@ public class ReplicationSwitch extends BasicFunction {
         }
 
         try {
-            ReplicationGuard rg = ReplicationGuard.getInstance();
+            final ReplicationGuard rg = ReplicationGuard.getInstance();
 
             final boolean newStatus = args[0].itemAt(0).toJavaObject(Boolean.class);
 

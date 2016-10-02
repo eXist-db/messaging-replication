@@ -49,7 +49,7 @@ public class UserGroupHelper {
             LOG.info(String.format("Group %s does not exist. Will be created.", inputGroupName));
 
             try {
-                Group newGroup = new GroupAider(inputGroupName);
+                final Group newGroup = new GroupAider(inputGroupName);
                 securityManager.addGroup(newGroup);
                 group = newGroup;
             } catch (PermissionDeniedException | EXistException e) {

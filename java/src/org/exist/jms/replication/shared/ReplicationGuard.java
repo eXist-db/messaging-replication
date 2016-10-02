@@ -51,7 +51,7 @@ public class ReplicationGuard {
 
     }
 
-    public void setReplicationEnabled(boolean newStatus){
+    public void setReplicationEnabled(final boolean newStatus){
 
         LOGGER.info("Replication is switched {}", newStatus ? "ON" : "OFF");
 
