@@ -343,7 +343,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             collection = getOrCreateCollection(colURI, userName, groupName, Optional.of(Permission.DEFAULT_COLLECTION_PERM), null);
 
         } catch (final MessageReceiveException e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
             throw e;
         } catch (final Throwable t) {
             if (LOG.isDebugEnabled()) {
@@ -530,7 +530,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txn.commit();
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage(), e);
 
         } finally {
@@ -791,7 +791,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txnManager.commit(txn);
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage(), e);
 
         } finally {
@@ -843,7 +843,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txn.commit();
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage());
 
         } finally {
@@ -907,7 +907,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txn.commit();
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage());
 
         } finally {

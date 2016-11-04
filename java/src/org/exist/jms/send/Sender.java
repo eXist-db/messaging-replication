@@ -174,7 +174,7 @@ public class Sender {
             return createReport(message, producer, jmsConfig);
 
         } catch (final Throwable ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             throw new XPathException(ex.getMessage());
 
         } finally {
@@ -197,7 +197,7 @@ public class Sender {
         final ConnectionFactory retVal;
 
         // Use pooling when
-        final String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL,"activemq");
+        final String poolValue = jmsConfig.getProperty(EXIST_CONNECTION_POOL, "activemq");
         if (StringUtils.isNotBlank(poolValue)) {
 
             // Get URL to broker

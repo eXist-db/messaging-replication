@@ -65,6 +65,7 @@ public class Receiver {
     private Connection connection = null;
 
     private int id = 0;
+
     /**
      * Constructor
      *

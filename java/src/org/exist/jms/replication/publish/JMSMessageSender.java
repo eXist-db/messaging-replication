@@ -49,7 +49,7 @@ public class JMSMessageSender implements MessageSender {
      * Constructor
      *
      * @param params Set of (Key,value) parameters for setting JMS routing
-     *                   instructions, like java.naming.* , destination and connection factory.
+     *               instructions, like java.naming.* , destination and connection factory.
      */
     JMSMessageSender(final Map<String, List<?>> params) {
         parameters.setMultiValueParameters(params);
