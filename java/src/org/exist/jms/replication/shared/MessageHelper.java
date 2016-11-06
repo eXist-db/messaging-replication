@@ -76,10 +76,10 @@ public class MessageHelper {
     /**
      * Serialize document to byte array as gzipped document.
      *
-     * @param broker
-     * @param document
-     * @return document as bytes
-     * @throws IOException
+     * @param broker   The broker
+     * @param document Document to compress
+     * @return document as array of bytes
+     * @throws IOException When the
      */
     public static byte[] gzipSerialize(final DBBroker broker, final DocumentImpl document) throws IOException {
 
@@ -114,7 +114,7 @@ public class MessageHelper {
             } catch (final Throwable e) {
                 payload = new byte[0];
                 System.gc(); // recover from out of memory exception
-                LOG.error(e);
+                LOG.error(e.getMessage(), e);
                 throw new IOException(String.format("Error while serializing XML document: %s", e.getMessage()), e);
             }
 
@@ -140,7 +140,7 @@ public class MessageHelper {
             } catch (final Throwable e) {
                 payload = new byte[0];
                 System.gc(); // recover from out of memory exception
-                LOG.error(e);
+                LOG.error(e.getMessage(), e);
                 throw new IOException(String.format("Error while serializing binary document: %s", e.getMessage()), e);
             }
         }

@@ -79,7 +79,7 @@ class SenderConnectionFactory {
                 retVal = cf;
 
             } catch (final Throwable t) {
-                LOG.error("Unable to create new connection factory: {}", t.getMessage());
+                LOG.error("Unable to create new connection factory: {}", t.getMessage(), t);
             }
 
         } else {

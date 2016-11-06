@@ -68,7 +68,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private Subject subject;
     private Report report = null;
 
-//    private Session session;
+    //    private Session session;
     private int receiverID = -1;
 
 
@@ -83,7 +83,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     public MessagingJmsListener(final Subject subject, final FunctionReference functionReference, final Sequence functionParams, final XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
-        this.xqueryContext = xqueryContext;
+        this.xqueryContext = xqueryContext.copyContext();
         this.functionParams = functionParams;
         this.report = getReport();
         this.subject = subject;
@@ -93,7 +93,10 @@ public class MessagingJmsListener extends eXistMessagingListener {
     public void onMessage(final Message msg) {
 
         // Make a copy, just in case
-        functionReference.setContext(xqueryContext.copyContext());
+        XQueryContext copyContext = xqueryContext.copyContext();
+
+        // Set new context to function reference
+        functionReference.setContext(copyContext);
 
         receiverID = getReceiverID();
 
@@ -153,7 +156,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
                 // Done
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Reciever={} : Function returned %s", receiverID, result.getStringValue());
+                    LOG.debug("Receiver={} : Function returned %s", receiverID, result.getStringValue());
                 }
 
                 // Acknowledge processing
@@ -167,6 +170,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
             }
 
         } catch (final Throwable ex) {
+
+            LOG.error(ex.getMessage(), ex);
+
             report.addListenerError(ex);
             LOG.error(String.format("%s (Receiver=%s)", ex.getMessage(), receiverID), ex);
 
@@ -193,7 +199,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     /**
      * Convert JMS message into a sequence of data.
      *
-     * @param msg       The JMS message object
+     * @param msg The JMS message object
      * @return Sequence representing the JMS message
      * @throws IOException    An internal IO error occurred.
      * @throws XPathException An eXist-db object could not be  handled.

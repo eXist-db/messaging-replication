@@ -92,7 +92,7 @@ public class SendMessage extends BasicFunction {
             throw ex;
 
         } catch (final Throwable t) {
-            LOG.error(t.getMessage());
+            LOG.error(t.getMessage(), t);
             throw new XPathException(this, t);
         }
     }

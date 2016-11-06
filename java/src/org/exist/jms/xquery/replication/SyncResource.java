@@ -155,7 +155,7 @@ public class SyncResource extends BasicFunction {
             throw ex;
 
         } catch (final Throwable t) {
-            LOG.error(t);
+            LOG.error(t.getMessage(), t);
             throw new XPathException(this, t);
 
         } finally {

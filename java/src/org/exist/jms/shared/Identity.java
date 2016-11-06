@@ -46,6 +46,7 @@ public class Identity {
     private static Identity instance = null;
     private Path identityFile = null;
     private String identity = null;
+
     private Identity() {
         findIdentityFile();
         getIdentityFromFile();

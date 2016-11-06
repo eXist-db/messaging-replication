@@ -24,7 +24,6 @@ package org.exist.jms.replication.subscribe;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.exist.EXistException;
 import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.persistent.DocumentImpl;
@@ -33,9 +32,6 @@ import org.exist.jms.shared.*;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.Permission;
-import org.exist.security.PermissionDeniedException;
-import org.exist.security.internal.aider.GroupAider;
-import org.exist.security.internal.aider.UserAider;
 import org.exist.storage.BrokerPool;
 import org.exist.storage.DBBroker;
 import org.exist.storage.lock.Lock;
@@ -347,7 +343,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             collection = getOrCreateCollection(colURI, userName, groupName, Optional.of(Permission.DEFAULT_COLLECTION_PERM), null);
 
         } catch (final MessageReceiveException e) {
-            LOG.error(e.getMessage());
+            LOG.error(e.getMessage(), e);
             throw e;
         } catch (final Throwable t) {
             if (LOG.isDebugEnabled()) {
@@ -534,7 +530,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txn.commit();
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage(), e);
 
         } finally {
@@ -795,7 +791,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txnManager.commit(txn);
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage(), e);
 
         } finally {
@@ -847,7 +843,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txn.commit();
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage());
 
         } finally {
@@ -911,7 +907,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             txn.commit();
 
         } catch (final Throwable e) {
-            LOG.error(e);
+            LOG.error(e.getMessage(), e);
             throw new MessageReceiveException(e.getMessage());
 
         } finally {

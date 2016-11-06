@@ -28,6 +28,7 @@ import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
+import org.exist.xquery.functions.request.RequestModule;
 import org.exist.xquery.value.*;
 
 /**
@@ -83,9 +84,13 @@ public class RegisterReceiver extends BasicFunction {
             final JmsConfiguration config = new JmsConfiguration();
             config.loadConfiguration(configMap);
 
+            // Remove Request module from expression and xquery context
+            this.getContext().setModule(RequestModule.NAMESPACE_URI, null);
+            context.setModule(RequestModule.NAMESPACE_URI, null);
+
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            final MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context.copyContext());
+            final MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context);
 
             // Create receiver
             final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
@@ -104,7 +109,7 @@ public class RegisterReceiver extends BasicFunction {
             throw ex;
 
         } catch (final Throwable t) {
-            LOG.error(t);
+            LOG.error(t.getMessage(), t);
             throw new XPathException(this, t);
         }
     }

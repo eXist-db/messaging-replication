@@ -186,13 +186,9 @@ public class eXistMessage {
     }
 
     public String getReport() {
-        final StringBuilder sb = new StringBuilder();
-
-        sb.append("type='").append(resourceType.toString()).append("' ");
-        sb.append("resource='").append(path).append("' ");
-        sb.append("operation='").append(resourceOperation).append("'");
-
-        return sb.toString();
+        return "type='" + resourceType.toString() + "' " +
+                "resource='" + path + "' " +
+                "operation='" + resourceOperation + "'";
     }
 
     @Override

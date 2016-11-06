@@ -27,9 +27,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class ReplicationGuard {
 
-    private static volatile ReplicationGuard instance = null;
     private final static Logger LOGGER = LogManager.getLogger(ReplicationGuard.class);
-
+    private static volatile ReplicationGuard instance = null;
     boolean replicationEnabled = true;
 
     private ReplicationGuard() {
@@ -51,14 +50,14 @@ public class ReplicationGuard {
 
     }
 
-    public void setReplicationEnabled(boolean newStatus){
+    public boolean getReplicationEnabled() {
+        return this.replicationEnabled;
+    }
+
+    public void setReplicationEnabled(final boolean newStatus) {
 
         LOGGER.info("Replication is switched {}", newStatus ? "ON" : "OFF");
 
-        this.replicationEnabled=newStatus;
-    }
-
-    public boolean getReplicationEnabled(){
-        return this.replicationEnabled;
+        this.replicationEnabled = newStatus;
     }
 }
