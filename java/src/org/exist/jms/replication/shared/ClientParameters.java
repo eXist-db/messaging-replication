@@ -49,7 +49,7 @@ public abstract class ClientParameters {
     protected String connectionUsername = null;
     protected String connectionPassword = null;
 
-    protected Properties props = new Properties();
+    protected final Properties props = new Properties();
 
     /**
      * Retrieve configuration value when available as String.
@@ -81,7 +81,7 @@ public abstract class ClientParameters {
     public void setMultiValueParameters(final Map<String, List<?>> params) {
 
         // Iterate over parameters
-        params.entrySet().stream().forEach((entry) -> {
+        params.entrySet().forEach((entry) -> {
             // Get key, values
             final String key = entry.getKey();
             final List<?> values = entry.getValue();
@@ -103,7 +103,7 @@ public abstract class ClientParameters {
      */
     public void setSingleValueParameters(final Map<String, List<?>> params) {
 
-        params.keySet().stream().forEach((key) -> {
+        params.keySet().forEach((key) -> {
             final String value = getConfigurationValue(params, key);
             if (value != null) {
                 props.setProperty(key, value);
