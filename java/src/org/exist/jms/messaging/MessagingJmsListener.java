@@ -153,7 +153,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
                 // Done
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Reciever={} : Function returned %s", receiverID, result.getStringValue());
+                    LOG.debug("Receiver={} : Function returned %s", receiverID, result.getStringValue());
                 }
 
                 // Acknowledge processing
