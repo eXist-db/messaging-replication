@@ -154,11 +154,9 @@
         </zip>
     </target>
 
-    <target name="install" description="Install jar files into ${exist.dir}/lib/extensions">
-        <copy file="${build.dir}/exist-${module.name}-${module.version}.jar" todir="${exist.dir}/lib/user"/>
-
-        <copy todir="${exist.dir}/lib/user">
-            <fileset dir="${java.libs}" includes="*.jar" excludes="*sources*,*javadoc*"/>
+    <target name="install" description="Install jar files into eXist autodeploy directory">
+        <copy todir="${exist.dir}/autodeploy">
+            <fileset dir="${dist.dir}" includes="*.xar"/>
         </copy>
     </target>
 
