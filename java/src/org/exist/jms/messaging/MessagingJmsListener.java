@@ -83,7 +83,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     public MessagingJmsListener(final Subject subject, final FunctionReference functionReference, final Sequence functionParams, final XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
-        this.xqueryContext = xqueryContext;
+        this.xqueryContext = xqueryContext.copyContext();
         this.functionParams = functionParams;
         this.report = getReport();
         this.subject = subject;
@@ -93,7 +93,10 @@ public class MessagingJmsListener extends eXistMessagingListener {
     public void onMessage(final Message msg) {
 
         // Make a copy, just in case
-        functionReference.setContext(xqueryContext.copyContext());
+        XQueryContext copyContext = xqueryContext.copyContext();
+
+        // Set new context to function reference
+        functionReference.setContext(copyContext);
 
         receiverID = getReceiverID();
 
