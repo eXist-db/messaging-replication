@@ -1,7 +1,14 @@
 xquery version "3.1";
 
 (:~
-: Simple script to start the replication listener
+: Simple script to start the replication listener.
+:
+: To have this script executed when eXist-db is started:
+:
+: - enable in conf.xml the XQueryStartupTrigger
+: - carefully read the instructions about permissons
+: - copy this script into /db/system/autostart
+: - restart eXist-db, check logs for messages from the XQueryStartupTrigger
 :)
 
 import module namespace replication="http://exist-db.org/xquery/replication" at "java:org.exist.jms.xquery.ReplicationModule";
