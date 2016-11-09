@@ -138,7 +138,7 @@
         <zip destfile="${dist.dir}/${module.name}-ui-${module.version}.xar">
             <fileset dir="${web.dir}"/>
             <zipfileset dir="${build.config}/application" includes="*.xml"/>
-            <zipfileset dir="${build.config}/library" includes="*.xql"/>
+            <zipfileset dir="${build.config}/application" includes="*.xql"/>
         </zip>
 
         <!-- create library -->
