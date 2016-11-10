@@ -47,7 +47,7 @@ let $destination := $config:app-root || "/demo/messaging/topics/messages"
 let $jmsConfiguration := map {
     "java.naming.factory.initial"  := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
     "java.naming.provider.url" := "tcp://localhost:61616",
-    "destination" := "dynamicTopics/eXistdb-messaging-demo",
+    "destination" := "dynamicTopics/eXistdb-messaging-example",
     "connection-factory" := "ConnectionFactory"
 }
 
