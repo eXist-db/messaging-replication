@@ -167,6 +167,11 @@ public class Sender {
                 producer.setPriority(priority);
             }
 
+            final Integer deliveryMethod = jmsConfig.getDeliveryMethod();
+            if (deliveryMethod != null) {
+                producer.setDeliveryMode(deliveryMethod);
+            }
+
             // Send message
             producer.send(message);
 

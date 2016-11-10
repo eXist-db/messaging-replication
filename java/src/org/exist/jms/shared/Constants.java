@@ -86,4 +86,5 @@ public class Constants {
      */
     public static final String PRODUCER_TTL = "producer.time-to-live";
     public static final String PRODUCER_PRIORITY = "producer.priority";
+    public static final String PRODUCER_DELIVERY_MODE = "producer.delivery-mode";
 }

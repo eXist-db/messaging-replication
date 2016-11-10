@@ -21,6 +21,7 @@
  */
 package org.exist.jms.replication.subscribe;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exist.jms.replication.shared.ClientParameterException;
 import org.exist.jms.replication.shared.ClientParameters;
 import org.exist.jms.shared.Constants;
@@ -77,7 +78,7 @@ public class SubscriberParameters extends ClientParameters {
 
         // Connection factory
         value = props.getProperty(Constants.CONNECTION_FACTORY);
-        if (value == null || value.equals("")) {
+        if (StringUtils.isBlank(value)) {
             value = "ConnectionFactory";
             LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
         }
@@ -86,7 +87,7 @@ public class SubscriberParameters extends ClientParameters {
 
         // Destination / topic
         value = props.getProperty(Constants.DESTINATION);
-        if (value == null || value.equals("")) {
+        if (StringUtils.isBlank(value)) {
             value = "dynamicTopics/eXistdb";
             LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '" + value
                     + "' which is suitable for activeMQ");
@@ -97,7 +98,7 @@ public class SubscriberParameters extends ClientParameters {
         // for durable subscriptions later an additional check
         // is performed.
         value = props.getProperty(Constants.CLIENT_ID);
-        if (value != null && !value.equals("")) {
+        if (StringUtils.isNotBlank(value)) {
             clientId = value;
             LOG.debug(Constants.CLIENT_ID + ": " + value);
         } else {
@@ -107,7 +108,7 @@ public class SubscriberParameters extends ClientParameters {
 
         // Get subscribername
         value = props.getProperty(SUBSCRIBER_NAME);
-        if (value == null || value.equals("")) {
+        if (StringUtils.isBlank(value)) {
             final String errorText = "'" + SUBSCRIBER_NAME + "' is not set.";
             LOG.error(errorText);
             throw new ClientParameterException(errorText);
@@ -170,14 +171,9 @@ public class SubscriberParameters extends ClientParameters {
 
     @Override
     public String getReport() {
-        return "Subscriber configuration: " +
-                Context.INITIAL_CONTEXT_FACTORY + "='" + initialContextFactory + "' " +
-                Context.PROVIDER_URL + "='" + providerUrl + "' " +
-                Constants.DESTINATION + "='" + topic + "' " +
-                Constants.CLIENT_ID + "='" + clientId + "' " +
-                SUBSCRIBER_NAME + "='" + subscriberName + "' " +
-                MESSAGE_SELECTOR + "='" + messageSelector + "' " +
-                NO_LOCAL + "='" + noLocal + "' " +
-                DURABLE + "='" + durable + "'";
+        return String.format("Subscriber configuration: %s='%s' %s='%s' %s='%s' %s='%s' %s='%s' %s='%s' %s='%s' %s='%s'",
+                Context.INITIAL_CONTEXT_FACTORY, initialContextFactory, Context.PROVIDER_URL, providerUrl,
+                Constants.DESTINATION, topic, Constants.CLIENT_ID, clientId, SUBSCRIBER_NAME, subscriberName,
+                MESSAGE_SELECTOR, messageSelector, NO_LOCAL, noLocal, DURABLE, durable);
     }
 }

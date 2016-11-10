@@ -21,12 +21,14 @@
  */
 package org.exist.jms.replication.publish;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exist.jms.replication.shared.ClientParameters;
 import org.exist.jms.replication.shared.TransportException;
 import org.exist.jms.shared.Constants;
 
+import javax.jms.DeliveryMode;
+import javax.jms.Message;
 import javax.naming.Context;
-
 
 /**
  * Publisher specific properties.
@@ -35,11 +37,9 @@ import javax.naming.Context;
  */
 public class PublisherParameters extends ClientParameters {
 
-    public static final String TIME_TO_LIVE = Constants.PRODUCER_TTL; //"time-to-live";
-    public static final String PRIORITY = Constants.PRODUCER_PRIORITY; //"priority";
-
     private Long timeToLive;
     private Integer priority;
+    private String deliveryMode;
 
     public Long getTimeToLive() {
         return timeToLive;
@@ -47,6 +47,10 @@ public class PublisherParameters extends ClientParameters {
 
     public Integer getPriority() {
         return priority;
+    }
+
+    public String getDeliveryMode() {
+        return deliveryMode;
     }
 
     @Override
@@ -65,7 +69,7 @@ public class PublisherParameters extends ClientParameters {
 
         // Connection factory
         value = props.getProperty(Constants.CONNECTION_FACTORY);
-        if (value == null || value.equals("")) {
+        if (StringUtils.isBlank(value)) {
             value = "ConnectionFactory";
             LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
         }
@@ -74,7 +78,7 @@ public class PublisherParameters extends ClientParameters {
 
         // Setup destination
         value = props.getProperty(Constants.DESTINATION);
-        if (value == null || value.equals("")) {
+        if (StringUtils.isBlank(value)) {
             value = "dynamicTopics/eXistdb";
             LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '" + value
                     + "' which is suitable for activeMQ");
@@ -84,7 +88,7 @@ public class PublisherParameters extends ClientParameters {
 
         // Client ID, when set
         value = props.getProperty(Constants.CLIENT_ID);
-        if (value != null && !value.equals("")) {
+        if (StringUtils.isNotBlank(value)) {
             clientId = value;
             LOG.debug(Constants.CLIENT_ID + ": " + value);
         } else {
@@ -92,8 +96,8 @@ public class PublisherParameters extends ClientParameters {
         }
 
         // Get time to live value
-        value = props.getProperty(TIME_TO_LIVE);
-        if (value != null && !value.equals("")) {
+        value = props.getProperty(Constants.PRODUCER_TTL);
+        if (StringUtils.isNotBlank(value)) {
             try {
                 timeToLive = Long.valueOf(value);
             } catch (final NumberFormatException ex) {
@@ -104,16 +108,19 @@ public class PublisherParameters extends ClientParameters {
         }
 
         // Get priority
-        value = props.getProperty(PRIORITY);
-        if (value != null && !value.equals("")) {
+        value = props.getProperty(Constants.PRODUCER_PRIORITY);
+        if (StringUtils.isNotBlank(value)) {
             try {
                 priority = Integer.valueOf(value);
             } catch (final NumberFormatException ex) {
-                final String errorText = "Unable to set priority; got '" + value + "'. " + ex.getMessage();
+                final String errorText = String.format("Unable to set priority; got '%s'. %s", value, ex.getMessage());
                 LOG.error(errorText);
                 throw new TransportException(errorText);
             }
         }
+
+        // Get delivery
+        deliveryMode = props.getProperty(Constants.PRODUCER_DELIVERY_MODE);
 
         // Get connection authentication
         connectionUsername = props.getProperty(Constants.JMS_CONNECTION_USERNAME);
@@ -122,12 +129,9 @@ public class PublisherParameters extends ClientParameters {
 
     @Override
     public String getReport() {
-        return "Publisher configuration: " +
-                Context.INITIAL_CONTEXT_FACTORY + "='" + initialContextFactory + "' " +
-                Context.PROVIDER_URL + "='" + providerUrl + "' " +
-                Constants.DESTINATION + "='" + topic + "' " +
-                Constants.CLIENT_ID + "='" + clientId + "' " +
-                TIME_TO_LIVE + "='" + timeToLive + "' " +
-                PRIORITY + "='" + priority + "'";
+        return String.format("Publisher configuration: %s='%s' %s='%s' %s='%s' %s='%s' %s='%d' %s='%d'%s='%s'",
+                Context.INITIAL_CONTEXT_FACTORY, initialContextFactory, Context.PROVIDER_URL, providerUrl,
+                Constants.DESTINATION, topic, Constants.CLIENT_ID, clientId, Constants.PRODUCER_TTL,
+                timeToLive, Constants.PRODUCER_PRIORITY, priority, Constants.PRODUCER_DELIVERY_MODE, deliveryMode);
     }
 }
