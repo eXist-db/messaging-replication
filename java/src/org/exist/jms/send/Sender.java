@@ -173,6 +173,18 @@ public class Sender {
             // Return report
             return createReport(message, producer, jmsConfig);
 
+        } catch (final JMSException ex) {
+            LOG.error(ex.getMessage(), ex);
+
+            Throwable cause = ex.getCause();
+
+            if("Error while attempting to add new Connection to the pool".contentEquals(ex.getMessage()) && cause!=null){
+                throw new XPathException(cause.getMessage());
+
+            } else {
+                throw new XPathException(ex.getMessage());
+            }
+
         } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
             throw new XPathException(ex.getMessage());

@@ -7,4 +7,5 @@
     <license>GNU-LGPL</license>
     <copyright>true</copyright>
     <type>library</type>
+    <prepare>pre-install.xql</prepare>
 </meta>

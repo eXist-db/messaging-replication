@@ -174,7 +174,7 @@ public class eXistMessage {
         if (!keys.isEmpty()) {
             sb.append("###  ");
 
-            keys.stream().forEach((key) -> {
+            keys.forEach((key) -> {
                 final Object val = metaData.get(key);
                 if (val != null) {
                     sb.append(key).append("='").append(val.toString()).append("'  ");

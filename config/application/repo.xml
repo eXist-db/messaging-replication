@@ -9,5 +9,5 @@
     <type>application</type>
     <target>messaging-replication</target>
     <prepare>pre-install.xql</prepare>
-    <finish/>
+    <finish>post-install.xql</finish>
 </meta>
