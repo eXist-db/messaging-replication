@@ -11,4 +11,6 @@ declare variable $dir external;
 (: the target collection into which the app is deployed :)
 declare variable $target external;
 
-xdb:create-collection($target || "/demo/replication", "replicated")
+xdb:create-collection($target || "/demo/replication", "replicated"),
+xdb:create-collection($target || "/demo/messaging/queues", "messages"),
+xdb:create-collection($target || "/demo/messaging/topics", "messages")

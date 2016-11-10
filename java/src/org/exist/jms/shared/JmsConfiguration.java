@@ -33,6 +33,8 @@ import org.exist.xquery.value.Item;
 import org.exist.xquery.value.Sequence;
 import org.exist.xquery.value.SequenceIterator;
 
+import javax.jms.DeliveryMode;
+import javax.jms.Message;
 import javax.naming.Context;
 
 
@@ -82,6 +84,7 @@ public class JmsConfiguration extends MessagingConfiguration {
         setLocalProperty(Constants.DESTINATION, params.getDestination());
         setLocalProperty(Constants.PRODUCER_PRIORITY, "" + params.getPriority());
         setLocalProperty(Constants.PRODUCER_TTL, "" + params.getTimeToLive());
+        setLocalProperty(Constants.PRODUCER_DELIVERY_MODE, "" + params.getDeliveryMode());
 
         setLocalProperty(Constants.JMS_CONNECTION_USERNAME, params.getConnectionUsername());
         setLocalProperty(Constants.JMS_CONNECTION_PASSWORD, params.getConnectionPassword());
@@ -176,6 +179,31 @@ public class JmsConfiguration extends MessagingConfiguration {
         }
 
         return retVal;
+    }
+
+    public Integer getDeliveryMethod() {
+        final String mode = getProperty(Constants.PRODUCER_DELIVERY_MODE);
+
+        if(StringUtils.isBlank(mode)){
+            return null;
+        }
+
+        Integer deliveryMode=null;
+        switch (mode.toLowerCase()) {
+            case "persistent":
+                deliveryMode = DeliveryMode.PERSISTENT;
+                break;
+            case "non-persistent":
+                deliveryMode = DeliveryMode.NON_PERSISTENT;
+                break;
+            case "default":
+                deliveryMode = Message.DEFAULT_DELIVERY_MODE;
+                break;
+            default:
+                LOG.error("Not supported value {} for DeliveryMode", mode);
+                break;
+        }
+        return deliveryMode;
     }
 
     /**
