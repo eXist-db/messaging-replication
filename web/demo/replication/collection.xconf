@@ -43,7 +43,7 @@
                 see javax.naming.InitialContext#lookup(String)
             -->
             <parameter name="destination"
-                       value="dynamicTopics/eXistdb-replication-demo"/>
+                       value="dynamicTopics/eXistdb-replication-example"/>
         </trigger>
     </triggers>
 </collection>

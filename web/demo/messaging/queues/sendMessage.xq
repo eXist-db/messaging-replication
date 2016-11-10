@@ -10,7 +10,7 @@ import module namespace messaging="http://exist-db.org/xquery/messaging" at "jav
 let $jmsConfiguration := map {
     "java.naming.factory.initial" := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
     "java.naming.provider.url" := "tcp://localhost:61616",
-    "destination" := "dynamicQueues/eXistdb-messaging-demo",
+    "destination" := "dynamicQueues/eXistdb-messaging-example",
     "connection-factory" := "ConnectionFactory"
 }
 
