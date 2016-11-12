@@ -26,7 +26,7 @@ import static org.exist.jms.xquery.JmsModule.NAMESPACE_URI;
 import static org.exist.jms.xquery.JmsModule.PREFIX;
 
 /**
- *  ErrorCodes definition
+ * ErrorCodes definition
  */
 public class ErrorCodes {
 

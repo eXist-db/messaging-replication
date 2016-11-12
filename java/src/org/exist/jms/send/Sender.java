@@ -184,7 +184,7 @@ public class Sender {
 
             Throwable cause = ex.getCause();
 
-            if("Error while attempting to add new Connection to the pool".contentEquals(ex.getMessage()) && cause!=null){
+            if ("Error while attempting to add new Connection to the pool".contentEquals(ex.getMessage()) && cause != null) {
                 throw new XPathException(JMS004, cause.getMessage());
 
             } else {

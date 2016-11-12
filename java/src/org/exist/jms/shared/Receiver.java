@@ -36,9 +36,7 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import java.util.Properties;
 
-import static org.exist.jms.shared.ErrorCodes.JMS000;
-import static org.exist.jms.shared.ErrorCodes.JMS004;
-import static org.exist.jms.shared.ErrorCodes.JMS025;
+import static org.exist.jms.shared.ErrorCodes.*;
 
 /**
  * JMS messages receiver, represents a JMS connection.
@@ -118,7 +116,7 @@ public class Receiver {
         if (connection == null) {
             final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
-            throw new XPathException(JMS025,txt);
+            throw new XPathException(JMS025, txt);
         }
 
         try {

@@ -30,6 +30,7 @@ import org.exist.dom.QName;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.publish.ReplicationTrigger;
 import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.ErrorCodes;
 import org.exist.jms.xquery.ReplicationModule;
 import org.exist.security.PermissionDeniedException;
 import org.exist.storage.DBBroker;
@@ -42,8 +43,6 @@ import org.exist.xquery.value.*;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.exist.jms.shared.ErrorCodes;
 
 import static org.exist.jms.shared.ErrorCodes.JMS030;
 import static org.exist.jms.shared.ErrorCodes.JMS031;

@@ -22,9 +22,9 @@ package org.exist.jms.xquery.replication;
 
 import org.exist.dom.QName;
 import org.exist.jms.replication.subscribe.ReplicationJmsListener;
-import org.exist.jms.shared.*;
 import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.ErrorCodes;
+import org.exist.jms.shared.*;
 import org.exist.jms.xquery.ReplicationModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;

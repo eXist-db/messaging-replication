@@ -32,7 +32,6 @@ import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.ReplicationGuard;
-import org.exist.jms.replication.shared.TransportException;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.storage.DBBroker;
 import org.exist.storage.txn.Txn;

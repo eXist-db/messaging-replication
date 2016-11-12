@@ -21,9 +21,10 @@ package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
 import org.exist.jms.send.Sender;
-import org.exist.jms.shared.*;
 import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.ErrorCodes;
+import org.exist.jms.shared.JmsConfiguration;
+import org.exist.jms.shared.JmsMessageProperties;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
