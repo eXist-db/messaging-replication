@@ -35,6 +35,13 @@ replication:sync-metadata($path as xs:string)
 replication:enable-trigger($newState as xs:boolean)
 </div>
         </section>
-        
+        <section>
+            <h2>Retrieve status ReplicationTrigger</h2>
+            With this function the status (switched on/off) of the ReplicationTrigger can be retrieved.
+            <div class="code" data-language="xquery">
+(: Get status of replication trigger :)
+replication:trigger-status()
+</div>
+        </section>
     </div>
 </div>

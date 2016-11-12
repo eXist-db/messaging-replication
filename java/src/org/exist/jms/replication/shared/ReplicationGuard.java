@@ -50,7 +50,7 @@ public class ReplicationGuard {
 
     }
 
-    public boolean getReplicationEnabled() {
+    public boolean isReplicationEnabled() {
         return this.replicationEnabled;
     }
 
