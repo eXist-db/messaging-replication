@@ -40,7 +40,7 @@ public abstract class ClientParameters {
 //    public static final String DESTINATION = Constants.DESTINATION;  //"topic";
 //    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
 //    public static final String PARAMETER_GROUPING = "..";
-
+    protected final Properties props = new Properties();
     protected String connectionFactory = null;
     protected String clientId = null;
     protected String topic = null;
@@ -48,8 +48,6 @@ public abstract class ClientParameters {
     protected String providerUrl = null;
     protected String connectionUsername = null;
     protected String connectionPassword = null;
-
-    protected final Properties props = new Properties();
 
     /**
      * Retrieve configuration value when available as String.

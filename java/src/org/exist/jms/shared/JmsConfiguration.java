@@ -37,6 +37,8 @@ import javax.jms.DeliveryMode;
 import javax.jms.Message;
 import javax.naming.Context;
 
+import static org.exist.jms.shared.ErrorCodes.JMS011;
+
 
 /**
  * Wrapper for managing JMS configuration items.
@@ -215,22 +217,22 @@ public class JmsConfiguration extends MessagingConfiguration {
 
         final String initialContextFactory = getInitialContextFactory();
         if (initialContextFactory == null) {
-            throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.INITIAL_CONTEXT_FACTORY));
+            throw new XPathException(JMS011, String.format(CONFIG_ERROR_MSG, Context.INITIAL_CONTEXT_FACTORY));
         }
 
         final String providerURL = getBrokerURL();
         if (providerURL == null) {
-            throw new XPathException(String.format(CONFIG_ERROR_MSG, Context.PROVIDER_URL));
+            throw new XPathException(JMS011, String.format(CONFIG_ERROR_MSG, Context.PROVIDER_URL));
         }
 
         final String connectionFactory = getConnectionFactory();
         if (connectionFactory == null) {
-            throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.CONNECTION_FACTORY));
+            throw new XPathException(JMS011, String.format(CONFIG_ERROR_MSG, Constants.CONNECTION_FACTORY));
         }
 
         final String destination = getDestination();
         if (destination == null) {
-            throw new XPathException(String.format(CONFIG_ERROR_MSG, Constants.DESTINATION));
+            throw new XPathException(JMS011, String.format(CONFIG_ERROR_MSG, Constants.DESTINATION));
         }
 
     }

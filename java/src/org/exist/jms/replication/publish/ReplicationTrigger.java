@@ -32,7 +32,6 @@ import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.ReplicationGuard;
-import org.exist.jms.replication.shared.TransportException;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.storage.DBBroker;
 import org.exist.storage.txn.Txn;
@@ -65,6 +64,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     private boolean isJMSOrigin(final Txn transaction) {
 
         // Get originId.
+        @SuppressWarnings("deprecation")
         final String originId = transaction.getOriginId();
 
         return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
@@ -430,13 +430,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
             sender.sendMessage(msg);
 
-        } catch (final TransportException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            //throw new TriggerException(ex.getMessage(), ex);
-
         } catch (final Throwable ex) {
             LOGGER.error(ex.getMessage(), ex);
-            //throw new TriggerException(ex.getMessage(), ex);
+            //throw new TriggerException(ex.getMessage(), ex); TransportException
         }
     }
 

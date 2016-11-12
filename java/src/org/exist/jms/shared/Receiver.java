@@ -36,6 +36,8 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import java.util.Properties;
 
+import static org.exist.jms.shared.ErrorCodes.*;
+
 /**
  * JMS messages receiver, represents a JMS connection.
  * <p>
@@ -114,7 +116,7 @@ public class Receiver {
         if (connection == null) {
             final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
-            throw new XPathException(txt);
+            throw new XPathException(JMS025, txt);
         }
 
         try {
@@ -126,9 +128,9 @@ public class Receiver {
             state = STATE.STARTED;
 
         } catch (final JMSException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
             messageListener.getReport().addReceiverError(ex);
-            throw new XPathException(ex.getMessage());
+            throw new XPathException(JMS004, ex.getMessage());
         }
     }
 
@@ -219,7 +221,7 @@ public class Receiver {
             LOG.debug("" + jmsConfig.toString());
 
             messageListener.getReport().addReceiverError(t);
-            throw new XPathException(t.getMessage());
+            throw new XPathException(JMS000, t.getMessage());
         }
 
     }
@@ -235,7 +237,7 @@ public class Receiver {
         if (connection == null) {
             final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
-            throw new XPathException(txt);
+            throw new XPathException(JMS025, txt);
         }
 
         try {
@@ -247,10 +249,10 @@ public class Receiver {
             state = STATE.STOPPED;
 
         } catch (final JMSException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
 
             messageListener.getReport().addReceiverError(ex);
-            throw new XPathException(ex.getMessage());
+            throw new XPathException(JMS004, ex.getMessage());
         }
     }
 
@@ -265,7 +267,7 @@ public class Receiver {
         if (connection == null) {
             final String txt = "JMS connection must be initialized first";
             LOG.error(txt);
-            throw new XPathException(txt);
+            throw new XPathException(JMS025, txt);
         }
 
         // If not stopped, try to stop first
@@ -285,7 +287,7 @@ public class Receiver {
             try {
                 clientId = connection.getClientID();
             } catch (final JMSException ex) {
-                LOG.debug(ex);
+                LOG.debug(ex.getMessage(), ex);
             }
 
             // Start listener
@@ -301,10 +303,10 @@ public class Receiver {
             state = STATE.CLOSED;
 
         } catch (final JMSException ex) {
-            LOG.error(ex);
+            LOG.error(ex.getMessage(), ex);
 
             messageListener.getReport().addReceiverError(ex);
-            throw new XPathException(ex.getMessage());
+            throw new XPathException(JMS004, ex.getMessage());
         }
     }
 
