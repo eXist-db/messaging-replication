@@ -23,6 +23,7 @@ package org.exist.jms.xquery;
 import org.exist.dom.QName;
 import org.exist.jms.xquery.replication.RegisterReceiver;
 import org.exist.jms.xquery.replication.ReplicationSwitch;
+import org.exist.jms.xquery.replication.ReplicationSwitchStatus;
 import org.exist.jms.xquery.replication.SyncResource;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
@@ -47,7 +48,8 @@ public class ReplicationModule extends AbstractInternalModule {
             new FunctionDef(RegisterReceiver.signatures[0], RegisterReceiver.class),
             new FunctionDef(SyncResource.signatures[0], SyncResource.class),
             new FunctionDef(SyncResource.signatures[1], SyncResource.class),
-            new FunctionDef(ReplicationSwitch.signatures[0], ReplicationSwitch.class)
+            new FunctionDef(ReplicationSwitch.signatures[0], ReplicationSwitch.class),
+            new FunctionDef(ReplicationSwitchStatus.signatures[0], ReplicationSwitchStatus.class),
     };
 
     public final static QName EXCEPTION_QNAME =

@@ -26,26 +26,30 @@ import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.ErrorCodes;
 import org.exist.jms.xquery.ReplicationModule;
 import org.exist.xquery.*;
-import org.exist.xquery.value.*;
+import org.exist.xquery.value.BooleanValue;
+import org.exist.xquery.value.FunctionReturnSequenceType;
+import org.exist.xquery.value.Sequence;
+import org.exist.xquery.value.Type;
 
 import static org.exist.jms.shared.ErrorCodes.JMS010;
 
 /**
- * Implementation of the replication:enable-trigger() function.
+ * Implementation of the replication:trigger-status() function.
  *
  * @author Dannes Wessels
  */
-public class ReplicationSwitch extends BasicFunction {
+public class ReplicationSwitchStatus extends BasicFunction {
 
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
-                    new QName("enable-trigger", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
-                    "Globally switch on/off the replication trigger", new SequenceType[]{
-                    new FunctionParameterSequenceType("newStatus", Type.BOOLEAN, Cardinality.EXACTLY_ONE, "Value true() enables replication."),},
-                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
-            ),};
+                    new QName("trigger-status", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
+                    "Verify if the replication trigger is switched on or off.",
+                    null,
+                    new FunctionReturnSequenceType(Type.BOOLEAN, Cardinality.EXACTLY_ONE,
+                            "Returns true() when switched on else false().")),
+    };
 
-    public ReplicationSwitch(final XQueryContext context, final FunctionSignature signature) {
+    public ReplicationSwitchStatus(final XQueryContext context, final FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -64,17 +68,8 @@ public class ReplicationSwitch extends BasicFunction {
         try {
             final ReplicationGuard rg = ReplicationGuard.getInstance();
 
-            final boolean newStatus = args[0].itemAt(0).toJavaObject(Boolean.class);
+            return BooleanValue.valueOf(rg.isReplicationEnabled());
 
-            rg.setReplicationEnabled(newStatus);
-
-            return Sequence.EMPTY_SEQUENCE;
-
-
-        } catch (final XPathException ex) {
-            LOG.error(ex.getMessage());
-            ex.setLocation(this.line, this.column, this.getSource());
-            throw ex;
 
         } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
