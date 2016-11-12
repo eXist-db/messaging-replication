@@ -20,12 +20,13 @@
 package org.exist.jms.xquery.management;
 
 import org.exist.dom.QName;
+import org.exist.jms.shared.*;
 import org.exist.jms.shared.Constants;
-import org.exist.jms.shared.Receiver;
-import org.exist.jms.shared.ReceiversManager;
 import org.exist.jms.xquery.JmsModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
+
+import static org.exist.jms.shared.ErrorCodes.*;
 
 /**
  * Implementation of the start-stop-close-getReport functions
@@ -85,7 +86,7 @@ public class ManageReceivers extends BasicFunction {
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
             final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            final XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, JMS010, txt);
             LOG.error(txt, ex);
             throw ex;
         }
@@ -98,7 +99,7 @@ public class ManageReceivers extends BasicFunction {
 
         // Verify if receiver is available
         if (receiver == null) {
-            throw new XPathException(this, String.format("No receiver exists for id '%s'", id));
+            throw new XPathException(this, JMS020, String.format("No receiver exists for id '%s'", id));
         }
 
         try {
@@ -127,7 +128,7 @@ public class ManageReceivers extends BasicFunction {
 
             } else {
                 // DW: to check
-                throw new XPathException(this, String.format("Function '%s' does not exist.", getSignature().getName().getLocalPart()));
+                throw new XPathException(this, JMS002, String.format("Function '%s' does not exist.", getSignature().getName().getLocalPart()));
             }
 
             return returnValue;
@@ -139,7 +140,7 @@ public class ManageReceivers extends BasicFunction {
 
         } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
-            throw new XPathException(this, t);
+            throw new XPathException(this, JMS000, t);
         }
     }
 }

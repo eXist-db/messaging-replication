@@ -53,6 +53,7 @@ import java.util.Optional;
 import java.util.zip.GZIPInputStream;
 
 import static org.exist.jms.shared.Constants.*;
+import static org.exist.jms.shared.ErrorCodes.*;
 
 /**
  * JMS message receiver. Passes call to XQuery callback function.
@@ -254,7 +255,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             // Unsupported JMS message type
             final String txt = String.format("Unsupported JMS Message type %s", msg.getClass().getCanonicalName());
 
-            final XPathException ex = new XPathException(txt);
+            final XPathException ex = new XPathException(JMS021, txt);
             report.addListenerError(ex);
             LOG.error(txt);
             throw ex;
@@ -394,7 +395,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         } else {
             final String txt = String.format("Unable to convert the object %s", obj.toString());
 
-            final XPathException ex = new XPathException(txt);
+            final XPathException ex = new XPathException(JMS022, txt);
             report.addListenerError(ex);
             LOG.error(txt);
             throw ex;
@@ -445,12 +446,12 @@ public class MessagingJmsListener extends eXistMessagingListener {
             } else {
                 final String txt = String.format("Received document is not valid: %s", validationReport.toString());
                 LOG.debug(txt);
-                throw new XPathException(txt);
+                throw new XPathException(JMS023, txt);
             }
 
         } catch (SAXException | ParserConfigurationException | IOException ex) {
             report.addListenerError(ex);
-            throw new XPathException(ex.getMessage());
+            throw new XPathException(JMS003, ex.getMessage(), ex);
 
         }
 

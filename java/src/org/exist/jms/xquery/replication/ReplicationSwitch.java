@@ -23,9 +23,12 @@ package org.exist.jms.xquery.replication;
 import org.exist.dom.QName;
 import org.exist.jms.replication.shared.ReplicationGuard;
 import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.ErrorCodes;
 import org.exist.jms.xquery.ReplicationModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
+
+import static org.exist.jms.shared.ErrorCodes.JMS010;
 
 /**
  * Implementation of the replication:register() function.
@@ -53,7 +56,7 @@ public class ReplicationSwitch extends BasicFunction {
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
             final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            final XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, JMS010, txt);
             LOG.error(txt, ex);
             throw ex;
         }
@@ -75,7 +78,7 @@ public class ReplicationSwitch extends BasicFunction {
 
         } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
-            throw new XPathException(this, t);
+            throw new XPathException(this, ErrorCodes.JMS000, t);
         }
     }
 

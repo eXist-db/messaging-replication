@@ -48,6 +48,7 @@ import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import static org.exist.jms.shared.Constants.*;
+import static org.exist.jms.shared.ErrorCodes.*;
 
 //import org.exist.dom.persistent.NodeProxy;
 
@@ -119,7 +120,7 @@ public class Sender {
             final ConnectionFactory cf = getConnectionFactoryInstance(context, jmsConfig);
 
             if (cf == null) {
-                throw new XPathException("Unable to create connection factory");
+                throw new XPathException(JMS026, "Unable to create connection factory");
             }
 
             // Setup username/password when required
@@ -184,15 +185,15 @@ public class Sender {
             Throwable cause = ex.getCause();
 
             if("Error while attempting to add new Connection to the pool".contentEquals(ex.getMessage()) && cause!=null){
-                throw new XPathException(cause.getMessage());
+                throw new XPathException(JMS004, cause.getMessage());
 
             } else {
-                throw new XPathException(ex.getMessage());
+                throw new XPathException(JMS004, ex.getMessage());
             }
 
         } catch (final Throwable ex) {
             LOG.error(ex.getMessage(), ex);
-            throw new XPathException(ex.getMessage());
+            throw new XPathException(JMS000, ex.getMessage());
 
         } finally {
             try {
@@ -278,8 +279,8 @@ public class Sender {
                 IOUtils.copy(is, os);
 
             } catch (final IOException ex) {
-                LOG.error(ex);
-                throw new XPathException(ex);
+                LOG.error(ex.getMessage(), ex);
+                throw new XPathException(JMS001, ex.getMessage(), ex);
 
             } finally {
                 IOUtils.closeQuietly(is);
@@ -323,7 +324,7 @@ public class Sender {
 
             } catch (final IOException ex) {
                 LOG.error(ex);
-                throw new XPathException(ex);
+                throw new XPathException(JMS001, ex.getMessage(), ex);
 
             } finally {
                 IOUtils.closeQuietly(is);
@@ -369,7 +370,7 @@ public class Sender {
                     objectMessage.setObject(booleanValue);
                     break;
                 default:
-                    throw new XPathException(
+                    throw new XPathException(JMS027,
                             String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
             }
 

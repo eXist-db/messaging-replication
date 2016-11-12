@@ -183,6 +183,6 @@ public class MessageHelper {
     }
 
     public static void retrieveFromCollection(final Map<String, Object> props, final Collection collection) {
-        props.put(EXIST_RESOURCE_CREATIONTIME, collection.getCreationTime());
+        props.put(EXIST_RESOURCE_CREATIONTIME, collection.getMetadata().getCreated());
     }
 }

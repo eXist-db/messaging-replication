@@ -26,8 +26,6 @@ import org.exist.jms.replication.shared.ClientParameters;
 import org.exist.jms.replication.shared.TransportException;
 import org.exist.jms.shared.Constants;
 
-import javax.jms.DeliveryMode;
-import javax.jms.Message;
 import javax.naming.Context;
 
 /**

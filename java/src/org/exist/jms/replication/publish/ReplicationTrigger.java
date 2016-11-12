@@ -65,6 +65,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     private boolean isJMSOrigin(final Txn transaction) {
 
         // Get originId.
+        @SuppressWarnings("deprecation")
         final String originId = transaction.getOriginId();
 
         return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
@@ -430,13 +431,9 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
             sender.sendMessage(msg);
 
-        } catch (final TransportException ex) {
-            LOGGER.error(ex.getMessage(), ex);
-            //throw new TriggerException(ex.getMessage(), ex);
-
         } catch (final Throwable ex) {
             LOGGER.error(ex.getMessage(), ex);
-            //throw new TriggerException(ex.getMessage(), ex);
+            //throw new TriggerException(ex.getMessage(), ex); TransportException
         }
     }
 

@@ -21,13 +21,15 @@ package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
 import org.exist.jms.send.Sender;
+import org.exist.jms.shared.*;
 import org.exist.jms.shared.Constants;
-import org.exist.jms.shared.JmsConfiguration;
-import org.exist.jms.shared.JmsMessageProperties;
+import org.exist.jms.shared.ErrorCodes;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
+
+import static org.exist.jms.shared.ErrorCodes.JMS010;
 
 /**
  * Implementation of the jms:send() function.
@@ -63,7 +65,7 @@ public class SendMessage extends BasicFunction {
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
             final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            final XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, JMS010, txt);
             LOG.error(txt, ex);
             throw ex;
         }
@@ -93,7 +95,7 @@ public class SendMessage extends BasicFunction {
 
         } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
-            throw new XPathException(this, t);
+            throw new XPathException(this, ErrorCodes.JMS000, t);
         }
     }
 }

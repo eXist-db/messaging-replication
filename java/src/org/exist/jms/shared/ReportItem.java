@@ -53,7 +53,7 @@ public class ReportItem {
     }
 
     public String getTimeStamp() {
-        return DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(timestamp);
+        return DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(timestamp);
     }
 
     public String getMessage() {

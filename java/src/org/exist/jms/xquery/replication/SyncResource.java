@@ -43,6 +43,11 @@ import org.exist.xquery.value.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.exist.jms.shared.ErrorCodes;
+
+import static org.exist.jms.shared.ErrorCodes.JMS030;
+import static org.exist.jms.shared.ErrorCodes.JMS031;
+
 /**
  * Implementation of the replication:register() function.
  *
@@ -75,7 +80,7 @@ public class SyncResource extends BasicFunction {
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
             final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            final XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, ErrorCodes.JMS010, txt);
             LOG.error(txt, ex);
             throw ex;
         }
@@ -106,7 +111,7 @@ public class SyncResource extends BasicFunction {
             final Optional<ReplicationTrigger> replicationTrigger = getReplicationTrigger(broker, parentCollection);
             if (!replicationTrigger.isPresent()) {
                 parentCollection.release(Lock.READ_LOCK);
-                throw new XPathException(this, String.format("No trigger configuration found for collection %s", parentCollection));
+                throw new XPathException(this, JMS030, String.format("No trigger configuration found for collection %s", parentCollection));
             }
             final ReplicationTrigger trigger = replicationTrigger.get();
 
@@ -156,7 +161,7 @@ public class SyncResource extends BasicFunction {
 
         } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
-            throw new XPathException(this, t);
+            throw new XPathException(this, ErrorCodes.JMS000, t);
 
         } finally {
             if (parentCollection != null) {
@@ -197,7 +202,7 @@ public class SyncResource extends BasicFunction {
 
         final Collection collection = broker.openCollection(collectionURI, setReadLock ? Lock.READ_LOCK : Lock.NO_LOCK);
         if (collection == null && throwExceptionWHenNotExistent) {
-            throw new XPathException(this, String.format("Collection not found: %s", collectionURI));
+            throw new XPathException(this, JMS031, String.format("Collection not found: %s", collectionURI));
         }
         return collection;
 
@@ -221,7 +226,7 @@ public class SyncResource extends BasicFunction {
         final DocumentImpl resource = collection.getDocument(broker, documentUri);
         if (resource == null) {
             collection.getLock().release(Lock.READ_LOCK);
-            throw new XPathException(this, String.format("No resource found for path: %s", documentUri));
+            throw new XPathException(this, JMS031, String.format("No resource found for path: %s", documentUri));
         }
 
         return resource;

@@ -26,6 +26,8 @@ import org.exist.jms.xquery.JmsModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 
+import static org.exist.jms.shared.ErrorCodes.JMS010;
+
 /**
  * Implementation of the jms:list() function. Provides information about the receivers.
  *
@@ -57,7 +59,7 @@ public class ListReceivers extends BasicFunction {
         if (!context.getSubject().hasDbaRole() && !context.getSubject().hasGroup(Constants.JMS_GROUP)) {
             final String txt = String.format("Permission denied, user '%s' must be a DBA or be in group '%s'",
                     context.getSubject().getName(), Constants.JMS_GROUP);
-            final XPathException ex = new XPathException(this, txt);
+            final XPathException ex = new XPathException(this, JMS010, txt);
             LOG.error(txt);
             throw ex;
         }
