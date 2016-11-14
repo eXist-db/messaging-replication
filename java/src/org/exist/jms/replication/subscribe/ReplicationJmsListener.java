@@ -150,6 +150,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 // Only ByteMessage objects supported. 
                 throw new MessageReceiveException(String.format("Could not handle message type %s", msg.getClass().getSimpleName()));
             }
+            
+            // We need to ack the message
+            msg.acknowledge();
 
         } catch (MessageReceiveException ex) {
             // Thrown by local code. Just make it pass\
