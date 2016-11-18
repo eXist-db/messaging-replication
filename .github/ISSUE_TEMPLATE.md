@@ -1,12 +1,16 @@
+To be able to efficently and effectivly provide support, please provide the following information:
+
 ### Context information
-
-Please provide the following information
-
-- [ ] eXist-db version (git revId) as shown during start of database.
-- [ ] Version of the extension
-- [ ] ActiveMQ broker version
-- [ ] Operating system 32/64 bit
-- [ ] Java version 32/64 bit
+- eXist-db version (git revId) as shown during start of database.
+....
+- Extension version
+...
+- ActiveMQ broker version
+...
+- Operating system, 32/64 bit
+...
+- Java version 32/64 bit
+...
 
 ### Expected bahavior
 ...
@@ -18,4 +22,3 @@ Please provide the following information
 1. ...
 1. ...
 1. ...
-
