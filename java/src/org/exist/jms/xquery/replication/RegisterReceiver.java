@@ -77,6 +77,9 @@ public class RegisterReceiver extends BasicFunction {
             final ReplicationJmsListener myListener = new ReplicationJmsListener(context.getBroker().getBrokerPool());
             // TODO autoclose broker
 
+            // By default replication must be durable
+            config.setDurable(true);
+
             // Create receiver
             final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?
 

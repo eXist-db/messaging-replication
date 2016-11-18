@@ -123,7 +123,7 @@ public class Receiver {
             // Start listener
             connection.start();
 
-            LOG.info(String.format("JMS connection is started. ClientId=%s", connection.getClientID()));
+            LOG.info("JMS connection is started. ClientId={}", connection.getClientID());
 
             state = STATE.STARTED;
 
@@ -192,9 +192,13 @@ public class Receiver {
                 // Create durable subscriber for topic only when set durable manually
                 messageConsumer = session.createDurableSubscriber((Topic) destination, subscriberName, messageSelector, isNoLocal);
 
+                LOG.info("Created durable subscriber for {}", jmsConfig.getDestination());
+
             } else {
                 // When not a Topic OR when a Topic but not durable.....
                 messageConsumer = session.createConsumer(destination, messageSelector, isNoLocal);
+
+                LOG.info("Created non-durable subscriber for {}", jmsConfig.getDestination());
             }
 
             // Register listener
@@ -202,11 +206,9 @@ public class Receiver {
             messageConsumer.setMessageListener(messageListener);
 
             if (LOG.isDebugEnabled()) {
-                LOG.debug(String.format("JMS connection is initialized: %s=%s %s",
-                        Constants.CLIENT_ID, connection.getClientID(), jmsConfig.toString()));
+                LOG.debug("JMS connection is initialized: {}={} {}", Constants.CLIENT_ID, connection.getClientID(), jmsConfig.toString());
             } else {
-                LOG.info(String.format("JMS connection is initialized: %s=%s",
-                        Constants.CLIENT_ID, connection.getClientID()));
+                LOG.info("JMS connection is initialized: {}={}", Constants.CLIENT_ID, connection.getClientID());
             }
 
 
@@ -218,7 +220,7 @@ public class Receiver {
             closeAllSilently(initialContext, connection, session);
 
             LOG.error(t.getMessage(), t);
-            LOG.debug("" + jmsConfig.toString());
+            LOG.debug("{}", jmsConfig.toString());
 
             messageListener.getReport().addReceiverError(t);
             throw new XPathException(JMS000, t.getMessage());
@@ -244,7 +246,7 @@ public class Receiver {
             // Start listener
             connection.stop();
 
-            LOG.info(String.format("JMS connection is stopped. ClientId=%s", connection.getClientID()));
+            LOG.info("JMS connection is stopped. ClientId={}", connection.getClientID());
 
             state = STATE.STOPPED;
 
@@ -297,7 +299,7 @@ public class Receiver {
             if (clientId == null) {
                 LOG.info("JMS connection is closed.");
             } else {
-                LOG.info(String.format("JMS connection is closed. ClientId=%s", clientId));
+                LOG.info("JMS connection is closed. ClientId={}", clientId);
             }
 
             state = STATE.CLOSED;

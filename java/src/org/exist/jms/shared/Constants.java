@@ -46,6 +46,8 @@ public class Constants {
     public static final String COMPRESSION_TYPE_EXI = "exi";
     public static final String COMPRESSION_TYPE_NONE = "none";
     public static final String EXIST_XPATH_DATATYPE = "exist.xpath.datatype";
+    public static final String EXIST_RECEIVER_ID = "exist.receiver.id";
+
     /*
      * eXist-db JMS instance id
      */
