@@ -14,7 +14,7 @@ On the 'receiving' eXist-db instance
 - Update the value of `java.naming.provider.url` to match the address of the broker.
 - Start the query by clicking the `Eval` button
 
-## Start document 'sender'
+## Configure document 'sender'
 On the 'sender' eXist-db instance 
 - Open eXide as 'admin'
 - Edit the file `collection.xconf`
