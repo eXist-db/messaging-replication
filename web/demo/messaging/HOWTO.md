@@ -8,7 +8,8 @@ setup is required:
 - One (!) eXist-db database with the messaging-replication extension installed.
 
 > There are two collections, one to demonstrate "queues" and one to demonstrate 
-"topics". The documents are almost identical except the `java.naming.provider.url` value.
+"topics". The documents are almost identical except the `destination` value, and a few additional
+requiper parameters for durable topics.
 
 ## Start message 'receiver'
 On the 'receiving' eXist-db instance 
