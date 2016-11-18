@@ -141,6 +141,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 final MapType msgProperties = getMessageProperties(msg, xqueryContext);
                 final MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
+                // Add identity of current receiver
+                msgProperties.add(new StringValue(EXIST_RECEIVER_ID), new IntegerValue(receiverID) );
+
                 // Retrieve content of message
                 final Sequence content = getContent(msg);
 
