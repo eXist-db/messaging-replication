@@ -40,6 +40,18 @@ declare function app:executeAction($node as node(), $model as map(*), $action as
         }</div>
 };
 
+declare function app:showButton($node as node(), $model as map(*), $show as xs:string?) {
+    if(empty($show))
+    then
+    <p>
+                <a href="manage.html?id={util:uuid()}" class="btn btn-primary">Refresh</a>
+            </p>
+    
+        else
+            <p>
+                    <a href="manage.html?id={util:uuid()}" class="btn btn-primary">Show Receivers</a>
+                </p>
+};
 
 declare function app:showReport($node as node(), $model as map(*), $show as xs:string, $receiver as xs:int) {
     
@@ -150,10 +162,10 @@ declare function app:showReceivers($node as node(), $model as map(*)) {
                 <td>{data($report/@id)}</td>
                 <td>{data($report/state)}</td>
                 <td>
-                    <a title="Show Report" href="?show=report&amp;receiver={$id}"><span class="glyphicon glyphicon-info-sign"/></a>
-                    <a title="Start Receiver" href="?action=start&amp;receiver={$id}"><span class="glyphicon glyphicon-play"/></a> 
-                    <a title="Stop Receiver" href="?action=stop&amp;receiver={$id}"><span class="glyphicon glyphicon-pause"/></a>  
-                    <a title="Close Receiver" href="?action=close&amp;receiver={$id}"><span class="glyphicon glyphicon-remove-sign"/></a>  
+                    <a title="Show Report" href="?show=report&amp;receiver={$id}&amp;id={util:uuid()}"><span class="glyphicon glyphicon-info-sign"/></a>
+                    <a title="Start Receiver" href="?action=start&amp;receiver={$id}&amp;id={util:uuid()}"><span class="glyphicon glyphicon-play"/></a> 
+                    <a title="Stop Receiver" href="?action=stop&amp;receiver={$id}&amp;id={util:uuid()}"><span class="glyphicon glyphicon-pause"/></a>  
+                    <a title="Close Receiver" href="?action=close&amp;receiver={$id}&amp;id={util:uuid()}"><span class="glyphicon glyphicon-remove-sign"/></a>  
                     
                         
                 </td>
