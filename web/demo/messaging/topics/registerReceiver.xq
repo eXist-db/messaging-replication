@@ -50,7 +50,8 @@ let $jmsConfiguration := map {
     "destination"                 := "dynamicTopics/eXistdb-messaging-example",
     "connection-factory"          := "ConnectionFactory",
     "connection.client-id"        := "TheClientId",
-    "subscriber.name"             := "TheSubscriberName"
+    "subscriber.name"             := "TheSubscriberName",
+    "subscriber.durable"          := true()
 }
 
 (: Define HoF callback function, with 4 parameters :)
