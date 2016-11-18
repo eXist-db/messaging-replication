@@ -20,8 +20,8 @@ let $messageProperties := map {
     "Mo" := xs:integer(1),
     "Tu" := 2,
     "We" := true(),
-    2 := "a",
-    "a" := xs:short(5)
+    2    := "a",
+    "a"  := xs:short(5)
 }
 
 
