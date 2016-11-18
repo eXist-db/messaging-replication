@@ -9,9 +9,9 @@ import module namespace messaging="http://exist-db.org/xquery/messaging" at "jav
 (: Configuration for setting-up an JMS connection :)
 let $jmsConfiguration := map {
     "java.naming.factory.initial" := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-    "java.naming.provider.url" := "tcp://localhost:61616",
-    "destination" := "dynamicTopics/eXistdb-messaging-example",
-    "connection-factory" := "ConnectionFactory"
+    "java.naming.provider.url"    := "tcp://localhost:61616",
+    "destination"                 := "dynamicTopics/eXistdb-messaging-example",
+    "connection-factory"          := "ConnectionFactory"
 }
 
 (: JMS message properties :)

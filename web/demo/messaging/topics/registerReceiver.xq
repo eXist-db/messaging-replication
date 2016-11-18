@@ -45,10 +45,12 @@ let $destination := $config:app-root || "/demo/messaging/topics/messages"
 
 (: Configuration for setting-up an JMS connection :)
 let $jmsConfiguration := map {
-    "java.naming.factory.initial"  := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-    "java.naming.provider.url" := "tcp://localhost:61616",
-    "destination" := "dynamicTopics/eXistdb-messaging-example",
-    "connection-factory" := "ConnectionFactory"
+    "java.naming.factory.initial" := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+    "java.naming.provider.url"    := "tcp://localhost:61616",
+    "destination"                 := "dynamicTopics/eXistdb-messaging-example",
+    "connection-factory"          := "ConnectionFactory",
+    "connection.client-id"        := "TheClientId",
+    "subscriber.name"             := "TheSubscriberName"
 }
 
 (: Define HoF callback function, with 4 parameters :)
