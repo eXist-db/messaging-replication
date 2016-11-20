@@ -372,6 +372,11 @@ public class ReplicationTrigger extends FilteringTrigger implements CollectionTr
     @Override
     public void configure(DBBroker broker, Collection parentCollection, Map<String, List<?>> parameters) throws TriggerException {
         super.configure(broker, parentCollection, parameters);
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(String.format("Configuring replication trigger for collection '%s'", parentCollection.getURI()));
+        }
+
         this.parameters = parameters;
 
     }
