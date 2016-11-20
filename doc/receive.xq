@@ -34,7 +34,7 @@ declare function local:handleMessage($content as item(), $params as item()*, $me
 let $jmsConfiguration :=
     map {
         "java.naming.factory.initial" := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://myserver.local:61616",
+        "java.naming.provider.url" := "tcp://localhost:61616",
         "destination" := "dynamicQueues/eXistdbTest",
         "connection-factory" := "ConnectionFactory"
     }

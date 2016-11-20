@@ -12,7 +12,7 @@
                 URL of the message broker, default value for ActiveMQ 
                 see javax.naming.Context#PROVIDER_URL
             --> 
-            <parameter name="java.naming.provider.url" value="tcp://myserver.local:61616"/>
+            <parameter name="java.naming.provider.url" value="tcp://localhost:61616"/>
 
             <!-- 
                 Lookup connection factory

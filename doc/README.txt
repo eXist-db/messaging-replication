@@ -58,7 +58,7 @@ Get Started
             <trigger class="org.exist.jms.replication.publish.ReplicationTrigger">
 
                 <parameter name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
-                <parameter name="java.naming.provider.url" value="tcp://myserver.local:61616"/>
+                <parameter name="java.naming.provider.url" value="tcp://localhost:61616"/>
 
                 <parameter name="connectionfactory" value="ConnectionFactory"/>
                 <parameter name="topic" value="dynamicTopics/eXistdb"/>
@@ -81,7 +81,7 @@ Get Started
     <trigger class="org.exist.jms.replication.subscribe.ReceiverStartupTrigger">>
 
         <parameter name="java.naming.factory.initial" value="org.apache.activemq.jndi.ActiveMQInitialContextFactory"/>
-        <parameter name="java.naming.provider.url" value="tcp://myserver.local:61616"/>
+        <parameter name="java.naming.provider.url" value="tcp://localhost:61616"/>
 
         <parameter name="connectionfactory" value="ConnectionFactory"/>
         <parameter name="topic" value="dynamicTopics/eXistdb"/>
