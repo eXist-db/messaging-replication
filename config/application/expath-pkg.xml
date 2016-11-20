@@ -3,5 +3,4 @@
     <title>@TITLE@</title>
     <dependency processor="http://exist-db.org" semver-min="3.0.2"/>
     <dependency package="http://exist-db.org/apps/shared"/>
-    <dependency package="http://exist-db.org/messaging-replication-lib" semver-min="@VERSION@"/>
 </package>

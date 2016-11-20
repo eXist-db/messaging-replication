@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <meta xmlns="http://exist-db.org/xquery/repo">
-    <description>@TITLE@ - UI</description>
+    <description>@TITLE@</description>
     <author>Dannes Wessels</author>
     <website>https://github.com/eXist-db/messaging-replication</website>
     <status>beta</status>
@@ -10,4 +10,6 @@
     <target>messaging-replication</target>
     <prepare>pre-install.xql</prepare>
     <finish>post-install.xql</finish>
+    <note>When upgrading: please uninstall all previous versions and restart eXist-db.</note>
+    <permissions user="jms" group="jms" mode="0775"/>
 </meta>

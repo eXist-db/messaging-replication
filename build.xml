@@ -134,23 +134,17 @@
 
     <target name="xar" depends="jar" description="Create XAR files">
 
-        <!-- create web application -->
-        <zip destfile="${dist.dir}/${module.name}-ui-${module.version}.xar">
-            <fileset dir="${web.dir}"/>
-            <zipfileset dir="${build.config}/application" includes="*.xml"/>
-            <zipfileset dir="${build.config}/application" includes="*.xql"/>
-        </zip>
-
-        <!-- create library -->
-        <zip destfile="${dist.dir}/${module.name}-core-${module.version}.xar">
+        <!-- create XAR -->
+        <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
+            <zipfileset dir="${web.dir}"/>
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="content"/>
             <zipfileset dir="${java.libs}" prefix="content">
                 <include name="*.jar"/>
                 <exclude name="*-javadoc.jar"/>
                 <exclude name="*-sources.jar"/>
             </zipfileset>
-            <zipfileset dir="${build.config}/library" includes="*.xml"/>
-            <zipfileset dir="${build.config}/library" includes="*.xql"/>
+            <zipfileset dir="${build.config}/application" includes="*.xml"/>
+            <zipfileset dir="${build.config}/application" includes="*.xql"/>
         </zip>
     </target>
 
@@ -164,11 +158,7 @@
       <input message="Enter password:" addproperty="server.pass" defaultvalue="">
         <handler type="secure"/>
       </input>
-      <property name="xar-lib" value="${module.name}-core-${module.version}.xar"/>
       <property name="xar-app" value="${module.name}-ui-${module.version}.xar"/>
-      <exec executable="curl">
-        <arg line="-T ${dist.dir}/${xar-lib} -u admin:${server.pass} ${server.url}/${xar-lib}"/>
-      </exec>
       <exec executable="curl">
         <arg line="-T ${dist.dir}/${xar-app} -u admin:${server.pass} ${server.url}/${xar-app}"/>
       </exec>
