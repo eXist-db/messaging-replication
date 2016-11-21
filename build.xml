@@ -146,6 +146,11 @@
             <zipfileset dir="${build.config}/application" includes="*.xml"/>
             <zipfileset dir="${build.config}/application" includes="*.xql"/>
         </zip>
+        
+       <zip destfile="${dist.dir}/${module.name}-${module.version}-dev.xar">
+           <zipfileset src="${dist.dir}/${module.name}-${module.version}.xar" excludes="**/*.jar,exist.xml"/>
+       </zip>  
+        
     </target>
 
     <target name="install" description="Install jar files into eXist autodeploy directory">
