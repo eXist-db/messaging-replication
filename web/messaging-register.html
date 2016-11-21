@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <div xmlns="http://www.w3.org/1999/xhtml" data-template="templates:surround" data-template-with="templates/page.html" data-template-at="content">
     <div class="col-md-9">
         <h1>Messaging: Register JMS receiver</h1>
@@ -9,6 +8,7 @@
             <strong>Warning!</strong> For this function the user must be 'dba' or he must be in the 'jms' group.
         </div>
         <section>
+        Consult the <a href="https://github.com/eXist-db/messaging-replication/wiki/Startup-Triggers#automatic-startup-xquerystartuptrigger">Startup Triggers</a> documentation to have the script executed when eXist-db is started.
             <pre class="demo:display-source">(: 
  : Example: register receiver with additional parameters 
  :)
@@ -56,7 +56,7 @@ let $jmsConfiguration :=
     map {
         "java.naming.factory.initial" 
             := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://myserver.local:61616",
+        "java.naming.provider.url" := "tcp://localhost:61616",
         "destination" := "dynamicQueues/eXistdb-messaging-demo",
         "connection-factory" := "ConnectionFactory"
     }

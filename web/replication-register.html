@@ -8,6 +8,7 @@
         <div class="alert alert-warning">
             <strong>Warning!</strong> For this function the user must be 'dba' or he must be in the 'jms' group.
         </div>
+        Consult the <a href="https://github.com/eXist-db/messaging-replication/wiki/Startup-Triggers#automatic-startup-xquerystartuptrigger">Startup Triggers</a> documentation to have the script executed when eXist-db is started.
         <section>
             <pre class="demo:display-source">(: 
  : Example: register replication receiver with configuration parameters 
@@ -22,7 +23,7 @@ import module namespace replication="http://exist-db.org/xquery/replication"
 let $jmsConfiguration := map {
         "java.naming.factory.initial" 
                 := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://myserver.local:61616",
+        "java.naming.provider.url" := "tcp://localhost:61616",
         "connection-factory" := "ConnectionFactory",
         "destination" := "dynamicTopics/eXistdb-replication-demo",
         "subscriber.name" := "SubscriptionId",
