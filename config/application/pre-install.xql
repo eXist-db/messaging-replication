@@ -29,5 +29,4 @@ declare function local:mkcol($collection, $path) {
 
 (: store the collection configuration :)
 local:mkcol("/db/system/config", $target),
-xdb:store-files-from-pattern(concat("/system/config", $target), $dir, "*.xconf"),
-if(sm:find-groups-by-groupname("jms")="jms") then () else sm:create-group("jms", "JMS messaging/replication extension")
+xdb:store-files-from-pattern(concat("/system/config", $target), $dir, "*.xconf")

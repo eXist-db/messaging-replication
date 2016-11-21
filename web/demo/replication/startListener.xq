@@ -1,4 +1,4 @@
-xquery version "3.1";
+xquery version "3.0";
 
 (:~
 : Simple script to start the replication listener.
