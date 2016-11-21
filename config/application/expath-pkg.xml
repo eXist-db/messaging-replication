@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <package xmlns="http://expath.org/ns/pkg" name="http://exist-db.org/messaging-replication" abbrev="jms" version="@VERSION@" spec="1.0">
     <title>@TITLE@</title>
+    <dependency processor="http://exist-db.org" semver-max="2.2"/>
     <dependency package="http://exist-db.org/apps/shared"/>
-    <dependency package="http://exist-db.org/messaging-replication-lib" semver-min="@VERSION@"/>
 </package>
