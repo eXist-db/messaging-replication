@@ -135,7 +135,7 @@
     <target name="xar" depends="jar" description="Create XAR files">
 
         <!-- create XAR -->
-        <zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
+        <!--zip destfile="${dist.dir}/${module.name}-${module.version}.xar">
             <zipfileset dir="${web.dir}"/>
             <zipfileset dir="${build.dir}" includes="*.jar" prefix="content"/>
             <zipfileset dir="${java.libs}" prefix="content">
@@ -145,10 +145,19 @@
             </zipfileset>
             <zipfileset dir="${build.config}/application" includes="*.xml"/>
             <zipfileset dir="${build.config}/application" includes="*.xql"/>
-        </zip>
+        </zip-->
         
-       <zip destfile="${dist.dir}/${module.name}-${module.version}-dev.xar">
+       <zip destfile="${dist.dir}/${module.name}-${module.version}-ui.xar">
            <zipfileset src="${dist.dir}/${module.name}-${module.version}.xar" excludes="**/*.jar,exist.xml"/>
+       </zip>  
+       
+       <zip destfile="${dist.dir}/${module.name}-${module.version}-libs.zip">
+           <zipfileset dir="${build.dir}" includes="*.jar"/>
+           <zipfileset dir="${java.libs}">
+               <include name="*.jar"/>
+               <exclude name="*-javadoc.jar"/>
+               <exclude name="*-sources.jar"/>
+           </zipfileset>
        </zip>  
         
     </target>
