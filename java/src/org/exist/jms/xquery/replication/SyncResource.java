@@ -109,7 +109,7 @@ public class SyncResource extends BasicFunction {
             // Get trigger, if existent
             final Optional<ReplicationTrigger> replicationTrigger = getReplicationTrigger(broker, parentCollection);
             if (!replicationTrigger.isPresent()) {
-                parentCollection.release(Lock.READ_LOCK);
+                parentCollection.release(Lock.LockMode.READ_LOCK);
                 throw new XPathException(this, JMS030, String.format("No trigger configuration found for collection %s", parentCollection));
             }
             final ReplicationTrigger trigger = replicationTrigger.get();
@@ -129,7 +129,7 @@ public class SyncResource extends BasicFunction {
                             trigger.afterUpdateCollectionMetadata(broker, txn, theCollection);
                         }
                     } finally {
-                        theCollection.release(Lock.READ_LOCK);
+                        theCollection.release(Lock.LockMode.READ_LOCK);
                     }
 
                 } else {
@@ -144,7 +144,7 @@ public class SyncResource extends BasicFunction {
                         }
 
                     } finally {
-                        theDoc.getUpdateLock().release(Lock.READ_LOCK);
+                        theDoc.getUpdateLock().release(Lock.LockMode.READ_LOCK);
                     }
                 }
 
@@ -164,7 +164,7 @@ public class SyncResource extends BasicFunction {
 
         } finally {
             if (parentCollection != null) {
-                parentCollection.release(Lock.READ_LOCK);
+                parentCollection.release(Lock.LockMode.READ_LOCK);
             }
         }
 
@@ -199,7 +199,7 @@ public class SyncResource extends BasicFunction {
 
     private Collection getCollection(final DBBroker broker, final XmldbURI collectionURI, final boolean setReadLock, final boolean throwExceptionWHenNotExistent) throws XPathException, PermissionDeniedException {
 
-        final Collection collection = broker.openCollection(collectionURI, setReadLock ? Lock.READ_LOCK : Lock.NO_LOCK);
+        final Collection collection = broker.openCollection(collectionURI, setReadLock ? Lock.LockMode.READ_LOCK : Lock.LockMode.NO_LOCK);
         if (collection == null && throwExceptionWHenNotExistent) {
             throw new XPathException(this, JMS031, String.format("Collection not found: %s", collectionURI));
         }
@@ -224,7 +224,7 @@ public class SyncResource extends BasicFunction {
         // Open document if possible, else abort
         final DocumentImpl resource = collection.getDocument(broker, documentUri);
         if (resource == null) {
-            collection.getLock().release(Lock.READ_LOCK);
+            collection.getLock().release(Lock.LockMode.READ_LOCK);
             throw new XPathException(this, JMS031, String.format("No resource found for path: %s", documentUri));
         }
 
