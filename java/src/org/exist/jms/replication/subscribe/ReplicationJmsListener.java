@@ -347,6 +347,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         } catch (final MessageReceiveException e) {
             LOG.error(e.getMessage(), e);
             throw e;
+
         } catch (final Throwable t) {
             if (LOG.isDebugEnabled()) {
                 LOG.error(t.getMessage(), t);
@@ -681,6 +682,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Create collection when required
             collection = broker.getOrCreateCollection(txn, sourcePath);
+
+            if (collection == null) {
+                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist");
+            }
 
             // Set owner,group and permissions
             final Permission permission = collection.getPermissions();
