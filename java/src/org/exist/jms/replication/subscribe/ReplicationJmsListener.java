@@ -701,7 +701,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Commit change
             txn.commit();
-            broker.flush();
 
         } catch (final Throwable t) {
 
