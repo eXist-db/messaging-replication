@@ -7,7 +7,7 @@
     <dependencies>
 
         <!-- ActiveMQ client -->
-        <dependency org="org.apache.activemq" name="activemq-client" rev="5.14.1" conf="*->*">
+        <dependency org="org.apache.activemq" name="activemq-client" rev="5.14.5" conf="*->*,!sources,!javadoc">
             <exclude module="ant"/>
             <exclude module="slf4j-api"/>
             <exclude module="commons-net"/>
@@ -19,13 +19,13 @@
         </dependency>
 
         <!-- ActiveMQ pool -->
-        <dependency org="org.apache.activemq" name="activemq-pool" rev="5.14.1" conf="*->*" transitive="false"/>
+        <dependency org="org.apache.activemq" name="activemq-pool" rev="5.14.5" conf="*->*,!sources,!javadoc" transitive="false"/>
 
         <!-- ActiveMQ jms pool -->
-        <dependency org="org.apache.activemq" name="activemq-jms-pool" rev="5.14.1" conf="*->*" transitive="false"/>
+        <dependency org="org.apache.activemq" name="activemq-jms-pool" rev="5.14.5" conf="*->*,!sources,!javadoc" transitive="false"/>
         
         <!-- Additional dependancy -->
-        <dependency org="org.apache.commons" name="commons-pool2" rev="2.4.2" conf="*->*" transitive="false"/>
+        <dependency org="org.apache.commons" name="commons-pool2" rev="2.4.2" conf="*->*,!sources,!javadoc" transitive="false"/>
         
     </dependencies>
     
