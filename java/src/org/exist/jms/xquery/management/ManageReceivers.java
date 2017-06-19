@@ -21,8 +21,8 @@ package org.exist.jms.xquery.management;
 
 import org.exist.dom.QName;
 import org.exist.jms.shared.Constants;
-import org.exist.jms.shared.Receiver;
-import org.exist.jms.shared.ReceiversManager;
+import org.exist.jms.shared.receive.Receiver;
+import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.jms.xquery.JmsModule;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;

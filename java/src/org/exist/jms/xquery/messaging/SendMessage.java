@@ -20,7 +20,7 @@
 package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
-import org.exist.jms.send.Sender;
+import org.exist.jms.shared.send.Sender;
 import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.ErrorCodes;
 import org.exist.jms.shared.JmsConfiguration;

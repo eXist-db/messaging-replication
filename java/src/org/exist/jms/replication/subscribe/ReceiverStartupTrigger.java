@@ -22,8 +22,8 @@ package org.exist.jms.replication.subscribe;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.jms.shared.JmsConfiguration;
-import org.exist.jms.shared.Receiver;
-import org.exist.jms.shared.ReceiversManager;
+import org.exist.jms.shared.receive.Receiver;
+import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.storage.DBBroker;
 
 import java.util.List;

@@ -24,6 +24,8 @@ import org.exist.jms.messaging.MessagingJmsListener;
 import org.exist.jms.shared.Constants;
 import org.exist.jms.shared.ErrorCodes;
 import org.exist.jms.shared.*;
+import org.exist.jms.shared.receive.Receiver;
+import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;

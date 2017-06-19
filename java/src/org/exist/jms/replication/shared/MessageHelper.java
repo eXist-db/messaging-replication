@@ -60,17 +60,9 @@ public class MessageHelper {
     public static final String EXIST_RESOURCE_TYPE = "exist.resource.type";
     public static final String EXIST_RESOURCE_MODE = "exist.resource.permission.mode";
     public static final String EXIST_MESSAGE_CONTENTENCODING = "exist.message.content-encoding";
-    //	Copied from webdav interface ; there is a better one
-    public final static Properties OUTPUT_PROPERTIES = new Properties();
+
     private final static Logger LOG = LogManager.getLogger(MessageHelper.class);
 
-    static {
-        OUTPUT_PROPERTIES.setProperty(OutputKeys.INDENT, "yes");
-        OUTPUT_PROPERTIES.setProperty(OutputKeys.ENCODING, "UTF-8");
-        OUTPUT_PROPERTIES.setProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
-        OUTPUT_PROPERTIES.setProperty(EXistOutputKeys.EXPAND_XINCLUDES, "no");
-        OUTPUT_PROPERTIES.setProperty(EXistOutputKeys.PROCESS_XSL_PI, "no");
-    }
 
 
     /**
@@ -91,11 +83,9 @@ public class MessageHelper {
 
             // Stream XML document
             final Serializer serializer = broker.getSerializer();
-            serializer.reset();
+
             try {
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                serializer.setProperties(OUTPUT_PROPERTIES);
 
                 try (GZIPOutputStream gos = new GZIPOutputStream(baos);
                      Writer w = new OutputStreamWriter(gos, "UTF-8")) {
