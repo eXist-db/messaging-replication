@@ -76,7 +76,7 @@ public class MessageHelper {
     public static byte[] gzipSerialize(final DBBroker broker, final DocumentImpl document) throws IOException {
 
         // This is the weak spot, the data is serialized into
-        // a byte array. Better to have an overloap to a file,
+        // a byte array. Better to have an overflow to a file,
         byte[] payload;
 
         if (document.getResourceType() == DocumentImpl.XML_FILE) {
