@@ -339,7 +339,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         // Check for collection, create if not existent
         try {
-            // Write LOCK required
             createOrCheckCollection(colURI);
 
         } catch (final MessageReceiveException e) {
@@ -456,7 +455,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     /**
      * Metadata is updated in database
      * <p>
-     * TODO not usable yet
      */
     private void updateMetadataDocument(final eXistMessage em) {
         // Permissions
@@ -677,7 +675,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     }
 
     /**
-     * Create new collection when required, or force update meta-data when already present.
+     * Create new collection when required.
      */
     private Collection createOrCheckCollection(final XmldbURI sourcePath) throws MessageReceiveException {
 
@@ -694,7 +692,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             collection = broker.getOrCreateCollection(txn, sourcePath);
 
             if (collection == null) {
-                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist");
+                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist or could not be created");
             }
 
             broker.saveCollection(txn, collection);
