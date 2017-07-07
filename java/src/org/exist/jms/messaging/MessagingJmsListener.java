@@ -244,14 +244,12 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 content = processXML(data, isCompressed);
 
             } else {
-                // Binary data
-                InputStream is = new ByteArrayInputStream(data);
-
-                if (isCompressed) {
-                    is = new GZIPInputStream(is);
+                // Binary data - read compressed when indicated
+                try(InputStream is = isCompressed
+                        ? new GZIPInputStream(new ByteArrayInputStream(data))
+                        : new ByteArrayInputStream(data)) {
+                    content = Base64BinaryDocument.getInstance(xqueryContext, is);
                 }
-                content = Base64BinaryDocument.getInstance(xqueryContext, is);
-                IOUtils.closeQuietly(is);
             }
 
         } else {
@@ -417,32 +415,28 @@ public class MessagingJmsListener extends eXistMessagingListener {
      */
     private Sequence processXML(final byte[] data, final boolean isGzipped) throws XPathException {
 
+        final ValidationReport validationReport = new ValidationReport();
+        final SAXAdapter adapter = new SAXAdapter(xqueryContext);
+
         Sequence content = null;
         try {
-            // Reading compressed XML fragment
-            InputStream is = new ByteArrayInputStream(data);
+            // Reading compressed XML fragment when indicated
+            try(InputStream is = isGzipped
+                    ? new GZIPInputStream(new ByteArrayInputStream(data))
+                    : new ByteArrayInputStream(data)) {
 
-            // Decompress when needed
-            if (isGzipped) {
-                is = new GZIPInputStream(is);
+                final SAXParserFactory factory = SAXParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                final InputSource src = new InputSource(is);
+                final SAXParser parser = factory.newSAXParser();
+                final XMLReader xr = parser.getXMLReader();
+
+                xr.setErrorHandler(validationReport);
+                xr.setContentHandler(adapter);
+                xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
+
+                xr.parse(src);
             }
-
-            final ValidationReport validationReport = new ValidationReport();
-            final SAXAdapter adapter = new SAXAdapter(xqueryContext);
-            final SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            final InputSource src = new InputSource(is);
-            final SAXParser parser = factory.newSAXParser();
-            final XMLReader xr = parser.getXMLReader();
-
-            xr.setErrorHandler(validationReport);
-            xr.setContentHandler(adapter);
-            xr.setProperty(Namespaces.SAX_LEXICAL_HANDLER, adapter);
-
-            xr.parse(src);
-
-            // Cleanup
-            IOUtils.closeQuietly(is);
 
             if (validationReport.isValid()) {
                 content = adapter.getDocument();
