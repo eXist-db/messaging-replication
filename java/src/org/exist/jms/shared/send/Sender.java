@@ -17,7 +17,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.jms.send;
+package org.exist.jms.shared.send;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -265,26 +265,22 @@ public class Sender {
             }
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            OutputStream os = baos;
 
             // Stream content node to buffer
             final NodeValue node = (NodeValue) item;
             final Serializer serializer = xqcontext.getBroker().newSerializer();
-            final InputStream is = new NodeInputStream(serializer, node);
 
-            try {
-                if (isCompressed) {
-                    os = new GZIPOutputStream(os);
-                }
+            try (InputStream is = new NodeInputStream(serializer, node);
+
+                 // Compress data when indicated
+                 OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+
                 IOUtils.copy(is, os);
 
             } catch (final IOException ex) {
                 LOG.error(ex.getMessage(), ex);
                 throw new XPathException(JMS001, ex.getMessage(), ex);
 
-            } finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(os);
             }
 
             // Create actual message, pass data
@@ -311,24 +307,19 @@ public class Sender {
             }
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            OutputStream os = baos;
+
 
             // Copy data from item to buffer
             final BinaryValue binary = (BinaryValue) item;
-            final InputStream is = binary.getInputStream();
-            try {
-                if (isCompressed) {
-                    os = new GZIPOutputStream(os);
-                }
+
+            try (InputStream is = binary.getInputStream();
+                 OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+
                 IOUtils.copy(is, os);
 
             } catch (final IOException ex) {
                 LOG.error(ex);
                 throw new XPathException(JMS001, ex.getMessage(), ex);
-
-            } finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(os);
             }
 
             // Create actual message, pass data
