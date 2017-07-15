@@ -79,10 +79,8 @@ public abstract class ClientParameters {
     public void setMultiValueParameters(final Map<String, List<?>> params) {
 
         // Iterate over parameters
-        params.entrySet().forEach((entry) -> {
+        params.forEach((key, values) -> {
             // Get key, values
-            final String key = entry.getKey();
-            final List<?> values = entry.getValue();
             if (values != null && !values.isEmpty()) {
                 // Only get first value
                 final Object value = values.get(0);

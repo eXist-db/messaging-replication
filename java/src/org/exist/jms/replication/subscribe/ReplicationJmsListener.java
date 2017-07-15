@@ -424,12 +424,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             // Set dates
-            if (lastModified.isPresent()) {
-                doc.getMetadata().setLastModified(lastModified.get());
-            }
-            if (createTime.isPresent()) {
-                doc.getMetadata().setCreated(createTime.get());
-            }
+            lastModified.ifPresent(aLong -> doc.getMetadata().setLastModified(aLong));
+            createTime.ifPresent(aLong -> doc.getMetadata().setCreated(aLong));
 
             // Commit change
             txn.commit();
@@ -524,14 +520,10 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             }
 
             final Optional<Long> createTime = getCreationTime(metaData);
-            if (createTime.isPresent()) {
-                resource.getMetadata().setCreated(createTime.get());
-            }
+            createTime.ifPresent(aLong -> resource.getMetadata().setCreated(aLong));
 
             final Optional<Long> lastModified = getLastModified(metaData);
-            if (lastModified.isPresent()) {
-                resource.getMetadata().setLastModified(lastModified.get());
-            }
+            lastModified.ifPresent(aLong -> resource.getMetadata().setLastModified(aLong));
 
             // Make persistent
             broker.storeMetadata(txn, resource);
