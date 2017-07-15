@@ -25,11 +25,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.jms.replication.shared.MessageSender;
 import org.exist.jms.replication.shared.TransportException;
-import org.exist.jms.shared.send.Sender;
 import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.JmsMessageProperties;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.jms.shared.eXistMessageItem;
+import org.exist.jms.shared.send.Sender;
 
 import java.util.List;
 import java.util.Map;

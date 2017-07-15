@@ -36,7 +36,7 @@ public abstract class ClientParameters {
 
     protected final static Logger LOG = LogManager.getLogger(ClientParameters.class);
 
-//    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
+    //    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
 //    public static final String DESTINATION = Constants.DESTINATION;  //"topic";
 //    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
 //    public static final String PARAMETER_GROUPING = "..";

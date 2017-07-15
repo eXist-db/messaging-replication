@@ -64,8 +64,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     private boolean isJMSOrigin(final Txn transaction) {
 
         // Get originId.
-        @SuppressWarnings("deprecation")
-        final String originId = transaction.getOriginId();
+        @SuppressWarnings("deprecation") final String originId = transaction.getOriginId();
 
         return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
     }
