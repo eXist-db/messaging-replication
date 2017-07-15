@@ -30,7 +30,7 @@ import org.exist.xquery.value.*;
 import static org.exist.jms.shared.ErrorCodes.*;
 
 /**
- * Implementation of the start-stop-close-getReport functions
+ * Implementation of the start-stop-close-generateReport functions
  *
  * @author Dannes Wessels
  */
@@ -42,6 +42,7 @@ public class ManageReceivers extends BasicFunction {
     public static final String STOP = "stop";
     public static final String CLOSE = "close";
     public static final String REPORT = "report";
+    public static final String CLEARREPORT = "clear-report";
 
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
@@ -69,11 +70,10 @@ public class ManageReceivers extends BasicFunction {
                     new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fragment with receiver information")
             ),
             new FunctionSignature(
-                    new QName("list", JmsModule.NAMESPACE_URI, JmsModule.PREFIX),
-                    "Retrieve sequence of receiver IDs",
-                    new SequenceType[]{ // no params
-                    },
-                    new FunctionReturnSequenceType(Type.INTEGER, Cardinality.ZERO_OR_MORE, "Sequence of receiver IDs")
+                    new QName(CLEARREPORT, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Clear report",
+                    new SequenceType[]{
+                            new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Clear report of receiver")
             ),};
 
     public ManageReceivers(final XQueryContext context, final FunctionSignature signature) {
@@ -125,7 +125,11 @@ public class ManageReceivers extends BasicFunction {
 
             } else if (isCalledAs(REPORT)) {
                 // Return report
-                returnValue = receiver.getReport();
+                returnValue = receiver.generateReport();
+
+            } else if (isCalledAs(CLEARREPORT)) {
+                // Clear report
+                receiver.getReport().clear();
 
             } else {
                 // DW: to check

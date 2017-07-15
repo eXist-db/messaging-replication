@@ -188,7 +188,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     }
 
     //
-    // The code below handles the incoming message ; DW: should be moved to seperate class
+    // The code below handles the incoming message ; DW: should be moved to separate class
     //
 
     /**
@@ -343,6 +343,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } catch (final MessageReceiveException e) {
             LOG.error(e.getMessage(), e);
+            e.setExistMessage(em);
             throw e;
 
         } catch (final Throwable t) {
@@ -351,7 +352,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             } else {
                 LOG.error(t.getMessage());
             }
-            throw new MessageReceiveException(String.format("Unable to create collection in database: %s", t.getMessage()));
+            throw new MessageReceiveException(String.format("Unable to create collection in database: %s", t.getMessage()), em);
         }
 
 
@@ -364,7 +365,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             collection = broker.openCollection(colURI, Lock.LockMode.WRITE_LOCK);
 
             if (collection == null) {
-                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist");
+                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist", em);
             }
 
             setOrigin(txn);
@@ -442,7 +443,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(ex.getMessage());
             }
 
-            throw new MessageReceiveException(String.format("Unable to write document into database: %s", ex.getMessage()));
+            throw new MessageReceiveException(String.format("Unable to write document into database. Reason: %s", ex.getMessage()), em);
 
 
         } finally {
@@ -540,7 +541,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } catch (final Throwable e) {
             LOG.error(e.getMessage(), e);
-            throw new MessageReceiveException(e.getMessage(), e);
+            throw new MessageReceiveException(e.getMessage(), e, em);
 
         } finally {
             releaseLock(collection, Lock.LockMode.WRITE_LOCK);
@@ -601,7 +602,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(t.getMessage());
             }
 
-            throw new MessageReceiveException(t.getMessage(), t);
+            throw new MessageReceiveException(t.getMessage(), t, em);
 
         } finally {
             releaseLock(collection, Lock.LockMode.WRITE_LOCK);
@@ -644,7 +645,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 LOG.error(t.getMessage());
             }
 
-            throw new MessageReceiveException(t.getMessage());
+            throw new MessageReceiveException(t.getMessage(), em);
 
         } finally {
             releaseLock(collection, Lock.LockMode.WRITE_LOCK);
@@ -837,7 +838,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } catch (final Throwable e) {
             LOG.error(e.getMessage(), e);
-            throw new MessageReceiveException(e.getMessage(), e);
+            throw new MessageReceiveException(e.getMessage(), e, em);
 
         } finally {
             releaseLock(destCollection, Lock.LockMode.WRITE_LOCK);
@@ -893,7 +894,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } catch (final Throwable e) {
             LOG.error(e.getMessage(), e);
-            throw new MessageReceiveException(e.getMessage());
+            throw new MessageReceiveException(e.getMessage(), em);
 
         } finally {
             releaseLock(srcCollection, lockTypeOriginal);
@@ -957,7 +958,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         } catch (final Throwable e) {
             LOG.error(e.getMessage(), e);
-            throw new MessageReceiveException(e.getMessage());
+            throw new MessageReceiveException(e.getMessage(), em);
 
         } finally {
             releaseLock(collection, Lock.LockMode.WRITE_LOCK);

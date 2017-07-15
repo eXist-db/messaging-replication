@@ -48,6 +48,7 @@ public class JmsModule extends AbstractInternalModule {
             new FunctionDef(ManageReceivers.signatures[1], ManageReceivers.class),
             new FunctionDef(ManageReceivers.signatures[2], ManageReceivers.class),
             new FunctionDef(ManageReceivers.signatures[3], ManageReceivers.class),
+            new FunctionDef(ManageReceivers.signatures[4], ManageReceivers.class),
     };
 
     public final static QName EXCEPTION_QNAME =
