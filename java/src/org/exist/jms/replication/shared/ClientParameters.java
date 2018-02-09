@@ -36,7 +36,7 @@ public abstract class ClientParameters {
 
     protected final static Logger LOG = LogManager.getLogger(ClientParameters.class);
 
-//    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
+    //    public static final String CONNECTION_FACTORY = Constants.CONNECTION_FACTORY;
 //    public static final String DESTINATION = Constants.DESTINATION;  //"topic";
 //    public static final String CLIENT_ID = Constants.CLIENT_ID; //"client-id";
 //    public static final String PARAMETER_GROUPING = "..";
@@ -79,10 +79,8 @@ public abstract class ClientParameters {
     public void setMultiValueParameters(final Map<String, List<?>> params) {
 
         // Iterate over parameters
-        params.entrySet().forEach((entry) -> {
+        params.forEach((key, values) -> {
             // Get key, values
-            final String key = entry.getKey();
-            final List<?> values = entry.getValue();
             if (values != null && !values.isEmpty()) {
                 // Only get first value
                 final Object value = values.get(0);

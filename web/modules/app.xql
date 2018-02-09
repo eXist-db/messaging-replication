@@ -105,22 +105,22 @@ declare function app:showReport($node as node(), $model as map(*), $show as xs:s
                 </tbody>
                 </table>
             <p/>
-            
-            <table id="manageTable" class="table table-striped table-hoover table-bordered table-condensed tablesorter table-scrollable">
-            <caption>Errors</caption>
-                <thead>
-                    <tr>
-                        <th>Source</th><th>Message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        for $error in $report/errorMessages/error
-                        return
-                            <tr><th>{data($error/@src)}</th><td>{data($error)}</td></tr>
-                    }
 
-                </tbody>
+                <table id="manageTable" class="table table-striped table-hoover table-bordered table-condensed tablesorter table-scrollable">
+                    <caption>Errors</caption>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th><th>Source</th><th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            for $error in $report/errorMessages/error
+                            return
+                                <tr><td>{data($error/@timestamp)}</td><td>{data($error/@src)}</td><td>{data($error)}</td></tr>
+                        }
+
+                    </tbody>
                 </table>
                 
                 

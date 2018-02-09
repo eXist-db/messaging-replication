@@ -31,16 +31,13 @@ import org.exist.dom.persistent.DocumentMetadata;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.security.Permission;
 import org.exist.storage.DBBroker;
-import org.exist.storage.serializers.EXistOutputKeys;
 import org.exist.storage.serializers.Serializer;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.OutputKeys;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Map;
-import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -62,7 +59,6 @@ public class MessageHelper {
     public static final String EXIST_MESSAGE_CONTENTENCODING = "exist.message.content-encoding";
 
     private final static Logger LOG = LogManager.getLogger(MessageHelper.class);
-
 
 
     /**

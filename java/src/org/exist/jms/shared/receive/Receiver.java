@@ -110,6 +110,15 @@ public class Receiver {
     }
 
     /**
+     * Get report of message listener
+     *
+     * @return Report
+     */
+    public Report getReport() {
+        return messageListener.getReport();
+    }
+
+    /**
      * Start JMS connection
      *
      * @throws XPathException Thrown when not initialized or when a JMSException is thrown.
@@ -283,7 +292,6 @@ public class Receiver {
             } catch (final JMSException ex) {
                 LOG.error(ex);
                 messageListener.getReport().addReceiverError(ex);
-
             }
         }
 
@@ -319,7 +327,7 @@ public class Receiver {
     /**
      * @return Get report about Receiver and Listener
      */
-    public NodeImpl getReport() {
+    public NodeImpl generateReport() {
 
         final MemTreeBuilder builder = new MemTreeBuilder();
         builder.startDocument();
@@ -328,17 +336,12 @@ public class Receiver {
         final int nodeNr = builder.startElement("", "Receiver", "Receiver", null);
         builder.addAttribute(new QName("id", null, null), "" + id);
 
-
-        /*
-         * Internal state
-         */
+        // Internal state
         builder.startElement("", "state", "state", null);
         builder.characters("" + state.name());
         builder.endElement();
 
-        /*
-         * JMS configuration
-         */
+        // JMS configuration
         builder.startElement("", Context.INITIAL_CONTEXT_FACTORY, Context.INITIAL_CONTEXT_FACTORY, null);
         builder.characters(jmsConfig.getInitialContextFactory());
         builder.endElement();
@@ -351,6 +354,7 @@ public class Receiver {
         builder.characters(jmsConfig.getConnectionFactory());
         builder.endElement();
 
+        // Username
         final String userName = jmsConfig.getConnectionUserName();
         if (StringUtils.isNotBlank(userName)) {
             builder.startElement("", Constants.JMS_CONNECTION_USERNAME, Constants.JMS_CONNECTION_USERNAME, null);
@@ -358,10 +362,12 @@ public class Receiver {
             builder.endElement();
         }
 
+        // Destination
         builder.startElement("", Constants.DESTINATION, Constants.DESTINATION, null);
         builder.characters(jmsConfig.getDestination());
         builder.endElement();
 
+        // Connection
         if (connection != null) {
             try {
                 final String clientId = connection.getClientID();
@@ -375,9 +381,7 @@ public class Receiver {
             }
         }
 
-        /*
-         * Message consumer
-         */
+        // Message consumer
         if (messageConsumer != null) {
             try {
                 final String messageSelector = messageConsumer.getMessageSelector();
@@ -392,25 +396,17 @@ public class Receiver {
         }
 
 
-        /*
-         * Statistics & error reporting
-         */
+        // Statistics & error reporting
         if (messageListener != null) {
-            /*
-             * Context of usage
-             */
+            // Context of usage
             builder.startElement("", "usage", "usage", null);
             builder.characters("" + messageListener.getUsageType());
             builder.endElement();
 
-            /*
-             * Error reporting
-             */
+            // Error reporting
             messageListener.getReport().write(builder);
 
-            /*
-             * Statistics
-             */
+            // Statistics
             final Report stats = messageListener.getReport();
             builder.startElement("", "statistics", "statistics", null);
 

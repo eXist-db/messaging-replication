@@ -21,6 +21,8 @@
 
 package org.exist.jms.shared;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.jms.shared.ReportItem.CONTEXT;
 
@@ -34,6 +36,8 @@ import java.util.List;
  * @author Dannes Wessels
  */
 public class Report {
+
+    private final static Logger LOG = LogManager.getLogger(Report.class);
 
     /**
      * Storage for errors
@@ -131,7 +135,7 @@ public class Report {
     }
 
     /**
-     * @return List tests of all problems
+     * @return List texts of all problems
      */
     public List<String> getErrorMessages() {
         final List<String> errorMessages = new ArrayList<>();
@@ -177,5 +181,14 @@ public class Report {
         }
 
         builder.endElement();
+    }
+
+    public void clear() {
+        LOG.info("Clear report");
+
+        errors.clear();
+        messageCounterOK = 0;
+        messageCounterTotal = 0;
+
     }
 }

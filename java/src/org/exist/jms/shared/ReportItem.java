@@ -22,6 +22,7 @@ package org.exist.jms.shared;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.MemTreeBuilder;
+import org.exist.jms.replication.subscribe.MessageReceiveException;
 
 import javax.jms.JMSException;
 import java.util.Date;
@@ -65,18 +66,27 @@ public class ReportItem {
     }
 
     public void writeError(final MemTreeBuilder builder) {
+        final Throwable t = getThowable();
+
         builder.startElement("", "error", "error", null);
         builder.addAttribute(new QName("src", null, null), getContextName());
         builder.addAttribute(new QName("timestamp", null, null), getTimeStamp());
-        builder.addAttribute(new QName("exception", null, null), getThowable().getClass().getSimpleName());
+        builder.addAttribute(new QName("exception", null, null), t.getClass().getSimpleName());
 
         String msg = getMessage();
-        final Throwable t = getThowable();
+
+        // Treat JMSException a bit different
         if (t instanceof JMSException) {
             final JMSException jmse = (JMSException) t;
             if (jmse.getErrorCode() != null) {
-                msg = msg + " (code=" + jmse.getErrorCode() + ")";
+                msg += (" (code=" + jmse.getErrorCode() + ")");
             }
+        }
+
+        // Treat MessageReceiveException a bit different too
+        if (t instanceof MessageReceiveException) {
+            final MessageReceiveException mre = (MessageReceiveException) t;
+            msg += " (" + mre.getExistMessage().getReport() + ")";
         }
 
         builder.characters(msg);

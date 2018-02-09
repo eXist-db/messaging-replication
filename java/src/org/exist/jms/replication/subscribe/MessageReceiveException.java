@@ -21,6 +21,8 @@
  */
 package org.exist.jms.replication.subscribe;
 
+import org.exist.jms.shared.eXistMessage;
+
 /**
  * Class for reporting problems during handling received messages. Must
  * be a runtime exception.
@@ -28,6 +30,8 @@ package org.exist.jms.replication.subscribe;
  * @author Dannes Wessels
  */
 public class MessageReceiveException extends RuntimeException {
+
+    private eXistMessage message;
 
     public MessageReceiveException() {
         super();
@@ -37,11 +41,33 @@ public class MessageReceiveException extends RuntimeException {
         super(msg);
     }
 
+    public MessageReceiveException(final String msg, final eXistMessage message) {
+        super(msg);
+        this.message = message;
+        this.message.resetPayload();
+    }
+
     public MessageReceiveException(final Throwable t) {
         super(t);
     }
 
     public MessageReceiveException(final String msg, final Throwable t) {
         super(msg, t);
+    }
+
+
+    public MessageReceiveException(final String msg, final Throwable t, final eXistMessage message) {
+        super(msg, t);
+        this.message = message;
+        this.message.resetPayload();
+    }
+
+    public eXistMessage getExistMessage() {
+        return message;
+    }
+
+    public void setExistMessage(eXistMessage message) {
+        this.message = message;
+        this.message.resetPayload();
     }
 }

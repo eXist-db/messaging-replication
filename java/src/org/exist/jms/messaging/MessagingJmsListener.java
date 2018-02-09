@@ -19,7 +19,6 @@
  */
 package org.exist.jms.messaging;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -142,7 +141,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 final MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
                 // Add identity of current receiver
-                msgProperties.add(new StringValue(EXIST_RECEIVER_ID), new IntegerValue(receiverID) );
+                msgProperties.add(new StringValue(EXIST_RECEIVER_ID), new IntegerValue(receiverID));
 
                 // Retrieve content of message
                 final Sequence content = getContent(msg);
@@ -245,7 +244,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
             } else {
                 // Binary data - read compressed when indicated
-                try(InputStream is = isCompressed
+                try (InputStream is = isCompressed
                         ? new GZIPInputStream(new ByteArrayInputStream(data))
                         : new ByteArrayInputStream(data)) {
                     content = Base64BinaryDocument.getInstance(xqueryContext, is);
@@ -421,7 +420,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         Sequence content = null;
         try {
             // Reading compressed XML fragment when indicated
-            try(InputStream is = isGzipped
+            try (InputStream is = isGzipped
                     ? new GZIPInputStream(new ByteArrayInputStream(data))
                     : new ByteArrayInputStream(data)) {
 

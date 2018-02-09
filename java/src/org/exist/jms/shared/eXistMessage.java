@@ -22,6 +22,8 @@
 package org.exist.jms.shared;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -41,22 +43,19 @@ public class eXistMessage {
      * Header to describe operation on resource, e.g. CREATE UPDATE
      */
     public final static String EXIST_RESOURCE_OPERATION = "exist.resource.operation";
-
     /**
      * Header to describe resource, DOCUMENT or COLLECTION
      */
     public final static String EXIST_RESOURCE_TYPE = "exist.resource.type";
-
     /**
      * Header to describe path of resource
      */
     public final static String EXIST_SOURCE_PATH = "exist.source.path";
-
     /**
      * Header to describe destination path, for COPY and MOVE operation
      */
     public final static String EXIST_DESTINATION_PATH = "exist.destination.path";
-
+    private final static Logger LOG = LogManager.getLogger(eXistMessage.class);
     private ResourceOperation resourceOperation = ResourceOperation.UNDEFINED;
     private ResourceType resourceType = ResourceType.UNDEFINED;
     private ContentType contentType = ContentType.UNDEFINED;
@@ -128,6 +127,7 @@ public class eXistMessage {
     }
 
     public void resetPayload() {
+        LOG.debug("Removing payload. {}", getReport());
         payload = new byte[0];
     }
 
