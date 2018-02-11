@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.exist-db.thirdparty.org.expath:pkg-repo:20170307144900-patched">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/exist-db/thirdparty/org/expath/pkg-repo/20170307144900-patched/pkg-repo-20170307144900-patched.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/exist-db/thirdparty/org/expath/pkg-repo/20170307144900-patched/pkg-repo-20170307144900-patched-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/exist-db/thirdparty/org/expath/pkg-repo/20170307144900-patched/pkg-repo-20170307144900-patched-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -6,3 +6,4 @@ config/library/exist.xml
 expath-pkg.xml
 config/application/repo.xml
 config/library/repo.xml
+target

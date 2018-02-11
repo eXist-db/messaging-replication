@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.exist-db.thirdparty.se.softhouse:jargo:0.4.2-SNAPSHOT-7fa1d04">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/exist-db/thirdparty/se/softhouse/jargo/0.4.2-SNAPSHOT-7fa1d04/jargo-0.4.2-SNAPSHOT-7fa1d04.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/exist-db/thirdparty/se/softhouse/jargo/0.4.2-SNAPSHOT-7fa1d04/jargo-0.4.2-SNAPSHOT-7fa1d04-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/exist-db/thirdparty/se/softhouse/jargo/0.4.2-SNAPSHOT-7fa1d04/jargo-0.4.2-SNAPSHOT-7fa1d04-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
