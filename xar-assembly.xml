@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://expath.org/ns/pkg" name="${package-name}" abbrev="${package-abbrev}" version="${project.version}"
+<package xmlns="http://expath.org/ns/pkg" name="${package-name}" abbrev="jms" version="${project.version}"
     spec="1.0">
     <title>${package-title}</title>
     <author id="dizzzz">Dannes Wessels</author>
@@ -26,7 +26,7 @@
     <prepare>pre-install.xql</prepare>
     <finish>post-install.xql</finish>
 
-    <permissions user="jms" group="jms" mode="0775"/>
+    <!--<permissions user="jms" group="jms" mode="0775"/>-->
     <note>When upgrading: please uninstall all previous versions first and restart eXist-db.</note>
 
     <!-- includes everything in src/main/xar-resources, README.md, and LICENSE -->
