@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://expath.org/ns/pkg" name="${package-name}" abbrev="jms" version="${project.version}"
+    spec="1.0">
+    <title>${package-title}</title>
+    <author id="dizzzz">Dannes Wessels</author>
+    <website>${project.url}</website>
+    <license>GNU Lesser General Public License, version 2.1</license>
+    <copyright>true</copyright>
+
+    <!-- should be either "application" or "library" -->
+    <type>application</type>
+    <!-- type>library</type -->
+
+    <status>stable</status>
+
+    <tag>${project.artifactId}</tag>
+    <tag>application</tag>
+    <category id="apps">Applications</category>
+
+    <dependency processor="http://exist-db.org" semver-min="${exist.version}" />
+    <dependency package="http://exist-db.org/apps/shared"/>
+
+    <!-- Collection inside /db/apps where xar-resources will be copied to -->
+    <target>${package-abbrev}</target>
+
+    <prepare>pre-install.xql</prepare>
+    <finish>post-install.xql</finish>
+
+    <permissions user="jms" group="jms" mode="0775"/>
+    <note>When upgrading: please uninstall all previous versions first and restart eXist-db.</note>
+
+    <!-- includes everything in src/main/xar-resources, README.md, and LICENSE -->
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}</directory>
+            <includes>
+                <include>README.md</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/xar-resources</directory>
+        </fileSet>
+    </fileSets>
+
+    <!-- include the XQuery Library modules written in XQuery from this project -->
+    <xquerySets>
+        <!--<xquerySet>-->
+            <!--<namespace>https://my-organisation.com/exist-db/ns/app/my-xquery-module</namespace>-->
+            <!--<directory>${basedir}/src/main/xquery</directory>-->
+            <!--<includes>-->
+                <!--<include>example-module.xqm</include>-->
+            <!--</includes>-->
+            <!--<outputDirectory>content</outputDirectory>-->
+        <!--</xquerySet>-->
+    </xquerySets>
+
+    <!-- include the XQuery Library Module written in Java (JAR output) from this project -->
+    <dependencySets>
+        <dependencySet>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>${project.artifactId}</artifactId>
+            <version>${project.version}</version>
+        </dependencySet>
+        <dependencySet>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>${activemq.version}</version>
+        </dependencySet>
+        <dependencySet>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-pool</artifactId>
+            <version>${activemq.version}</version>
+        </dependencySet>
+        <dependencySet>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-jms-pool</artifactId>
+            <version>${activemq.version}</version>
+        </dependencySet>
+        <dependencySet>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+            <version>2.4.2</version>
+        </dependencySet>     
+        <dependencySet>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <version>1.1.1</version>
+        </dependencySet>
+        <dependencySet>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            <version>1.0.1</version>
+        </dependencySet>
+        <dependencySet>
+          <groupId>org.fusesource.hawtbuf</groupId>
+          <artifactId>hawtbuf</artifactId>
+          <version>1.11</version>
+        </dependencySet>
+            
+    </dependencySets>
+
+
+    <!-- register the Java module to eXist-db -->
+    <components>
+        <resource>
+            <public-uri>http://exist-db.org/xquery/jms</public-uri>
+            <file>org.exist.jms.xquery.JmsModule</file>
+        </resource>
+        <resource>
+            <public-uri>http://exist-db.org/xquery/messaging</public-uri>
+            <file>org.exist.jms.xquery.MessagingModule</file>
+        </resource>
+        <resource>
+            <public-uri>http://exist-db.org/xquery/replication</public-uri>
+            <file>org.exist.jms.xquery.ReplicationModule</file>
+        </resource>
+    </components>
+
+</package>

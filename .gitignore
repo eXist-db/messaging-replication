@@ -1,8 +1,2 @@
-build
-dist
-java/lib
-config/application/expath-pkg.xml
-config/library/exist.xml
-expath-pkg.xml
-config/application/repo.xml
-config/library/repo.xml
+target
+.idea/workspace.xml
