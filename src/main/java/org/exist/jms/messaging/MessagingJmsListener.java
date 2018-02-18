@@ -93,7 +93,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     public void onMessage(final Message msg) {
 
         // Make a copy, just in case
-        XQueryContext copyContext = xqueryContext.copyContext();
+        final XQueryContext copyContext = xqueryContext.copyContext();
 
         // Set new context to function reference
         functionReference.setContext(copyContext);

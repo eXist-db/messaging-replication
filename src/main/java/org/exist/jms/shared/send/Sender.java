@@ -182,7 +182,7 @@ public class Sender {
         } catch (final JMSException ex) {
             LOG.error(ex.getMessage(), ex);
 
-            Throwable cause = ex.getCause();
+            final Throwable cause = ex.getCause();
 
             if ("Error while attempting to add new Connection to the pool".contentEquals(ex.getMessage()) && cause != null) {
                 throw new XPathException(JMS004, cause.getMessage());
@@ -253,120 +253,129 @@ public class Sender {
         jmp.setProperty(EXIST_XPATH_DATATYPE, Type.getTypeName(item.getType()));
         final boolean isCompressed = applyGZIPcompression(jmp);
 
-        if (item.getType() == Type.ELEMENT || item.getType() == Type.DOCUMENT) {
-            LOG.debug("Streaming element or document node");
+        switch (item.getType()) {
+            case Type.ELEMENT:
+            case Type.DOCUMENT: {
+                LOG.debug("Streaming element or document node");
 
-            jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
+                jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_XML);
 
-            if (item instanceof NodeProxy) {
-                final NodeProxy np = (NodeProxy) item;
-                jmp.setProperty(EXIST_DOCUMENT_URI, np.getDoc().getBaseURI());
-                jmp.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDoc().getMetadata().getMimeType());
+                if (item instanceof NodeProxy) {
+                    final NodeProxy np = (NodeProxy) item;
+                    jmp.setProperty(EXIST_DOCUMENT_URI, np.getDoc().getBaseURI());
+                    jmp.setProperty(EXIST_DOCUMENT_MIMETYPE, np.getDoc().getMetadata().getMimeType());
+                }
+
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                // Stream content node to buffer
+                final NodeValue node = (NodeValue) item;
+                final Serializer serializer = xqcontext.getBroker().newSerializer();
+
+                try (InputStream is = new NodeInputStream(serializer, node);
+
+                     // Compress data when indicated
+                     OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+
+                    IOUtils.copy(is, os);
+
+                } catch (final IOException ex) {
+                    LOG.error(ex.getMessage(), ex);
+                    throw new XPathException(JMS001, ex.getMessage(), ex);
+
+                }
+
+                // Create actual message, pass data
+                final BytesMessage bytesMessage = session.createBytesMessage();
+                bytesMessage.writeBytes(baos.toByteArray());
+
+                // Swap
+                message = bytesMessage;
+
+
+                break;
             }
+            case Type.BASE64_BINARY:
+            case Type.HEX_BINARY: {
 
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                LOG.debug("Streaming base64 binary");
 
-            // Stream content node to buffer
-            final NodeValue node = (NodeValue) item;
-            final Serializer serializer = xqcontext.getBroker().newSerializer();
+                jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
 
-            try (InputStream is = new NodeInputStream(serializer, node);
+                if (item instanceof Base64BinaryDocument) {
+                    final Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
+                    final String uri = b64doc.getUrl();
 
-                 // Compress data when indicated
-                 OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+                    LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
+                    jmp.setProperty(EXIST_DOCUMENT_URI, uri);
 
-                IOUtils.copy(is, os);
+                }
 
-            } catch (final IOException ex) {
-                LOG.error(ex.getMessage(), ex);
-                throw new XPathException(JMS001, ex.getMessage(), ex);
+                final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+
+                // Copy data from item to buffer
+                final BinaryValue binary = (BinaryValue) item;
+
+                try (InputStream is = binary.getInputStream();
+                     OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+
+                    IOUtils.copy(is, os);
+
+                } catch (final IOException ex) {
+                    LOG.error(ex);
+                    throw new XPathException(JMS001, ex.getMessage(), ex);
+                }
+
+                // Create actual message, pass data
+                final BytesMessage bytesMessage = session.createBytesMessage();
+                bytesMessage.writeBytes(baos.toByteArray());
+
+                // Swap
+                message = bytesMessage;
+
+                break;
             }
-
-            // Create actual message, pass data
-            final BytesMessage bytesMessage = session.createBytesMessage();
-            bytesMessage.writeBytes(baos.toByteArray());
-
-            // Swap
-            message = bytesMessage;
+            case Type.STRING:
+                // xs:string() is mapped to a TextMessage
+                final TextMessage textMessage = session.createTextMessage();
+                textMessage.setText(item.getStringValue());
+                message = textMessage;
 
 
-        } else if (item.getType() == Type.BASE64_BINARY || item.getType() == Type.HEX_BINARY) {
+                break;
+            default:
+                final ObjectMessage objectMessage = session.createObjectMessage();
 
-            LOG.debug("Streaming base64 binary");
+                switch (item.getType()) {
+                    case Type.INTEGER:
+                        final BigInteger intValue = item.toJavaObject(BigInteger.class);
+                        objectMessage.setObject(intValue);
+                        break;
+                    case Type.DOUBLE:
+                        final Double doubleValue = item.toJavaObject(Double.class);
+                        objectMessage.setObject(doubleValue);
+                        break;
+                    case Type.FLOAT:
+                        final Float foatValue = item.toJavaObject(Float.class);
+                        objectMessage.setObject(foatValue);
+                        break;
+                    case Type.DECIMAL:
+                        final BigDecimal decimalValue = item.toJavaObject(BigDecimal.class);
+                        objectMessage.setObject(decimalValue);
+                        break;
+                    case Type.BOOLEAN:
+                        final Boolean booleanValue = item.toJavaObject(Boolean.class);
+                        objectMessage.setObject(booleanValue);
+                        break;
+                    default:
+                        throw new XPathException(JMS027,
+                                String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
+                }
 
-            jmp.setProperty(EXIST_DATA_TYPE, DATA_TYPE_BINARY);
-
-            if (item instanceof Base64BinaryDocument) {
-                final Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
-                final String uri = b64doc.getUrl();
-
-                LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
-                jmp.setProperty(EXIST_DOCUMENT_URI, uri);
-
-            }
-
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-
-            // Copy data from item to buffer
-            final BinaryValue binary = (BinaryValue) item;
-
-            try (InputStream is = binary.getInputStream();
-                 OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
-
-                IOUtils.copy(is, os);
-
-            } catch (final IOException ex) {
-                LOG.error(ex);
-                throw new XPathException(JMS001, ex.getMessage(), ex);
-            }
-
-            // Create actual message, pass data
-            final BytesMessage bytesMessage = session.createBytesMessage();
-            bytesMessage.writeBytes(baos.toByteArray());
-
-            // Swap
-            message = bytesMessage;
-
-        } else if (item.getType() == Type.STRING) {
-            // xs:string() is mapped to a TextMessage
-            final TextMessage textMessage = session.createTextMessage();
-            textMessage.setText(item.getStringValue());
-            message = textMessage;
-
-
-        } else {
-            final ObjectMessage objectMessage = session.createObjectMessage();
-
-            switch (item.getType()) {
-                case Type.INTEGER:
-                    final BigInteger intValue = item.toJavaObject(BigInteger.class);
-                    objectMessage.setObject(intValue);
-                    break;
-                case Type.DOUBLE:
-                    final Double doubleValue = item.toJavaObject(Double.class);
-                    objectMessage.setObject(doubleValue);
-                    break;
-                case Type.FLOAT:
-                    final Float foatValue = item.toJavaObject(Float.class);
-                    objectMessage.setObject(foatValue);
-                    break;
-                case Type.DECIMAL:
-                    final BigDecimal decimalValue = item.toJavaObject(BigDecimal.class);
-                    objectMessage.setObject(decimalValue);
-                    break;
-                case Type.BOOLEAN:
-                    final Boolean booleanValue = item.toJavaObject(Boolean.class);
-                    objectMessage.setObject(booleanValue);
-                    break;
-                default:
-                    throw new XPathException(JMS027,
-                            String.format("Unable to convert '%s' of type '%s' into a JMS object.", item.getStringValue(), item.getType()));
-            }
-
-            // Swap
-            message = objectMessage;
+                // Swap
+                message = objectMessage;
+                break;
         }
 
         return message;

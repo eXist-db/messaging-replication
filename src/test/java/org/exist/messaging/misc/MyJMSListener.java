@@ -2,7 +2,6 @@ package org.exist.messaging.misc;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.exist.xquery.XPathException;
 import org.exist.xquery.value.*;
 
 import javax.jms.*;
@@ -19,7 +18,7 @@ public class MyJMSListener implements MessageListener {
     private final static Logger LOG = LogManager.getLogger();
 
     @Override
-    public void onMessage(Message msg) {
+    public void onMessage(final Message msg) {
 
         try {
             LOG.info(String.format("msgId='%s'", msg.getJMSMessageID()));
@@ -31,32 +30,32 @@ public class MyJMSListener implements MessageListener {
                 content = ((TextMessage) msg).getText();
 
             } else if (msg instanceof BytesMessage) {
-                BytesMessage bm = (BytesMessage) msg;
+                final BytesMessage bm = (BytesMessage) msg;
                 LOG.info("nrbytes" + bm.getBodyLength());
                 content = "muted";
 
             } else if (msg instanceof ObjectMessage) {
-                Object obj = ((ObjectMessage) msg).getObject();
+                final Object obj = ((ObjectMessage) msg).getObject();
                 LOG.info(obj.getClass().getCanonicalName());
 
                 if (obj instanceof BigInteger) {
-                    IntegerValue value = new IntegerValue((BigInteger) obj);
+                    final IntegerValue value = new IntegerValue((BigInteger) obj);
                     content = value.getStringValue();
 
                 } else if (obj instanceof Double) {
-                    DoubleValue value = new DoubleValue((Double) obj);
+                    final DoubleValue value = new DoubleValue((Double) obj);
                     content = value.getStringValue();
 
                 } else if (obj instanceof BigDecimal) {
-                    DecimalValue value = new DecimalValue((BigDecimal) obj);
+                    final DecimalValue value = new DecimalValue((BigDecimal) obj);
                     content = value.getStringValue();
 
                 } else if (obj instanceof Boolean) {
-                    BooleanValue value = new BooleanValue((Boolean) obj);
+                    final BooleanValue value = new BooleanValue((Boolean) obj);
                     content = value.getStringValue();
 
                 } else if (obj instanceof Float) {
-                    FloatValue value = new FloatValue((Float) obj);
+                    final FloatValue value = new FloatValue((Float) obj);
                     content = value.getStringValue();
 
                 } else {
@@ -77,13 +76,7 @@ public class MyJMSListener implements MessageListener {
 //                LOG.info(String.format("'%s'='%s'", elt, value));
 //            }
 
-        } catch (JMSException ex) {
-            LOG.error(ex);
-
-        } catch (XPathException ex) {
-            LOG.error(ex);
-
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             LOG.error(ex);
         }
     }

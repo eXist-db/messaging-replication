@@ -15,7 +15,7 @@ public class MyExceptionListener implements ExceptionListener {
     private final static Logger LOG = LogManager.getLogger();
 
     @Override
-    public void onException(JMSException jmse) {
+    public void onException(final JMSException jmse) {
         LOG.error(jmse);
     }
 

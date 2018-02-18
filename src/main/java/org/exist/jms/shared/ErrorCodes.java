@@ -54,7 +54,7 @@ public class ErrorCodes {
 
     protected final static class JmsErrorCode extends ErrorCode {
 
-        public JmsErrorCode(String code, String description) {
+        public JmsErrorCode(final String code, final String description) {
             super(new QName(code, NAMESPACE_URI, PREFIX), description);
         }
 
