@@ -28,6 +28,7 @@ import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.dom.memtree.NodeImpl;
 import org.exist.dom.persistent.NodeProxy;
 import org.exist.jms.shared.*;
+import org.exist.storage.DBBroker;
 import org.exist.storage.serializers.Serializer;
 import org.exist.validation.internal.node.NodeInputStream;
 import org.exist.xquery.XPathException;
@@ -270,19 +271,21 @@ public class Sender {
 
                 // Stream content node to buffer
                 final NodeValue node = (NodeValue) item;
-                final Serializer serializer = xqcontext.getBroker().newSerializer();
 
-                try (InputStream is = new NodeInputStream(serializer, node);
+                try(DBBroker broker =  xqcontext.getBroker()) {
+                    final Serializer serializer = broker.newSerializer();
+                    try (InputStream is = new NodeInputStream(serializer, node);
 
-                     // Compress data when indicated
-                     OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+                         // Compress data when indicated
+                         OutputStream os = getOutputStream(isCompressed, baos)) {
 
-                    IOUtils.copy(is, os);
+                        IOUtils.copy(is, os);
 
-                } catch (final IOException ex) {
-                    LOG.error(ex.getMessage(), ex);
-                    throw new XPathException(JMS001, ex.getMessage(), ex);
+                    } catch (final IOException ex) {
+                        LOG.error(ex.getMessage(), ex);
+                        throw new XPathException(JMS001, ex.getMessage(), ex);
 
+                    }
                 }
 
                 // Create actual message, pass data
@@ -318,7 +321,7 @@ public class Sender {
                 final BinaryValue binary = (BinaryValue) item;
 
                 try (InputStream is = binary.getInputStream();
-                     OutputStream os = isCompressed ? new GZIPOutputStream(baos) : baos) {
+                     OutputStream os = getOutputStream(isCompressed, baos)) {
 
                     IOUtils.copy(is, os);
 
@@ -379,6 +382,10 @@ public class Sender {
         }
 
         return message;
+    }
+
+    private OutputStream getOutputStream(final boolean isCompressed, final ByteArrayOutputStream baos) throws IOException {
+        return isCompressed ? new GZIPOutputStream(baos) : baos;
     }
 
     /**

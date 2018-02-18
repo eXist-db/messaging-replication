@@ -371,12 +371,14 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             final DocumentImpl doc;
             if (mime.isXMLType()) {
 
+                InputSource inputsource = null;
+
                 // Stream into database
                 try (InputStream byteInputStream = new ByteArrayInputStream(em.getPayload())) {
 
                     // DW: future improvement: determine compression based on property.
                     GZIPInputStream gis = new GZIPInputStream(byteInputStream);
-                    InputSource inputsource = new InputSource(gis);
+                    inputsource = new InputSource(gis);
 
                     // DW: collection can be null?
                     final IndexInfo info = collection.validateXMLResource(txn, broker, docURI, inputsource);
@@ -389,8 +391,12 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                     inputsource = new InputSource(gis);
 
                     collection.store(txn, broker, info, inputsource);
-                    inputsource.getByteStream().close();
 
+
+                } finally {
+                    if (inputsource != null) {
+                        inputsource.getByteStream().close();
+                    }
                 }
 
             } else {
