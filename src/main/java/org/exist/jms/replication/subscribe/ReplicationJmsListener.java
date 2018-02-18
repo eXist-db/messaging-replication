@@ -39,8 +39,6 @@ import org.exist.storage.txn.TransactionManager;
 import org.exist.storage.txn.Txn;
 import org.exist.util.MimeTable;
 import org.exist.util.MimeType;
-import org.exist.util.VirtualTempFile;
-import org.exist.util.VirtualTempFileInputSource;
 import org.exist.xmldb.XmldbURI;
 import org.xml.sax.InputSource;
 
@@ -365,7 +363,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             collection = broker.openCollection(colURI, Lock.LockMode.WRITE_LOCK);
 
             if (collection == null) {
-                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist", em);
+                throw new MessageReceiveException("Collection " + sourcePath + " does not exist", em);
             }
 
             setOrigin(txn);
@@ -374,10 +372,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (mime.isXMLType()) {
 
                 // Stream into database
-                // TODO migrate to other class
-                final VirtualTempFile vtf = new VirtualTempFile(em.getPayload());
-                try (VirtualTempFileInputSource vt = new VirtualTempFileInputSource(vtf)) {
-                    final InputStream byteInputStream = vt.getByteStream();
+                try (InputStream byteInputStream = new ByteArrayInputStream(em.getPayload())) {
 
                     // DW: future improvement: determine compression based on property.
                     GZIPInputStream gis = new GZIPInputStream(byteInputStream);
@@ -401,13 +396,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             } else {
 
                 // Stream into database
-                final byte[] payload = em.getPayload();
-
-                try (ByteArrayInputStream bais = new ByteArrayInputStream(payload);
+                try (ByteArrayInputStream bais = new ByteArrayInputStream(em.getPayload());
                      GZIPInputStream gis = new GZIPInputStream(bais);
                      BufferedInputStream bis = new BufferedInputStream(gis)) {
                     // DW: collection can be null
-                    doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, payload.length);
+                    doc = collection.addBinaryResource(txn, broker, docURI, bis, mimeType, em.getPayload().length);
                 }
             }
 
@@ -685,7 +678,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             collection = broker.getOrCreateCollection(txn, sourcePath);
 
             if (collection == null) {
-                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist or could not be created");
+                throw new MessageReceiveException("Collection " + sourcePath + " does not exist or could not be created");
             }
 
             broker.saveCollection(txn, collection);
@@ -728,7 +721,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
 
             if (collection == null) {
-                throw new MessageReceiveException("Collection " + sourcePath.toString() + " does not exist");
+                throw new MessageReceiveException("Collection " + sourcePath + " does not exist");
             }
 
 
