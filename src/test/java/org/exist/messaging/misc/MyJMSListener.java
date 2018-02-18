@@ -1,6 +1,7 @@
 package org.exist.messaging.misc;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.value.*;
 
@@ -15,7 +16,7 @@ import java.math.BigInteger;
  */
 public class MyJMSListener implements MessageListener {
 
-    private final static Logger LOG = Logger.getLogger(MyJMSListener.class);
+    private final static Logger LOG = LogManager.getLogger();
 
     @Override
     public void onMessage(Message msg) {

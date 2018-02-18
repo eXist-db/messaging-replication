@@ -1,6 +1,8 @@
 package org.exist.messaging.misc;
 
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
@@ -10,7 +12,7 @@ import javax.jms.JMSException;
  */
 public class MyExceptionListener implements ExceptionListener {
 
-    private final static Logger LOG = Logger.getLogger(MyExceptionListener.class);
+    private final static Logger LOG = LogManager.getLogger();
 
     @Override
     public void onException(JMSException jmse) {

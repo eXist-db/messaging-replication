@@ -21,8 +21,9 @@
  */
 package org.exist.replication.jms.obsolete;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+
+
+import org.apache.logging.log4j.LogManager;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -37,15 +38,15 @@ import java.util.Properties;
  */
 public class ResourceReplicator {
 
-    private final static Logger LOG = Logger.getLogger(ResourceReplicator.class);
+    private final static org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws NamingException, JMSException, InterruptedException {
 
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
+//        BasicConfigurator.resetConfiguration();
+//        BasicConfigurator.configure();
 
         try {
             Properties props = new Properties();

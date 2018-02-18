@@ -21,8 +21,9 @@
  */
 package org.exist.replication.jms.obsolete;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -37,13 +38,13 @@ import java.util.Properties;
  */
 public class Sender {
 
-    private final static Logger LOG = Logger.getLogger(Sender.class);
+    private final static Logger LOG = LogManager.getLogger();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        BasicConfigurator.configure();
+//        BasicConfigurator.configure();
 
         try {
 

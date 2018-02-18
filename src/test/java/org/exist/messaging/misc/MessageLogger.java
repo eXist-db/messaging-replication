@@ -1,7 +1,8 @@
 package org.exist.messaging.misc;
 
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.jms.*;
 import javax.naming.Context;
@@ -15,7 +16,7 @@ import java.util.Properties;
  */
 public class MessageLogger {
 
-    private final static Logger LOG = Logger.getLogger(MessageLogger.class);
+    private final static Logger LOG = LogManager.getLogger();
 
     /**
      * @param args the command line arguments
@@ -23,8 +24,8 @@ public class MessageLogger {
     public static void main(String[] args) {
 
         // Configure logger
-        BasicConfigurator.resetConfiguration();
-        BasicConfigurator.configure();
+//        BasicConfigurator.resetConfiguration();
+//        BasicConfigurator.configure();
 
         final String testDestination = "dynamicQueues/eXistdbTest";
 
