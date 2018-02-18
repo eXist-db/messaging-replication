@@ -23,7 +23,9 @@ package org.exist.replication.jms.obsolete;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.exist.jms.shared.eXistMessage;
 
 import javax.jms.*;
@@ -42,7 +44,8 @@ import java.util.zip.GZIPInputStream;
  */
 public class FileSystemListener implements MessageListener {
 
-    private final static Logger LOG = Logger.getLogger(FileSystemListener.class);
+    private final static Logger LOG = LogManager.getLogger();
+
     private static File baseDir;
 
     public FileSystemListener() {
