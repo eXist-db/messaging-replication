@@ -21,7 +21,7 @@ public class MessageLogger {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
         // Configure logger
 //        BasicConfigurator.resetConfiguration();
@@ -31,28 +31,28 @@ public class MessageLogger {
 
         try {
             // Setup listener
-            MyJMSListener myListener = new MyJMSListener();
+            final MyJMSListener myListener = new MyJMSListener();
 
             // Setup Context
-            Properties props = new Properties();
+            final Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
-            Context context = new InitialContext(props);
+            final Context context = new InitialContext(props);
 
             // Setup connection
-            ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");
-            Connection connection = connectionFactory.createConnection();
+            final ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");
+            final Connection connection = connectionFactory.createConnection();
             connection.setExceptionListener(new MyExceptionListener());
 
             // Setup session
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             // Setup destination
-            Destination destination = (Destination) context.lookup(testDestination);
+            final Destination destination = (Destination) context.lookup(testDestination);
             LOG.info("Destination=" + destination);
 
             // Setup consumer
-            MessageConsumer messageConsumer = session.createConsumer(destination);
+            final MessageConsumer messageConsumer = session.createConsumer(destination);
             messageConsumer.setMessageListener(myListener);
 
             // Start listener
@@ -60,7 +60,7 @@ public class MessageLogger {
 
             LOG.info("Receiver is ready");
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
         }
     }

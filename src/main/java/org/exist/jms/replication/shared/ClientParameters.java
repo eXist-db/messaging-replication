@@ -63,7 +63,7 @@ public abstract class ClientParameters {
 
         final List<?> value = params.get(name);
         if (value != null) {
-            if (value.size() > 0) {
+            if (!value.isEmpty()) {
                 retVal = value.get(0).toString();
             }
         }

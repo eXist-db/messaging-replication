@@ -248,7 +248,7 @@ public class JmsConfiguration extends MessagingConfiguration {
 
     }
 
-    public void setDurable(boolean value) {
+    public void setDurable(final boolean value) {
         setLocalProperty(Constants.DURABLE, "" + value);
     }
 

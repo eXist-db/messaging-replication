@@ -56,24 +56,24 @@ public class FileSystemListener implements MessageListener {
         }
     }
 
-    private eXistMessage convertMessage(BytesMessage bm) {
-        eXistMessage em = new eXistMessage();
+    private eXistMessage convertMessage(final BytesMessage bm) {
+        final eXistMessage em = new eXistMessage();
 
         try {
-            Enumeration e = bm.getPropertyNames();
+            final Enumeration e = bm.getPropertyNames();
             while (e.hasMoreElements()) {
-                Object next = e.nextElement();
+                final Object next = e.nextElement();
                 if (next instanceof String) {
                     em.getMetadata().put((String) next, bm.getObjectProperty((String) next));
                 }
             }
 
             String value = bm.getStringProperty(eXistMessage.EXIST_RESOURCE_TYPE);
-            eXistMessage.ResourceType resourceType = eXistMessage.ResourceType.valueOf(value);
+            final eXistMessage.ResourceType resourceType = eXistMessage.ResourceType.valueOf(value);
             em.setResourceType(resourceType);
 
             value = bm.getStringProperty(eXistMessage.EXIST_RESOURCE_OPERATION);
-            eXistMessage.ResourceOperation changeType = eXistMessage.ResourceOperation.valueOf(value);
+            final eXistMessage.ResourceOperation changeType = eXistMessage.ResourceOperation.valueOf(value);
             em.setResourceOperation(changeType);
 
             value = bm.getStringProperty(eXistMessage.EXIST_SOURCE_PATH);
@@ -82,15 +82,15 @@ public class FileSystemListener implements MessageListener {
             value = bm.getStringProperty(eXistMessage.EXIST_DESTINATION_PATH);
             em.setDestinationPath(value);
 
-            long size = bm.getBodyLength();
+            final long size = bm.getBodyLength();
             LOG.debug("actual length=" + size);
 
             // This is potentially memory intensive
-            byte[] payload = new byte[(int) size];
+            final byte[] payload = new byte[(int) size];
             bm.readBytes(payload);
             em.setPayload(payload);
 
-        } catch (JMSException ex) {
+        } catch (final JMSException ex) {
             LOG.error(ex);
         }
 
@@ -99,17 +99,17 @@ public class FileSystemListener implements MessageListener {
     }
 
     @Override
-    public void onMessage(Message message) {
+    public void onMessage(final Message message) {
         try {
             LOG.info("JMSMessageID=" + message.getJMSMessageID());
 
-            StringBuilder sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
 
             // Write properties
-            Enumeration names = message.getPropertyNames();
-            for (Enumeration<?> e = names; e.hasMoreElements(); ) {
-                String key = (String) e.nextElement();
-                sb.append("'" + key + "='" + message.getStringProperty(key) + "' ");
+            final Enumeration names = message.getPropertyNames();
+            for (final Enumeration<?> e = names; e.hasMoreElements(); ) {
+                final String key = (String) e.nextElement();
+                sb.append("'").append(key).append("='").append(message.getStringProperty(key)).append("' ");
             }
             LOG.info(sb.toString());
 
@@ -119,9 +119,9 @@ public class FileSystemListener implements MessageListener {
 
             } else if (message instanceof BytesMessage) {
 
-                BytesMessage bm = (BytesMessage) message;
+                final BytesMessage bm = (BytesMessage) message;
 
-                eXistMessage em = convertMessage(bm);
+                final eXistMessage em = convertMessage(bm);
 
 
                 switch (em.getResourceType()) {
@@ -138,26 +138,26 @@ public class FileSystemListener implements MessageListener {
 
             }
 
-        } catch (JMSException ex) {
+        } catch (final JMSException ex) {
             LOG.error(ex);
         }
 
     }
 
-    private void handleDocument(eXistMessage em) {
+    private void handleDocument(final eXistMessage em) {
 
         LOG.info(em.getFullReport());
 
         // Get original path
-        String resourcePath = em.getResourcePath();
+        final String resourcePath = em.getResourcePath();
 
-        String[] srcSplitPath = splitPath(resourcePath);
-        String srcDir = srcSplitPath[0];
-        String srcDoc = srcSplitPath[1];
+        final String[] srcSplitPath = splitPath(resourcePath);
+        final String srcDir = srcSplitPath[0];
+        final String srcDoc = srcSplitPath[1];
 
 
-        File dir = new File(baseDir, srcDir);
-        File file = new File(dir, srcDoc);
+        final File dir = new File(baseDir, srcDir);
+        final File file = new File(dir, srcDoc);
 
         switch (em.getResourceOperation()) {
             case CREATE:
@@ -172,9 +172,9 @@ public class FileSystemListener implements MessageListener {
 
                 try {
                     // Prepare streams
-                    FileOutputStream fos = new FileOutputStream(file);
-                    ByteArrayInputStream bais = new ByteArrayInputStream(em.getPayload());
-                    GZIPInputStream gis = new GZIPInputStream(bais);
+                    final FileOutputStream fos = new FileOutputStream(file);
+                    final ByteArrayInputStream bais = new ByteArrayInputStream(em.getPayload());
+                    final GZIPInputStream gis = new GZIPInputStream(bais);
 
                     // Copy and unzip
                     IOUtils.copy(gis, fos);
@@ -182,7 +182,7 @@ public class FileSystemListener implements MessageListener {
                     // Cleanup
                     IOUtils.closeQuietly(fos);
                     IOUtils.closeQuietly(gis);
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOG.error(ex);
 
                 }
@@ -193,19 +193,19 @@ public class FileSystemListener implements MessageListener {
                 break;
 
             case MOVE:
-                File mvFile = new File(baseDir, em.getDestinationPath());
+                final File mvFile = new File(baseDir, em.getDestinationPath());
                 try {
                     FileUtils.moveFile(file, mvFile);
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOG.error(ex);
                 }
                 break;
 
             case COPY:
-                File cpFile = new File(baseDir, em.getDestinationPath());
+                final File cpFile = new File(baseDir, em.getDestinationPath());
                 try {
                     FileUtils.copyFile(file, cpFile);
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOG.error(ex);
                 }
                 break;
@@ -215,9 +215,10 @@ public class FileSystemListener implements MessageListener {
         }
     }
 
-    private String[] splitPath(String fullPath) {
-        String directory, documentname;
-        int separator = fullPath.lastIndexOf("/");
+    private String[] splitPath(final String fullPath) {
+        final String directory;
+        final String documentname;
+        final int separator = fullPath.lastIndexOf("/");
         if (separator == -1) {
             directory = "";
             documentname = fullPath;
@@ -229,9 +230,9 @@ public class FileSystemListener implements MessageListener {
         return new String[]{directory, documentname};
     }
 
-    private void handleCollection(eXistMessage em) {
+    private void handleCollection(final eXistMessage em) {
 
-        File src = new File(baseDir, em.getResourcePath());
+        final File src = new File(baseDir, em.getResourcePath());
 
 
         switch (em.getResourceOperation()) {
@@ -240,7 +241,7 @@ public class FileSystemListener implements MessageListener {
                 try {
                     // Create dirs if not existent
                     FileUtils.forceMkdir(src);
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOG.error(ex);
                 }
 
@@ -251,20 +252,20 @@ public class FileSystemListener implements MessageListener {
                 break;
 
             case MOVE:
-                File mvDest = new File(baseDir, em.getDestinationPath());
+                final File mvDest = new File(baseDir, em.getDestinationPath());
                 try {
                     FileUtils.moveDirectoryToDirectory(src, mvDest, true);
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOG.error(ex);
                 }
                 break;
 
             case COPY:
 
-                File cpDest = new File(baseDir, em.getDestinationPath());
+                final File cpDest = new File(baseDir, em.getDestinationPath());
                 try {
                     FileUtils.copyDirectoryToDirectory(src, cpDest);
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     LOG.error(ex);
                 }
                 break;

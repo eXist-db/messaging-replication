@@ -93,7 +93,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     public void onMessage(final Message msg) {
 
         // Make a copy, just in case
-        XQueryContext copyContext = xqueryContext.copyContext();
+        final XQueryContext copyContext = xqueryContext.copyContext();
 
         // Set new context to function reference
         functionReference.setContext(copyContext);
@@ -244,9 +244,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
             } else {
                 // Binary data - read compressed when indicated
-                try (InputStream is = isCompressed
-                        ? new GZIPInputStream(new ByteArrayInputStream(data))
-                        : new ByteArrayInputStream(data)) {
+                try (InputStream is = getInputStream(data, isCompressed)) {
                     content = Base64BinaryDocument.getInstance(xqueryContext, is);
                 }
             }
@@ -420,9 +418,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         Sequence content = null;
         try {
             // Reading compressed XML fragment when indicated
-            try (InputStream is = isGzipped
-                    ? new GZIPInputStream(new ByteArrayInputStream(data))
-                    : new ByteArrayInputStream(data)) {
+            try (InputStream is = getInputStream(data, isGzipped)) {
 
                 final SAXParserFactory factory = SAXParserFactory.newInstance();
                 factory.setNamespaceAware(true);
@@ -452,6 +448,12 @@ public class MessagingJmsListener extends eXistMessagingListener {
         }
 
         return content;
+    }
+
+    private InputStream getInputStream(final byte[] data, final boolean isGzipped) throws IOException {
+        return isGzipped
+                ? new GZIPInputStream(new ByteArrayInputStream(data))
+                : new ByteArrayInputStream(data);
     }
 
 

@@ -43,30 +43,30 @@ public class ResourceReplicator {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) throws NamingException, JMSException, InterruptedException {
+    public static void main(final String[] args) throws NamingException, JMSException, InterruptedException {
 
 //        BasicConfigurator.resetConfiguration();
 //        BasicConfigurator.configure();
 
         try {
-            Properties props = new Properties();
+            final Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
-            Context context = new InitialContext(props);
+            final Context context = new InitialContext(props);
 
-            ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");
+            final ConnectionFactory connectionFactory = (ConnectionFactory) context.lookup("ConnectionFactory");
 
-            FileSystemListener myListener = new FileSystemListener();
+            final FileSystemListener myListener = new FileSystemListener();
 
-            Destination destination = (Destination) context.lookup("dynamicTopics/eXistdb");
+            final Destination destination = (Destination) context.lookup("dynamicTopics/eXistdb");
 
             LOG.info("Destination=" + destination);
 
-            Connection connection = connectionFactory.createConnection();
+            final Connection connection = connectionFactory.createConnection();
 
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            MessageConsumer messageConsumer = session.createConsumer(destination);
+            final MessageConsumer messageConsumer = session.createConsumer(destination);
 
             messageConsumer.setMessageListener(myListener);
 
@@ -75,7 +75,7 @@ public class ResourceReplicator {
 
             LOG.info("Receiver is ready");
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             LOG.error(t.getMessage(), t);
         }
 

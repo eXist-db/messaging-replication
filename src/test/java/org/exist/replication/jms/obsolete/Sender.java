@@ -43,28 +43,28 @@ public class Sender {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 //        BasicConfigurator.configure();
 
         try {
 
-            Properties props = new Properties();
+            final Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
             props.setProperty(Context.PROVIDER_URL, "tcp://localhost:61616");
-            javax.naming.Context context = new InitialContext(props);
+            final javax.naming.Context context = new InitialContext(props);
 
 
-            ConnectionFactory cf = (ConnectionFactory) context.lookup("ConnectionFactory");
-            Connection connection = cf.createConnection();
+            final ConnectionFactory cf = (ConnectionFactory) context.lookup("ConnectionFactory");
+            final Connection connection = cf.createConnection();
 
-            Destination destination = (Destination) context.lookup("dynamicQueues/eXistdb");
+            final Destination destination = (Destination) context.lookup("dynamicQueues/eXistdb");
 
 
-            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            final Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
-            MessageProducer producer = session.createProducer(destination);
-            Message message = session.createTextMessage();
-            message.setStringProperty("name", "testerdetest " + new Date().toString());
+            final MessageProducer producer = session.createProducer(destination);
+            final Message message = session.createTextMessage();
+            message.setStringProperty("name", "testerdetest " + new Date());
 
 
             producer.send(message);
@@ -74,8 +74,8 @@ public class Sender {
 
             LOG.info("sent " + message.getJMSMessageID());
 
-        } catch (Throwable t) {
-            t.printStackTrace();
+        } catch (final Throwable t) {
+            LOG.error(t);
         }
 
         System.exit(0);

@@ -27,6 +27,7 @@ import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.receive.Receiver;
 import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.jms.xquery.MessagingModule;
+import org.exist.storage.DBBroker;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.functions.request.RequestModule;
@@ -72,7 +73,7 @@ public class RegisterReceiver extends BasicFunction {
             throw ex;
         }
 
-        try {
+        try(DBBroker broker = context.getBroker()){
             // Get object that manages the receivers
             final ReceiversManager manager = ReceiversManager.getInstance();
 
@@ -93,7 +94,7 @@ public class RegisterReceiver extends BasicFunction {
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            final MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context);
+            final MessagingJmsListener myListener = new MessagingJmsListener(broker.getCurrentSubject(), reference, functionParams, context);
 
             // Create receiver
             final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?

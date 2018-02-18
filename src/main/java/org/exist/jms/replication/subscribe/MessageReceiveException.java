@@ -66,7 +66,7 @@ public class MessageReceiveException extends RuntimeException {
         return message;
     }
 
-    public void setExistMessage(eXistMessage message) {
+    public void setExistMessage(final eXistMessage message) {
         this.message = message;
         this.message.resetPayload();
     }

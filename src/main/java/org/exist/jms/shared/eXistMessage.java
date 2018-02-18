@@ -156,13 +156,13 @@ public class eXistMessage {
         final StringBuilder sb = new StringBuilder();
 
         sb.append("Message summary: ");
-        sb.append("ResourceType='").append(resourceType.toString()).append("'  ");
+        sb.append("ResourceType='").append(resourceType).append("'  ");
         sb.append("ResourceOperation='").append(resourceOperation).append("'  ");
 
         sb.append("ResourcePath='").append(path).append("'  ");
 
         if (destination != null) {
-            sb.append("DestinationPath='").append(resourceType.toString()).append("'  ");
+            sb.append("DestinationPath='").append(resourceType).append("'  ");
         }
 
         if (payload != null && payload.length > 0) {
@@ -177,7 +177,7 @@ public class eXistMessage {
             keys.forEach((key) -> {
                 final Object val = metaData.get(key);
                 if (val != null) {
-                    sb.append(key).append("='").append(val.toString()).append("'  ");
+                    sb.append(key).append("='").append(val).append("'  ");
                 }
             });
         }
@@ -186,7 +186,7 @@ public class eXistMessage {
     }
 
     public String getReport() {
-        return "type='" + resourceType.toString() + "' " +
+        return "type='" + resourceType + "' " +
                 "resource='" + path + "' " +
                 "operation='" + resourceOperation + "'";
     }
