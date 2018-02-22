@@ -120,7 +120,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
         try {
             /*
-             * Work around to to have a broker available for the
+             * Work around to have a broker available for the
              * execution of #evalFunction. In the onMessage() method this
              * broker is not being used at all.
              */
