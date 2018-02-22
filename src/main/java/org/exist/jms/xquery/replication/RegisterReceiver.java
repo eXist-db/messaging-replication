@@ -28,7 +28,6 @@ import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.receive.Receiver;
 import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.jms.xquery.ReplicationModule;
-import org.exist.storage.DBBroker;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
@@ -66,7 +65,7 @@ public class RegisterReceiver extends BasicFunction {
             throw ex;
         }
 
-        try(DBBroker broker = context.getBroker()){
+        try {
             // Get object that manages the receivers
             final ReceiversManager manager = ReceiversManager.getInstance();
 
@@ -77,8 +76,8 @@ public class RegisterReceiver extends BasicFunction {
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            final ReplicationJmsListener myListener = new ReplicationJmsListener(broker.getBrokerPool());
-            // TODO autoclose broker
+            final ReplicationJmsListener myListener = new ReplicationJmsListener(context.getBroker().getBrokerPool());
+            // TODO autoclose broker - not possible as broker but live for long time
 
             // By default replication must be durable
             config.setDurable(true);
