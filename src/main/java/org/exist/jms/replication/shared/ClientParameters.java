@@ -119,13 +119,13 @@ public abstract class ClientParameters {
         if (props.getProperty(Context.INITIAL_CONTEXT_FACTORY) == null) {
             final String defaultValue = "org.apache.activemq.jndi.ActiveMQInitialContextFactory";
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, defaultValue);
-            LOG.info(String.format("No value set for '%s', using default value '%s' which is suitable for activeMQ", Context.INITIAL_CONTEXT_FACTORY, defaultValue));
+            LOG.info("No value set for '{}', using default value '{}' which is suitable for activeMQ", Context.INITIAL_CONTEXT_FACTORY, defaultValue);
         }
 
         if (props.getProperty(Context.PROVIDER_URL) == null) {
             final String defaultValue = "tcp://localhost:61616";
             props.setProperty(Context.PROVIDER_URL, defaultValue);
-            LOG.info(String.format("No value set for '%s', using default value '%s' which is suitable for activeMQ", Context.PROVIDER_URL, defaultValue));
+            LOG.info("No value set for '{}', using default value '{}' which is suitable for activeMQ", Context.PROVIDER_URL, defaultValue);
         }
 
     }

@@ -77,7 +77,7 @@ public class RegisterReceiver extends BasicFunction {
             final ReceiversManager manager = ReceiversManager.getInstance();
 
             // Get function
-            final FunctionReference reference = (FunctionReference) args[0].itemAt(0);
+            final FunctionReference functionReference = (FunctionReference) args[0].itemAt(0);
 
             // Get optional function parameters
             final Sequence functionParams = args[1];
@@ -93,7 +93,7 @@ public class RegisterReceiver extends BasicFunction {
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            final MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context);
+            final MessagingJmsListener myListener = new MessagingJmsListener(functionReference, functionParams, context);
 
             // Create receiver
             final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?

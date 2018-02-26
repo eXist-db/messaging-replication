@@ -74,11 +74,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      * @param brokerpool Reference to database broker pool
      */
     public ReplicationJmsListener(final BrokerPool brokerpool) {
-        brokerPool = brokerpool;
-        securityManager = brokerpool.getSecurityManager();
-        txnManager = brokerpool.getTransactionManager();
-        localID = Identity.getInstance().getIdentity();
-        report = getReport();
+        this.brokerPool = brokerpool;
+        this.securityManager = brokerpool.getSecurityManager();
+        this.txnManager = brokerpool.getTransactionManager();
+        this.localID = Identity.getInstance().getIdentity();
+        this.report = getReport();
     }
 
     /**
@@ -168,7 +168,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         } catch (final MessageReceiveException ex) {
             // Thrown by local code. Just make it pass\
             report.addListenerError(ex);
-            LOG.error(String.format("Could not handle received message: %s", ex.getMessage()), ex);
+            LOG.error("Could not handle received message: {}", ex.getMessage(), ex);
             throw ex;
 
         } catch (final Throwable t) {
@@ -480,7 +480,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open collection if possible, else abort
             collection = broker.openCollection(colURI, Lock.LockMode.WRITE_LOCK);
             if (collection == null) {
-                LOG.error(String.format("Collection does not exist %s", colURI));
+                LOG.error("Collection does not exist {}", colURI);
                 txn.abort();
                 return; // be silent
             }
@@ -488,7 +488,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open document if possible, else abort
             resource = collection.getDocument(broker, docURI);
             if (resource == null) {
-                LOG.error(String.format("No resource found for path: %s", sourcePath));
+                LOG.error("No resource found for path: {}", sourcePath);
                 txn.abort();
                 return; // be silent
             }
@@ -560,8 +560,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open collection if possible, else abort
             collection = broker.openCollection(colURI, Lock.LockMode.WRITE_LOCK);
             if (collection == null) {
-                final String errorText = String.format("Collection does not exist %s", colURI);
-                LOG.error(errorText);
+                LOG.error("Collection does not exist {}", colURI);
                 txn.abort();
                 return; // silently ignore
             }
@@ -569,7 +568,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open document if possible, else abort
             final DocumentImpl resource = collection.getDocument(broker, docURI);
             if (resource == null) {
-                LOG.error(String.format("No resource found for path: %s", sourcePath));
+                LOG.error("No resource found for path: {}", sourcePath);
                 txn.abort();
                 return; // silently ignore
             }
@@ -617,7 +616,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open collection if possible, else abort
             collection = broker.openCollection(sourcePath, Lock.LockMode.WRITE_LOCK);
             if (collection == null) {
-                LOG.error(String.format("Collection does not exist: %s", sourcePath));
+                LOG.error("Collection does not exist: {}", sourcePath);
                 txn.abort();
                 return;  // be silent
             }
@@ -796,7 +795,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open collection if possible, else abort
             srcCollection = broker.openCollection(sourceColURI, lockTypeOriginal);
             if (srcCollection == null) {
-                LOG.error(String.format("Collection not found: %s", sourceColURI));
+                LOG.error("Collection not found: {}", sourceColURI);
                 txn.abort();
                 return; // be silent
             }
@@ -804,7 +803,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open document if possible, else abort
             srcDocument = srcCollection.getDocument(broker, sourceDocURI);
             if (srcDocument == null) {
-                LOG.error(String.format("No resource found for path: %s", sourcePath));
+                LOG.error("No resource found for path: {}", sourcePath);
                 txn.abort();
                 return; // be silent
             }
@@ -812,7 +811,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open collection if possible, else abort
             destCollection = broker.openCollection(destColURI, Lock.LockMode.WRITE_LOCK);
             if (destCollection == null) {
-                LOG.error(String.format("Destination collection %s does not exist.", destColURI));
+                LOG.error("Destination collection {} does not exist.", destColURI);
                 txn.abort();
                 return; // be silent
             }
@@ -921,7 +920,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             // Open collection if possible, else abort
             collection = broker.openCollection(sourceColURI, Lock.LockMode.WRITE_LOCK);
             if (collection == null) {
-                LOG.error(String.format("Collection not found: %s", sourceColURI));
+                LOG.error("Collection not found: {}", sourceColURI);
                 txnManager.abort(txn);
                 return; // be silent
             }
@@ -976,7 +975,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         Account account = securityManager.getAccount(userName);
         if (account == null) {
-            LOG.error(String.format("Username %s does not exist.", userName));
+            LOG.error("Username {} does not exist.", userName);
 
 //            final Account user = new UserAider(userName);
 //            try {
@@ -1014,7 +1013,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
         Group group = securityManager.getGroup(groupName);
         if (group == null) {
-            LOG.info(String.format("Group %s does not exist.", groupName));
+            LOG.info("Group {} does not exist.", groupName);
 //
 //            try {
 //                Group newGroup = new GroupAider(groupName);

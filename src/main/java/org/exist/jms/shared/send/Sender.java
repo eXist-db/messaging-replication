@@ -51,7 +51,6 @@ import java.util.zip.GZIPOutputStream;
 import static org.exist.jms.shared.Constants.*;
 import static org.exist.jms.shared.ErrorCodes.*;
 
-//import org.exist.dom.persistent.NodeProxy;
 
 /**
  * @author Dannes Wessels
@@ -60,10 +59,14 @@ public class Sender {
 
     private final static Logger LOG = LogManager.getLogger(Sender.class);
     private static final String EXIST_CONNECTION_POOL = "exist.connection.pool";
-    private XQueryContext xqcontext;
-    private String username;
+    private final XQueryContext xQueryContext;
 
-    public Sender() {
+    /**
+     * Constructor.
+     */
+    public Sender(){
+        // NOP
+        this.xQueryContext=null;
     }
 
     /**
@@ -72,8 +75,7 @@ public class Sender {
      * @param context Xquery context, can be NULL for eXistMessageItem. Context will be copied
      */
     public Sender(final XQueryContext context) {
-        username = context.getSubject().getName();
-        xqcontext = context.copyContext();
+        this.xQueryContext = context.copyContext();
     }
 
     /**
@@ -95,14 +97,16 @@ public class Sender {
         if (StringUtils.isNotBlank(id)) {
             msgMetaProps.setProperty(Constants.EXIST_INSTANCE_ID, id);
         } else {
-            LOG.error(String.format("An empty value was provided for '%s'", Constants.EXIST_INSTANCE_ID));
+            LOG.error("An empty value was provided for '{}'", Constants.EXIST_INSTANCE_ID);
         }
 
         // Set username
-        if (username != null) {
-            msgMetaProps.setProperty("exist.user", username);
+        if (xQueryContext != null) {
+            String username = xQueryContext.getSubject().getName();
+            if (username != null) {
+                msgMetaProps.setProperty("exist.user", username);
+            }
         }
-
 
         // Retrieve relevant values
         final String initialContextFactory = jmsConfig.getInitialContextFactory();
@@ -110,7 +114,6 @@ public class Sender {
         final String destinationValue = jmsConfig.getDestination();
 
         Connection connection = null;
-
         try {
             final Properties props = new Properties();
             props.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactory);
@@ -145,40 +148,40 @@ public class Sender {
             final Session session = connection.createSession(false, Session.CLIENT_ACKNOWLEDGE);
 
             // Create message producer
-            final MessageProducer producer = session.createProducer(destination);
+            final MessageProducer messageProducer = session.createProducer(destination);
 
             // Create message, depending on incoming object type
             final boolean isExistMessageItem = (content instanceof eXistMessageItem);
             final Message message = isExistMessageItem
                     ? createMessageFromExistMessageItem(session, (eXistMessageItem) content, msgMetaProps)
-                    : createMessageFromItem(session, content, msgMetaProps, xqcontext);
+                    : createMessageFromItem(session, content, msgMetaProps);
 
             // Set Message properties from user provided data
             setMessagePropertiesFromMap(msgMetaProps, message);
 
-
             // Set time-to-live (when available)
             final Long timeToLive = jmsConfig.getTimeToLive();
             if (timeToLive != null) {
-                producer.setTimeToLive(timeToLive);
+                messageProducer.setTimeToLive(timeToLive);
             }
 
             // Set priority (when available)
             final Integer priority = jmsConfig.getPriority();
             if (priority != null) {
-                producer.setPriority(priority);
+                messageProducer.setPriority(priority);
             }
 
+            // Set deliveryMethod (when available)
             final Integer deliveryMethod = jmsConfig.getDeliveryMethod();
             if (deliveryMethod != null) {
-                producer.setDeliveryMode(deliveryMethod);
+                messageProducer.setDeliveryMode(deliveryMethod);
             }
 
             // Send message
-            producer.send(message);
+            messageProducer.send(message);
 
             // Return report
-            return createReport(message, producer, jmsConfig);
+            return createReport(message, messageProducer, jmsConfig);
 
         } catch (final JMSException ex) {
             LOG.error(ex.getMessage(), ex);
@@ -203,7 +206,7 @@ public class Sender {
                     connection.close();
                 }
             } catch (final JMSException ex) {
-                LOG.error(String.format("Problem closing connection, ignored. %s (%s)", ex.getMessage(), ex.getErrorCode()));
+                LOG.error("Problem closing connection, ignored. {} ({})", ex.getMessage(), ex.getErrorCode());
             }
         }
     }
@@ -239,15 +242,14 @@ public class Sender {
     /**
      * Convert messaging-function originated data into a JMS message.
      *
-     * @param session   The JMS session
-     * @param item      The XQuery item containing data
-     * @param jmp       JMS message properties
-     * @param xqcontext The XQuery context form the original query
+     * @param session The JMS session
+     * @param item    The XQuery item containing data
+     * @param jmp     JMS message properties
      * @return JMS message
      * @throws JMSException   When a problem occurs in the JMS domain
      * @throws XPathException When an other issue occurs
      */
-    private Message createMessageFromItem(final Session session, final Item item, final JmsMessageProperties jmp, final XQueryContext xqcontext) throws JMSException, XPathException {
+    private Message createMessageFromItem(final Session session, final Item item, final JmsMessageProperties jmp) throws JMSException, XPathException {
 
         final Message message;
 
@@ -272,21 +274,24 @@ public class Sender {
                 // Stream content node to buffer
                 final NodeValue node = (NodeValue) item;
 
-                try(DBBroker broker =  xqcontext.getBroker()) {
-                    final Serializer serializer = broker.newSerializer();
-                    try (InputStream is = new NodeInputStream(serializer, node);
+                DBBroker broker = xQueryContext.getBroker();
 
-                         // Compress data when indicated
-                         OutputStream os = getOutputStream(isCompressed, baos)) {
+                final Serializer serializer = broker.newSerializer();
+                try (InputStream is = new NodeInputStream(serializer, node);
 
-                        IOUtils.copy(is, os);
+                     // Compress data when indicated
+                     OutputStream os = getOutputStream(isCompressed, baos)) {
 
-                    } catch (final IOException ex) {
-                        LOG.error(ex.getMessage(), ex);
-                        throw new XPathException(JMS001, ex.getMessage(), ex);
+                    IOUtils.copy(is, os);
 
-                    }
+                } catch (final IOException ex) {
+                    LOG.error(ex.getMessage(), ex);
+                    throw new XPathException(JMS001, ex.getMessage(), ex);
+
                 }
+//                } catch (EXistException e) {
+//                    LOG.error(e);
+//                }
 
                 // Create actual message, pass data
                 final BytesMessage bytesMessage = session.createBytesMessage();
@@ -294,7 +299,6 @@ public class Sender {
 
                 // Swap
                 message = bytesMessage;
-
 
                 break;
             }
@@ -309,7 +313,7 @@ public class Sender {
                     final Base64BinaryDocument b64doc = (Base64BinaryDocument) item;
                     final String uri = b64doc.getUrl();
 
-                    LOG.debug(String.format("Base64BinaryDocument detected, adding URL %s", uri));
+                    LOG.debug("Base64BinaryDocument detected, adding URL {}", uri);
                     jmp.setProperty(EXIST_DOCUMENT_URI, uri);
 
                 }
@@ -464,7 +468,7 @@ public class Sender {
                 message.setFloatProperty(key, (Float) value);
 
             } else {
-                LOG.error(String.format("Cannot set %s into a JMS property", value.getClass().getCanonicalName()));
+                LOG.error("Cannot set {} into a JMS property", value.getClass().getCanonicalName());
             }
         }
     }

@@ -55,8 +55,8 @@ public class SendMessage extends BasicFunction {
 
     };
 
-    public SendMessage(final XQueryContext context, final FunctionSignature signature) {
-        super(context, signature);
+    public SendMessage(final XQueryContext xQueryContext, final FunctionSignature functionSignature) {
+        super(xQueryContext, functionSignature);
     }
 
     @Override

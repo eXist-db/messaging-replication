@@ -98,8 +98,8 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
             msg.setPayload(MessageHelper.gzipSerialize(broker, document));
 
         } catch (final Throwable ex) {
-            LOGGER.error(String.format("Problem while serializing document (contentLength=%s) to compressed message:%s",
-                    document.getContentLength(), ex.getMessage()), ex);
+            LOGGER.error("Problem while serializing document (contentLength={}) to compressed message: {}",
+                    document.getContentLength(), ex.getMessage(), ex);
         }
 
         // Send Message   
