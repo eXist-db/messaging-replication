@@ -21,7 +21,7 @@ import module namespace config = "http://exist-db.org/extension/jms/config" at "
 declare function local:handleMessage($content as item(), $params as item()*,
                             $messageProperties as map(), $jmsConfig as map() )
 {
-    util:eval("count(collection(/db))")
+    util:log-system-out( "eval result:" || util:eval("count(collection(/db))") )
 };
 
 
