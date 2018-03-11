@@ -13,7 +13,7 @@
 
     <groupId>org.exist</groupId>
     <artifactId>messaging-replication</artifactId>
-    <version>0.30.4-SNAPSHOT</version>
+    <version>0.30.4</version>
 
     <name>Messaging and Replication</name>
     <description>eXist-db messaging and document replication extension (JMS based)</description>
