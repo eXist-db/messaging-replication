@@ -50,6 +50,10 @@
 
         <exist.version>3.6.1</exist.version>
         <activemq.version>5.15.3</activemq.version>
+        <commonspool2.version>2.5.0</commonspool2.version>
+        <hawtbuf.version>1.11</hawtbuf.version>
+        <jmsspec.version>1.1.1</jmsspec.version>
+        <j2eespec.version>1.0.1</j2eespec.version>
 
         <!-- used in the EXPath Package Descriptor -->
         <package-name>http://exist-db.org/messaging-replication</package-name>
@@ -93,19 +97,19 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-            <version>2.5.0</version>
+            <version>${commonspool2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.hawtbuf</groupId>
             <artifactId>hawtbuf</artifactId>
-            <version>1.11</version>
+            <version>${hawtbuf.version}</version>
         </dependency>
 
         <!-- Specification -->
         <dependency>
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-jms_1.1_spec</artifactId>
-          <version>1.1.1</version>
+          <version>${jmsspec.version}</version>
         </dependency>
 
         <!-- test dependencies -->

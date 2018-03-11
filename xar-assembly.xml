@@ -80,22 +80,22 @@
         <dependencySet>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-            <version>2.4.2</version>
+            <version>${commonspool2.version}</version>
         </dependencySet>     
         <dependencySet>
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>1.1.1</version>
+            <version>${jmsspec.version}</version>
         </dependencySet>
         <dependencySet>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-            <version>1.0.1</version>
+            <version>${j2eespec.version}</version>
         </dependencySet>
         <dependencySet>
           <groupId>org.fusesource.hawtbuf</groupId>
           <artifactId>hawtbuf</artifactId>
-          <version>1.11</version>
+          <version>${hawtbuf.version}</version>
         </dependencySet>
             
     </dependencySets>
