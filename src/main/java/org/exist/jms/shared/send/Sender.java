@@ -64,9 +64,9 @@ public class Sender {
     /**
      * Constructor.
      */
-    public Sender(){
+    public Sender() {
         // NOP
-        this.xQueryContext=null;
+        this.xQueryContext = null;
     }
 
     /**

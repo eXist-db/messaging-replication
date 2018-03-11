@@ -66,8 +66,8 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private final XQueryContext xqueryContext;
     private final Sequence functionParams;
     private final Report report;
-    private final BrokerPool bp;
-    private  Subject subject;
+    private final BrokerPool brokerPool;
+    private Subject subject;
 
     //    private Session session;
     private int receiverID = -1;
@@ -78,7 +78,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         this.xqueryContext = xqueryContext;
         this.functionParams = functionParams;
         this.report = getReport();
-        this.bp = xqueryContext.getBroker().getBrokerPool();
+        this.brokerPool = xqueryContext.getBroker().getBrokerPool();
         this.subject = xqueryContext.getSubject();
     }
 
@@ -119,18 +119,15 @@ public class MessagingJmsListener extends eXistMessagingListener {
              * execution of #evalFunction. In the onMessage() method this
              * broker is not being used at all.
              */
-            //brokerPool = BrokerPool.getInstance();
+            //brokerPool = BrokerPool.getInstance()
 
             // Actually the subject in the next line influences the subject used 
             // executing the callback function. Must be same userid in which
             // the query was started.
             if (subject == null) {
-                subject = bp.getSecurityManager().getGuestSubject();
+                subject = brokerPool.getSecurityManager().getGuestSubject();
             }
-
-            System.out.println(subject.getName());
-
-            DBBroker dummyBroker = bp.get(Optional.of(subject));
+            DBBroker dummyBroker = brokerPool.get(Optional.of(subject));
 
             // Copy message and jms configuration details into Maptypes
             final MapType msgProperties = getMessageProperties(msg, xqueryContext);

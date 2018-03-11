@@ -1,7 +1,7 @@
-/* 
+/*
  *  eXist Open Source Native XML Database
  *  Copyright (C) 2014 The eXist Project
- *  http://exist-db.org 
+ *  http://exist-db.org
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

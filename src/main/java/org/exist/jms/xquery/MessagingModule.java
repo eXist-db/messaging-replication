@@ -20,7 +20,7 @@
 package org.exist.jms.xquery;
 
 import org.exist.dom.QName;
-import org.exist.jms.xquery.management.RegisterReceiver;
+import org.exist.jms.xquery.messaging.RegisterReceiver;
 import org.exist.jms.xquery.messaging.SendMessage;
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
