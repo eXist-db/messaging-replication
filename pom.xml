@@ -13,7 +13,7 @@
 
     <groupId>org.exist</groupId>
     <artifactId>messaging-replication</artifactId>
-    <version>0.30.4</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>Messaging and Replication</name>
     <description>eXist-db messaging and document replication extension (JMS based)</description>
@@ -58,8 +58,6 @@
         <!-- used in the EXPath Package Descriptor -->
         <package-name>http://exist-db.org/messaging-replication</package-name>
 
-        <!--<example.module.namespace>https://my-organisation.com/exist-db/ns/app/my-java-module</example.module.namespace>-->
-        <!--<example.module.java.classname>ExampleModule</example.module.java.classname>-->
     </properties>
 
     <dependencies>
