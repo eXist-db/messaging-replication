@@ -82,10 +82,10 @@ public class MessagingConfiguration extends Properties {
                 put(keyValue, singleValue.toJavaObject(Float.class));
 
             } else if (values instanceof ValueSequence) {
-                LOG.info(String.format("Cannot convert a sequence of values for key '%s' into JMS message properties", keyValue));
+                LOG.info("Cannot convert a sequence of values for key '{}' into JMS message properties", keyValue);
 
             } else {
-                LOG.info(String.format("Cannot convert map entry '%s'/'%s' into a JMS message property", keyValue, values.getStringValue()));
+                LOG.info("Cannot convert map entry '{}'/'{}' into a JMS message property", keyValue, values.getStringValue());
             }
 
         }

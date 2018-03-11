@@ -63,7 +63,7 @@ public class ReceiversManager {
             throw new IllegalArgumentException("Receiver should not be null");
         }
 
-        LOG.info(String.format("Registering receiver %s", receiver.getReceiverId()));
+        LOG.info("Registering receiver {}", receiver.getReceiverId());
         receivers.put(receiver.getReceiverId(), receiver);
     }
 
@@ -73,7 +73,7 @@ public class ReceiversManager {
      * @param id Identification of receiver
      */
     public void remove(final Integer id) {
-        LOG.info(String.format("Remove receiver %s", id));
+        LOG.info("Remove receiver {}", id);
         receivers.remove(id);
     }
 

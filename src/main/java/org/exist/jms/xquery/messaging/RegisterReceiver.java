@@ -17,7 +17,7 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package org.exist.jms.xquery.management;
+package org.exist.jms.xquery.messaging;
 
 import org.exist.dom.QName;
 import org.exist.jms.messaging.MessagingJmsListener;
@@ -77,7 +77,7 @@ public class RegisterReceiver extends BasicFunction {
             final ReceiversManager manager = ReceiversManager.getInstance();
 
             // Get function
-            final FunctionReference reference = (FunctionReference) args[0].itemAt(0);
+            final FunctionReference functionReference = (FunctionReference) args[0].itemAt(0);
 
             // Get optional function parameters
             final Sequence functionParams = args[1];
@@ -93,7 +93,7 @@ public class RegisterReceiver extends BasicFunction {
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
-            final MessagingJmsListener myListener = new MessagingJmsListener(context.getBroker().getCurrentSubject(), reference, functionParams, context);
+            final MessagingJmsListener myListener = new MessagingJmsListener(functionReference, functionParams, context);
 
             // Create receiver
             final Receiver receiver = new Receiver(config, myListener); // TODO check use .copyContext() ?

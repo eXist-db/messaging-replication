@@ -71,7 +71,7 @@ public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger 
             LOG.info("Subscription was successful.");
 
         } catch (final Throwable t) {
-            LOG.error(String.format("Unable to start subscription: %s", t.getMessage()), t);
+            LOG.error("Unable to start subscription: {}", t.getMessage(), t);
         }
     }
 

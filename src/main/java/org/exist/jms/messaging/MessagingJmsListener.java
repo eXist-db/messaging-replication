@@ -65,34 +65,27 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private final FunctionReference functionReference;
     private final XQueryContext xqueryContext;
     private final Sequence functionParams;
+    private final Report report;
+    private final BrokerPool brokerPool;
     private Subject subject;
-    private Report report = null;
 
     //    private Session session;
     private int receiverID = -1;
 
-
-//    public void setSession(Session session){
-//        this.session=session;
-//    }
-//    
-//    public void setReceiverID(String receiverID){
-//        this.receiverID=receiverID;
-//    }
-
-    public MessagingJmsListener(final Subject subject, final FunctionReference functionReference, final Sequence functionParams, final XQueryContext xqueryContext) {
+    public MessagingJmsListener(final FunctionReference functionReference, final Sequence functionParams, final XQueryContext xqueryContext) {
         super();
         this.functionReference = functionReference;
-        this.xqueryContext = xqueryContext.copyContext();
+        this.xqueryContext = xqueryContext;
         this.functionParams = functionParams;
         this.report = getReport();
-        this.subject = subject;
+        this.brokerPool = xqueryContext.getBroker().getBrokerPool();
+        this.subject = xqueryContext.getSubject();
     }
 
     @Override
     public void onMessage(final Message msg) {
 
-        // Make a copy, just in case
+        // Make a copy
         final XQueryContext copyContext = xqueryContext.copyContext();
 
         // Set new context to function reference
@@ -105,26 +98,31 @@ public class MessagingJmsListener extends eXistMessagingListener {
         // Log incoming message
         try {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Received message: receiverID={} messageId={} javaClass={}", receiverID, msg.getJMSMessageID(), msg.getClass().getSimpleName());
+                LOG.debug("Received message: receiverID={} messageId={} javaClass={}",
+                        receiverID, msg.getJMSMessageID(), msg.getClass().getSimpleName());
             } else {
-                LOG.info("Received message: receiverID={} messageId={}", receiverID, msg.getJMSMessageID());
+                LOG.info("Received message: receiverID={} messageId={}",
+                        receiverID, msg.getJMSMessageID());
             }
 
         } catch (final JMSException ex) {
             report.addListenerError(ex);
-            LOG.error(String.format("%s (Receiver=%s)", ex.getMessage(), receiverID), ex);
+            LOG.error("{} (Receiver={})", ex.getMessage(), receiverID, ex);
         }
 
-        // Placeholder for broker
-        BrokerPool brokerPool = null;
+//        // Placeholder for broker
+//        BrokerPool brokerPool = null;
 
         try {
             /*
              * Work around to have a broker available for the
              * execution of #evalFunction. In the onMessage() method this
              * broker is not being used at all.
+             *
+             * https://github.com/eXist-db/messaging-replication/issues/93
+             *
              */
-            brokerPool = BrokerPool.getInstance();
+            //brokerPool = BrokerPool.getInstance()
 
             // Actually the subject in the next line influences the subject used 
             // executing the callback function. Must be same userid in which
@@ -132,45 +130,43 @@ public class MessagingJmsListener extends eXistMessagingListener {
             if (subject == null) {
                 subject = brokerPool.getSecurityManager().getGuestSubject();
             }
+            DBBroker dummyBroker = brokerPool.get(Optional.of(subject));
 
-            try (DBBroker dummyBroker = brokerPool.get(Optional.of(subject))) {
+            // Copy message and jms configuration details into Maptypes
+            final MapType msgProperties = getMessageProperties(msg, xqueryContext);
+            final MapType jmsProperties = getJmsProperties(msg, xqueryContext);
 
+            // Add identity of current receiver
+            msgProperties.add(new StringValue(EXIST_RECEIVER_ID), new IntegerValue(receiverID));
 
-                // Copy message and jms configuration details into Maptypes
-                final MapType msgProperties = getMessageProperties(msg, xqueryContext);
-                final MapType jmsProperties = getJmsProperties(msg, xqueryContext);
+            // Retrieve content of message
+            final Sequence content = getContent(msg);
 
-                // Add identity of current receiver
-                msgProperties.add(new StringValue(EXIST_RECEIVER_ID), new IntegerValue(receiverID));
+            // Setup parameters callback function
+            final Sequence[] params = new Sequence[4];
+            params[0] = content;
+            params[1] = functionParams;
+            params[2] = msgProperties;
+            params[3] = jmsProperties;
 
-                // Retrieve content of message
-                final Sequence content = getContent(msg);
+            // Execute callback function
+            LOG.debug("Receiver={} : call evalFunction", receiverID);
+            final Sequence result = functionReference.evalFunction(null, null, params);
 
-                // Setup parameters callback function
-                final Sequence[] params = new Sequence[4];
-                params[0] = content;
-                params[1] = functionParams;
-                params[2] = msgProperties;
-                params[3] = jmsProperties;
-
-                // Execute callback function
-                LOG.debug("Receiver={} : call evalFunction", receiverID);
-                final Sequence result = functionReference.evalFunction(null, null, params);
-
-                // Done
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Receiver={} : Function returned %s", receiverID, result.getStringValue());
-                }
-
-                // Acknowledge processing
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Receiver={} : call acknowledge", receiverID);
-                }
-                msg.acknowledge();
-
-                // Update statistics
-                report.incMessageCounterOK();
+            // Done
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Receiver={} : Function returned {}", receiverID, result.getStringValue());
             }
+
+            // Acknowledge processing
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Receiver={} : call acknowledge", receiverID);
+            }
+            msg.acknowledge();
+
+            // Update statistics
+            report.incMessageCounterOK();
+
 
         } catch (final Throwable ex) {
 
@@ -307,7 +303,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 addStringKV(map, key, value);
 
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug(String.format("Unable to convert '%s'/'%s' into a map. Falling back to String value", key, value));
+                    LOG.debug("Unable to convert '{}'/'{}' into a map. Falling back to String value", key, value);
                 }
             }
 
