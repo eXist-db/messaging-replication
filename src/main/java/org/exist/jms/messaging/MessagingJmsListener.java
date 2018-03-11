@@ -118,6 +118,9 @@ public class MessagingJmsListener extends eXistMessagingListener {
              * Work around to have a broker available for the
              * execution of #evalFunction. In the onMessage() method this
              * broker is not being used at all.
+             *
+             * https://github.com/eXist-db/messaging-replication/issues/93
+             *
              */
             //brokerPool = BrokerPool.getInstance()
 
