@@ -130,7 +130,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             if (subject == null) {
                 subject = brokerPool.getSecurityManager().getGuestSubject();
             }
-            DBBroker dummyBroker = brokerPool.get(Optional.of(subject));
+            final DBBroker dummyBroker = brokerPool.get(Optional.of(subject));
 
             // Copy message and jms configuration details into Maptypes
             final MapType msgProperties = getMessageProperties(msg, xqueryContext);

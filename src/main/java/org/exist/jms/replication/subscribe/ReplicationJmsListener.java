@@ -106,7 +106,11 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     public void onMessage(final Message msg) {
 
         final int receiverID = getReceiverID();
-        LOG.debug("Receiver={}", receiverID);
+
+        // New Message is coming in
+        report.incMessageCounterTotal();
+
+        LOG.debug("Receiver={} nr={}", receiverID, report.getMessageCounterTotal());
 
         // Start reporting
         report.start();
@@ -151,6 +155,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                         handleCollection(em);
                         break;
                     default:
+                        // We need to ack the message
+                        msg.acknowledge();
+
                         final String errorMessage = String.format("Unknown resource type %s", em.getResourceType());
                         LOG.error(errorMessage);
                         throw new MessageReceiveException(errorMessage);
@@ -158,6 +165,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 report.incMessageCounterOK();
 
             } else {
+                // We need to ack the message
+                msg.acknowledge();
+
                 // Only ByteMessage objects supported. 
                 throw new MessageReceiveException(String.format("Could not handle message type %s", msg.getClass().getSimpleName()));
             }
@@ -172,7 +182,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             throw ex;
 
         } catch (final Throwable t) {
-            // Something really unexpected happened. Report
+            // Something really unexpected happened. Report it
             report.addListenerError(t);
             LOG.error(t.getMessage(), t);
             throw new MessageReceiveException(String.format("Could not handle received message: %s", t.getMessage()), t);
@@ -180,7 +190,6 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         } finally {
             // update statistics
             report.stop();
-            report.incMessageCounterTotal();
             report.addCumulatedProcessingTime();
         }
     }
