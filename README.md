@@ -1,5 +1,7 @@
 # eXist-db messaging-replication extension
 
+[![Build Status](https://travis-ci.com/eXist-db/messaging-replication.svg?branch=develop)](https://travis-ci.com/eXist-db/messaging-replication)
+
 This is the eXist-db extension providing 'messaging' and 'document replication' features based on [JMS](http://en.wikipedia.org/wiki/Java_Message_Service) technology.
 
 # Documentation
