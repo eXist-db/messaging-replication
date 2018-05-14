@@ -229,6 +229,43 @@
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.activemq.tooling</groupId>
+                <artifactId>activemq-maven-plugin</artifactId>
+                <version>${activemq.version}</version>
+                <configuration>
+                    <configUri>xbean:file:./src/test/resources/activemq.xml</configUri>
+                    <fork>true</fork>
+                    <systemProperties>
+                        <property>
+                            <name>org.apache.activemq.default.directory.prefix</name>
+                            <value>./target/</value>
+                        </property>
+                    </systemProperties>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-spring</artifactId>
+                        <version>${activemq.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.activemq</groupId>
+                        <artifactId>activemq-leveldb-store</artifactId>
+                        <version>${activemq.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <id>start-activemq</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>process-test-resources</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 

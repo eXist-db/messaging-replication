@@ -102,7 +102,7 @@ public class Sender {
 
         // Set username
         if (xQueryContext != null) {
-            String username = xQueryContext.getSubject().getName();
+            final String username = xQueryContext.getSubject().getName();
             if (username != null) {
                 msgMetaProps.setProperty("exist.user", username);
             }
@@ -274,7 +274,8 @@ public class Sender {
                 // Stream content node to buffer
                 final NodeValue node = (NodeValue) item;
 
-                DBBroker broker = xQueryContext.getBroker();
+                // note: this code is not responsible to close the broker!
+                final DBBroker broker = xQueryContext.getBroker();
 
                 final Serializer serializer = broker.newSerializer();
                 try (InputStream is = new NodeInputStream(serializer, node);
