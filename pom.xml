@@ -50,7 +50,7 @@
 
         <exist.version>4.1.0</exist.version>
         <activemq.version>5.15.3</activemq.version>
-        <commonspool2.version>2.5.0</commonspool2.version>
+        <commonspool2.version>2.6.0</commonspool2.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <jmsspec.version>1.1.1</jmsspec.version>
         <j2eespec.version>1.0.1</j2eespec.version>
