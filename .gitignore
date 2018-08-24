@@ -3,3 +3,4 @@ target
 .idea
 messaging-replication.iml
 ActiveMQData
+out.log
