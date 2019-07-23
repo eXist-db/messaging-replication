@@ -9,12 +9,12 @@ import module namespace messaging="http://exist-db.org/xquery/messaging"
 (: Configuration for setting-up an JMS connection :)
 let $jmsConfiguration :=
     map {
-        "java.naming.factory.initial" 
-            := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://localhost:61616",
-        "destination" := "dynamicQueues/eXistdb-test",
-        "connection-factory" := "ConnectionFactory",
-        "exist.connection.pool" := "yes"
+        "java.naming.factory.initial": 
+            "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+        "java.naming.provider.url": "tcp://localhost:61616",
+        "destination": "dynamicQueues/eXistdb-test",
+        "connection-factory": "ConnectionFactory",
+        "exist.connection.pool": "yes"
     }
  
 
@@ -27,7 +27,7 @@ return
     (: JMS message properties :)
     let $messageProperties :=
     map {
-        "ID" := $i   
+        "ID": $i   
     }
     
     (: The actual message payload :)
