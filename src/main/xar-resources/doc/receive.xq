@@ -33,10 +33,10 @@ declare function local:handleMessage($content as item(), $params as item()*, $me
 (: Configuration for setting-up an JMS connection :)
 let $jmsConfiguration :=
     map {
-        "java.naming.factory.initial" := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://localhost:61616",
-        "destination" := "dynamicQueues/eXistdbTest",
-        "connection-factory" := "ConnectionFactory"
+        "java.naming.factory.initial": "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+        "java.naming.provider.url": "tcp://localhost:61616",
+        "destination": "dynamicQueues/eXistdbTest",
+        "connection-factory": "ConnectionFactory"
     }
     
 (: Define HoF callback function, with 4 parameters :)

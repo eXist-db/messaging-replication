@@ -18,11 +18,11 @@ declare function local:handleMessageNOK($content as item(), $params as item()*,
 
 let $jmsConfiguration :=
     map {
-        "java.naming.factory.initial" 
-            := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://localhost:61616",
-        "destination" := "dynamicQueues/eXistdb-test",
-        "connection-factory" := "ConnectionFactory"
+        "java.naming.factory.initial": 
+            "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+        "java.naming.provider.url": "tcp://localhost:61616",
+        "destination": "dynamicQueues/eXistdb-test",
+        "connection-factory": "ConnectionFactory"
     }
 
 (: Define HoF callback function, with 4 parameters :)
