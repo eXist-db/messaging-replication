@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.exist-db</groupId>
         <artifactId>exist-apps-parent</artifactId>
-        <version>1.8</version>
+        <version>1.9.0</version>
         <relativePath/>
     </parent>
 
@@ -48,8 +48,8 @@
         <project.build.source>1.8</project.build.source>
         <project.build.target>1.8</project.build.target>
 
-        <exist.version>4.3.1</exist.version>
-        <activemq.version>5.15.5</activemq.version>
+        <exist.version>4.7.0</exist.version>
+        <activemq.version>5.15.9</activemq.version>
         <commonspool2.version>2.6.0</commonspool2.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <jmsspec.version>1.1.1</jmsspec.version>
@@ -71,6 +71,11 @@
         <dependency>
             <groupId>org.exist-db</groupId>
             <artifactId>exist-optional</artifactId>
+            <version>${exist.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.exist-db</groupId>
+            <artifactId>exist-expath</artifactId>
             <version>${exist.version}</version>
         </dependency>
 
@@ -129,6 +134,7 @@
             <scope>test</scope>
         </dependency>
 
+
     </dependencies>
 
     <reporting>
@@ -175,7 +181,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.2</version>
                 <configuration>
                     <archive>
                         <manifest>
@@ -263,6 +269,13 @@
                             <goal>run</goal>
                         </goals>
                         <phase>process-test-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>stop-activemq</id>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                        <phase>post-integration-test</phase>
                     </execution>
                 </executions>
             </plugin>

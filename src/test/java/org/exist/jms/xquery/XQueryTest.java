@@ -8,5 +8,5 @@ import org.junit.runner.RunWith;
         "src/test/resources/org/exist/jms/xquery"
 })
 
-public class XQueryTests {
+public class XQueryTest {
 }
