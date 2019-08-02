@@ -11,13 +11,13 @@ import module namespace replication="http://exist-db.org/xquery/replication"
 (: Configuration for setting-up the JMS connection :)
 let $jmsConfiguration :=
     map {
-        "java.naming.factory.initial" 
-            := "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
-        "java.naming.provider.url" := "tcp://localhost:61616",
-        "destination" := "dynamicTopics/eXistdb-replication-demo",
-        "connection-factory" := "ConnectionFactory",
-        "subscriber.name" :="SubscriptionId",
-        "connection.client-id" :="ClientId"
+        "java.naming.factory.initial": 
+            "org.apache.activemq.jndi.ActiveMQInitialContextFactory",
+        "java.naming.provider.url": "tcp://localhost:61616",
+        "destination": "dynamicTopics/eXistdb-replication-demo",
+        "connection-factory": "ConnectionFactory",
+        "subscriber.name": "SubscriptionId",
+        "connection.client-id": "ClientId"
     }
     
     
