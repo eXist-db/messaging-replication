@@ -278,7 +278,7 @@ public class Sender {
                 final DBBroker broker = xQueryContext.getBroker();
 
                 final Serializer serializer = broker.newSerializer();
-                try (InputStream is = new NodeInputStream(serializer, node);
+                try (InputStream is = new NodeInputStream(xQueryContext.getDatabase(), serializer, node);
 
                      // Compress data when indicated
                      OutputStream os = getOutputStream(isCompressed, baos)) {
