@@ -33,7 +33,9 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Helper class to obtain a unique identifier for this eXist-db / JMS instance
+ * Helper class to obtain a unique identifier for this eXist-db / JMS instance.
+ * This information is used to prevent replication of an incoming message
+ * when the server originally created the message.
  *
  * @author Dannes Wessels
  */

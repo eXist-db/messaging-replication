@@ -28,6 +28,7 @@ import org.exist.collections.Collection;
 import org.exist.collections.IndexInfo;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
+import org.exist.jms.replication.shared.ReplicationTxnManager;
 import org.exist.jms.shared.*;
 import org.exist.security.Account;
 import org.exist.security.Group;
@@ -87,7 +88,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      * @param transaction The eXist-db transaction
      */
     private void setOrigin(final Txn transaction) {
-        transaction.setOriginId(this.getClass().getName());
+        ReplicationTxnManager.addReplicationTransaction(transaction);
     }
 
     /**
@@ -120,7 +121,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             if (StringUtils.isNotEmpty(localID)) {
                 final String remoteID = msg.getStringProperty(Constants.EXIST_INSTANCE_ID);
                 if (localID.equals(remoteID)) {
-                    LOG.info("Incoming JMS messsage was originally sent by this instance. Stopped processing.");
+                    LOG.info("Incoming JMS messsage was originally sent by this same instance (jms.id={}). Stopped processing.", localID);
                     msg.acknowledge();
                     return; // Do not throw exeception; Receive was OK
                 }
@@ -375,7 +376,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 throw new MessageReceiveException("Collection " + sourcePath + " does not exist", em);
             }
 
-            setOrigin(txn);
+                setOrigin(txn);
 
             final DocumentImpl doc;
             if (mime.isXMLType()) {

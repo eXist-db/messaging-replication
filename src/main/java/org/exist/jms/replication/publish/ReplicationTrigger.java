@@ -32,6 +32,7 @@ import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.ReplicationGuard;
+import org.exist.jms.replication.shared.ReplicationTxnManager;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.storage.DBBroker;
 import org.exist.storage.txn.Txn;
@@ -62,11 +63,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
      * @return TRUE when started from the eXist-db JMS else FALSE.
      */
     private boolean isJMSOrigin(final Txn transaction) {
-
-        // Get originId.
-        @SuppressWarnings("deprecation") final String originId = transaction.getOriginId();
-
-        return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
+        return ReplicationTxnManager.isReplicationTransaction(transaction);
     }
 
     //

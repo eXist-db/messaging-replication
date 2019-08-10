@@ -83,7 +83,7 @@ public class JMSMessageSender implements MessageSender {
 
         } catch (final Throwable ex) {
             // I know, this is bad coding practice,
-            // but in case of probles we really need to fire this exception
+            // but in case of problems we really need to fire this exception
             LOG.error(ex.getMessage(), ex);
             throw new TransportException(ex.getMessage(), ex);
         }
