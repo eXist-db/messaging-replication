@@ -372,7 +372,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 throw new MessageReceiveException("Collection " + sourcePath + " does not exist", em);
             }
 
-                setOrigin(txn);
+            setOrigin(txn);
 
             final DocumentImpl doc;
             if (mime.isXMLType()) {
@@ -658,20 +658,16 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     /**
      * Create new collection when required.
      */
-    private Collection createOrCheckCollection(final XmldbURI sourcePath) throws MessageReceiveException {
-
-        // Reference to collection
-        Collection collection = null;
+    private void createOrCheckCollection(final XmldbURI sourcePath) throws MessageReceiveException {
 
         // New collection to be created
         try (DBBroker broker = brokerPool.get(Optional.of(securityManager.getSystemSubject()));
-             Txn txn = txnManager.beginTransaction()) {
+             Txn txn = txnManager.beginTransaction();
+             Collection collection = broker.getOrCreateCollection(txn, sourcePath)) {
 
             setOrigin(txn);
 
             // Create collection when required
-            collection = broker.getOrCreateCollection(txn, sourcePath);
-
             if (collection == null) {
                 throw new MessageReceiveException("Collection " + sourcePath + " does not exist or could not be created");
             }
@@ -680,6 +676,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
             // Commit change
             txn.commit();
+
 
         } catch (final Throwable t) {
 
@@ -692,7 +689,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
             throw new MessageReceiveException(t.getMessage(), t);
 
         }
-        return collection;
+
     }
 
     /**
