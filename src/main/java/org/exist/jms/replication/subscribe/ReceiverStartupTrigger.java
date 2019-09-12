@@ -25,6 +25,7 @@ import org.exist.jms.shared.JmsConfiguration;
 import org.exist.jms.shared.receive.Receiver;
 import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.storage.DBBroker;
+import org.exist.storage.txn.Txn;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +45,7 @@ public class ReceiverStartupTrigger implements org.exist.storage.StartupTrigger 
      * Entry point for starting the trigger.
      */
     @Override
-    public void execute(final DBBroker broker, final Map<String, List<?>> params) {
+    public void execute(final DBBroker broker, final Txn txn, final Map<String, List<?>> params) {
 
         final ReceiversManager manager = ReceiversManager.getInstance();
 

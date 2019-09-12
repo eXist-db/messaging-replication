@@ -401,8 +401,10 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     // Misc         
     //
     @Override
-    public void configure(final DBBroker broker, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
-        super.configure(broker, parentCollection, parameters);
+    public void configure(final DBBroker broker, final Txn txn, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
+        super.configure(broker, txn, parentCollection, parameters);
+
+        // Todo: DWES use txn in transaction
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Configuring replication trigger for collection '{}'", parentCollection.getURI());
