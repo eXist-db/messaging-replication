@@ -32,11 +32,13 @@ import org.exist.jms.shared.eXistMessage;
 import org.exist.security.Permission;
 import org.exist.storage.DBBroker;
 import org.exist.storage.serializers.Serializer;
+import org.exist.storage.txn.Txn;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
 
@@ -45,6 +47,7 @@ import java.util.zip.GZIPOutputStream;
  *
  * @author Dannes Wessels
  */
+@SuppressWarnings("UnusedAssignment")
 public class MessageHelper {
 
     public static final String EXIST_RESOURCE_CONTENTLENGTH = "exist.resource.contentlength";
@@ -69,7 +72,7 @@ public class MessageHelper {
      * @return document as array of bytes
      * @throws IOException When the
      */
-    public static byte[] gzipSerialize(final DBBroker broker, final DocumentImpl document) throws IOException {
+    public static byte[] gzipSerialize(final DBBroker broker, final Txn transaction, final DocumentImpl document) throws IOException {
 
         // This is the weak spot, the data is serialized into
         // a byte array. Better to have an overflow to a file,
@@ -83,8 +86,8 @@ public class MessageHelper {
             try {
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                try (GZIPOutputStream gos = new GZIPOutputStream(baos);
-                     Writer w = new OutputStreamWriter(gos, "UTF-8")) {
+                try (final GZIPOutputStream gos = new GZIPOutputStream(baos);
+                     final Writer w = new OutputStreamWriter(gos, StandardCharsets.UTF_8)) {
                     serializer.serialize(document, w);
                     w.flush();
                 }
@@ -92,7 +95,7 @@ public class MessageHelper {
                 payload = baos.toByteArray();
 
 
-            } catch (SAXException | IOException e) {
+            } catch (final SAXException | IOException e) {
                 payload = new byte[0];
                 LOG.error(e);
                 throw new IOException(String.format("Error while serializing XML document: %s", e.getMessage()), e);
@@ -110,9 +113,9 @@ public class MessageHelper {
             try {
                 final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-                try (GZIPOutputStream gos = new GZIPOutputStream(baos)) {
+                try (final GZIPOutputStream gos = new GZIPOutputStream(baos)) {
                     // DW: check classtype before using
-                    broker.readBinaryResource((BinaryDocument) document, gos);
+                    broker.readBinaryResource(transaction, (BinaryDocument) document, gos);
                     gos.flush();
                 }
 

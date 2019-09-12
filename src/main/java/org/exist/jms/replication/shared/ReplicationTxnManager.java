@@ -11,9 +11,9 @@ public class ReplicationTxnManager {
 
     private final static Logger LOG = LogManager.getLogger();
 
-    private static Set<Long> txnIDs = new HashSet<>();
+    private static final Set<Long> txnIDs = new HashSet<>();
 
-    public static void addReplicationTransaction(Txn txn){
+    public static void addReplicationTransaction(final Txn txn){
 
         LOG.debug("Add transaction id {}", txn.getId());
 
@@ -26,12 +26,12 @@ public class ReplicationTxnManager {
         }
     }
 
-    public static boolean isReplicationTransaction(Txn txn){
+    public static boolean isReplicationTransaction(final Txn txn){
         return txnIDs.contains(txn.getId());
     }
 
 
-    public static void removeReplicationTransaction(long txnId){
+    public static void removeReplicationTransaction(final long txnId){
         LOG.debug("Remove transaction id {}", txnId);
         synchronized (txnIDs) {
             txnIDs.remove(txnId);

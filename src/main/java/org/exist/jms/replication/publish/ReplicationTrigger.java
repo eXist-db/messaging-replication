@@ -21,7 +21,6 @@
  */
 package org.exist.jms.replication.publish;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.collections.Collection;
@@ -92,7 +91,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         // Serialize document
         try {
-            msg.setPayload(MessageHelper.gzipSerialize(broker, document));
+            msg.setPayload(MessageHelper.gzipSerialize(broker, transaction, document));
 
         } catch (final Throwable ex) {
             LOGGER.error("Problem while serializing document (contentLength={}) to compressed message: {}",
@@ -404,8 +403,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     public void configure(final DBBroker broker, final Txn txn, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
         super.configure(broker, txn, parentCollection, parameters);
 
-        // Todo: DWES use txn in transaction
-
+        // txn is not needed to read document/collection updates from db
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Configuring replication trigger for collection '{}'", parentCollection.getURI());
         }
@@ -416,7 +414,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
     /**
      * Send 'trigger' message with parameters set using
-     * {@link #configure(org.exist.storage.DBBroker, org.exist.collections.Collection, java.util.Map)}
+     * {@link #configure(org.exist.storage.DBBroker, org.exist.storage.txn.Txn, org.exist.collections.Collection, java.util.Map)}
      */
     private void sendMessage(final eXistMessage msg) /* throws TriggerException  */ {
         // Send Message   

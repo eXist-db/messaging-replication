@@ -35,7 +35,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS010;
  */
 public class ListReceivers extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName("list", JmsModule.NAMESPACE_URI, JmsModule.PREFIX),

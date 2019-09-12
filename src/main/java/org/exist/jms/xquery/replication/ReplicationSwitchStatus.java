@@ -40,7 +40,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS010;
  */
 public class ReplicationSwitchStatus extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("trigger-status", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Verify if the replication trigger is switched on or off.",

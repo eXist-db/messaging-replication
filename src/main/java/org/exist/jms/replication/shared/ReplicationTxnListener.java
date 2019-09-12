@@ -8,9 +8,9 @@ import org.exist.storage.txn.TxnListener;
  */
 public class ReplicationTxnListener implements TxnListener {
 
-    private long txnId;
+    private final long txnId;
 
-    public ReplicationTxnListener(Txn txn){
+    public ReplicationTxnListener(final Txn txn){
         txn.registerListener(this);
         this.txnId =txn.getId();
     }

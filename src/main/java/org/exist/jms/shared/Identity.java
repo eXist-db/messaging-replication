@@ -96,7 +96,7 @@ public class Identity {
             LOG.info("Read jms identity from {}", identityFile.toString());
 
             try {
-                try (InputStream is = Files.newInputStream(identityFile)) {
+                try (final InputStream is = Files.newInputStream(identityFile)) {
                     props.load(is);
                     identity = props.getProperty(IDENTITY_PROP);
                 }
@@ -116,7 +116,7 @@ public class Identity {
             props.setProperty(IDENTITY_PROP, identity);
 
             try {
-                try (OutputStream os = Files.newOutputStream(identityFile)) {
+                try (final OutputStream os = Files.newOutputStream(identityFile)) {
                     props.store(os, "");
                 }
 

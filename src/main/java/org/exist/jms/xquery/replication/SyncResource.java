@@ -53,7 +53,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS030;
  */
 public class SyncResource extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("sync", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Synchronize resource", new SequenceType[]{
@@ -100,10 +100,10 @@ public class SyncResource extends BasicFunction {
             final XmldbURI resourceURI = sourcePathURI.lastSegment();
 
 
-            try (Txn txn = txnManager.beginTransaction()) {
+            try (final Txn txn = txnManager.beginTransaction()) {
 
                 // Get trigger, if existent
-                ReplicationTrigger trigger = getReplicationTrigger(broker, txn, parentCollectionURI)
+                final ReplicationTrigger trigger = getReplicationTrigger(broker, txn, parentCollectionURI)
                         .orElseThrow(() -> new XPathException(this, JMS030, String.format("No trigger configuration found for collection %s", parentCollectionURI)));
 
                 try (final Collection collection = broker.openCollection(sourcePathURI, Lock.LockMode.READ_LOCK)) {
@@ -117,13 +117,14 @@ public class SyncResource extends BasicFunction {
                         }
                     } else {
                         // It is a document
-                        final LockedDocument confDoc = collection.getDocumentWithLock(broker, sourcePathURI, Lock.LockMode.READ_LOCK);
-                        collection.close();
+                        try(final LockedDocument confDoc = collection.getDocumentWithLock(broker, sourcePathURI, Lock.LockMode.READ_LOCK)) {
+                            collection.close();
 
-                        if (fullSync) {
-                            trigger.afterUpdateDocument(broker, txn, confDoc.getDocument());
-                        } else {
-                            trigger.afterUpdateDocumentMetadata(broker, txn, confDoc.getDocument());
+                            if (fullSync) {
+                                trigger.afterUpdateDocument(broker, txn, confDoc.getDocument());
+                            } else {
+                                trigger.afterUpdateDocumentMetadata(broker, txn, confDoc.getDocument());
+                            }
                         }
                     }
                 }
@@ -158,7 +159,7 @@ public class SyncResource extends BasicFunction {
      */
     private Optional<ReplicationTrigger> getReplicationTrigger(final DBBroker broker, final Txn txn, final XmldbURI parentCollectionURI) throws TriggerException, PermissionDeniedException {
 
-        try (Collection parentCollection = broker.openCollection(parentCollectionURI, Lock.LockMode.READ_LOCK)) {
+        try (final Collection parentCollection = broker.openCollection(parentCollectionURI, Lock.LockMode.READ_LOCK)) {
             final CollectionConfiguration config = parentCollection.getConfiguration(broker);
 
             // Iterate over list to find correct Trigger

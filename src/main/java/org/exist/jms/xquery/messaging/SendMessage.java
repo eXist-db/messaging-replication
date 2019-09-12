@@ -40,7 +40,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS010;
 
 public class SendMessage extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),

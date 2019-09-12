@@ -240,7 +240,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
             } else {
                 // Binary data - read compressed when indicated
-                try (InputStream is = getInputStream(data, isCompressed)) {
+                try (final InputStream is = getInputStream(data, isCompressed)) {
                     content = Base64BinaryDocument.getInstance(xqueryContext, is);
                 }
             }
@@ -414,7 +414,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         Sequence content = null;
         try {
             // Reading compressed XML fragment when indicated
-            try (InputStream is = getInputStream(data, isGzipped)) {
+            try (final InputStream is = getInputStream(data, isGzipped)) {
 
                 final SAXParserFactory factory = SAXParserFactory.newInstance();
                 factory.setNamespaceAware(true);
@@ -437,7 +437,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 throw new XPathException(JMS023, txt);
             }
 
-        } catch (SAXException | ParserConfigurationException | IOException ex) {
+        } catch (final SAXException | ParserConfigurationException | IOException ex) {
             report.addListenerError(ex);
             throw new XPathException(JMS003, ex.getMessage(), ex);
 

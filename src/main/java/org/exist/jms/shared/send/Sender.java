@@ -278,10 +278,10 @@ public class Sender {
                 final DBBroker broker = xQueryContext.getBroker();
 
                 final Serializer serializer = broker.newSerializer();
-                try (InputStream is = new NodeInputStream(xQueryContext.getDatabase(), serializer, node);
+                try (final InputStream is = new NodeInputStream(xQueryContext.getDatabase(), serializer, node);
 
                      // Compress data when indicated
-                     OutputStream os = getOutputStream(isCompressed, baos)) {
+                     final OutputStream os = getOutputStream(isCompressed, baos)) {
 
                     IOUtils.copy(is, os);
 
@@ -325,8 +325,8 @@ public class Sender {
                 // Copy data from item to buffer
                 final BinaryValue binary = (BinaryValue) item;
 
-                try (InputStream is = binary.getInputStream();
-                     OutputStream os = getOutputStream(isCompressed, baos)) {
+                try (final InputStream is = binary.getInputStream();
+                     final OutputStream os = getOutputStream(isCompressed, baos)) {
 
                     IOUtils.copy(is, os);
 
