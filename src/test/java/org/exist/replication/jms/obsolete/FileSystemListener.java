@@ -51,7 +51,7 @@ public class FileSystemListener implements MessageListener {
     public FileSystemListener() {
         baseDir = new File("clusteringTest");
         if (!baseDir.exists()) {
-            LOG.info("Creating " + baseDir.getAbsolutePath());
+            LOG.info("Creating {}", baseDir.getAbsolutePath());
             baseDir.mkdirs();
         }
     }
@@ -83,7 +83,7 @@ public class FileSystemListener implements MessageListener {
             em.setDestinationPath(value);
 
             final long size = bm.getBodyLength();
-            LOG.debug("actual length=" + size);
+            LOG.debug("actual length={}", size);
 
             // This is potentially memory intensive
             final byte[] payload = new byte[(int) size];
@@ -101,7 +101,7 @@ public class FileSystemListener implements MessageListener {
     @Override
     public void onMessage(final Message message) {
         try {
-            LOG.info("JMSMessageID=" + message.getJMSMessageID());
+            LOG.info("JMSMessageID={}", message.getJMSMessageID());
 
             final StringBuilder sb = new StringBuilder();
 

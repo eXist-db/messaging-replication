@@ -31,7 +31,7 @@ public class MyJMSListener implements MessageListener {
 
             } else if (msg instanceof BytesMessage) {
                 final BytesMessage bm = (BytesMessage) msg;
-                LOG.info("nrbytes" + bm.getBodyLength());
+                LOG.info("nrbytes{}", bm.getBodyLength());
                 content = "muted";
 
             } else if (msg instanceof ObjectMessage) {

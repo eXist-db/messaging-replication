@@ -103,7 +103,7 @@ public abstract class eXistMessagingListener implements MessageListener, Excepti
         // If there is a linked exception, report it too
         final Exception linkedException = jmse.getLinkedException();
         if (linkedException != null) {
-            LOG.error("Linked with: " + linkedException.getMessage(), linkedException);
+            LOG.error("Linked with: {}", linkedException.getMessage(), linkedException);
         }
     }
 

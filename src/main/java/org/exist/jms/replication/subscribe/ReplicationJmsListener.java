@@ -66,8 +66,8 @@ public class ReplicationJmsListener extends eXistMessagingListener {
     private final org.exist.security.SecurityManager securityManager;
     private final TransactionManager txnManager;
 
-    private String localID = null;
-    private Report report = null;
+    private final String localID;
+    private final Report report;
 
     /**
      * Constructor
@@ -920,7 +920,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      */
     private Optional<String> getOrCreateUserName(final Map<String, Object> metaData) {
 
-        String userName = null;
+        final String userName;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_OWNER);
         if (prop instanceof String) {
             userName = (String) prop;
@@ -958,7 +958,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
      */
     private Optional<String> getOrCreateGroupName(final Map<String, Object> metaData) {
 
-        String groupName = null;
+        final String groupName;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_GROUP);
         if (prop instanceof String) {
             groupName = (String) prop;
@@ -990,7 +990,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     private Optional<Long> getLastModified(final Map<String, Object> metaData) {
 
-        Long lastModified = null;
+        final Long lastModified;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_LASTMODIFIED);
         if (prop instanceof Long) {
             lastModified = (Long) prop;
@@ -1005,7 +1005,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     private Optional<Long> getCreationTime(final Map<String, Object> metaData) {
 
-        Long creationTime = null;
+        final Long creationTime;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_CREATIONTIME);
         if (prop instanceof Long) {
             creationTime = (Long) prop;
@@ -1041,7 +1041,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
 
     private Optional<Integer> getMode(final Map<String, Object> metaData) {
         // Get/Set permissions
-        Integer mode = null;
+        final Integer mode;
         final Object prop = metaData.get(MessageHelper.EXIST_RESOURCE_MODE);
         if (prop instanceof Integer) {
             mode = (Integer) prop;

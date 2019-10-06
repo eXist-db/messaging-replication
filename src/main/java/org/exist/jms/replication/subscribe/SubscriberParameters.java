@@ -80,7 +80,7 @@ public class SubscriberParameters extends ClientParameters {
         value = props.getProperty(Constants.CONNECTION_FACTORY);
         if (StringUtils.isBlank(value)) {
             value = "ConnectionFactory";
-            LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
+            LOG.info("No {} set, using default value '{}'", Constants.CONNECTION_FACTORY, value);
         }
         connectionFactory = value;
 
@@ -89,8 +89,7 @@ public class SubscriberParameters extends ClientParameters {
         value = props.getProperty(Constants.DESTINATION);
         if (StringUtils.isBlank(value)) {
             value = "dynamicTopics/eXistdb";
-            LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '" + value
-                    + "' which is suitable for activeMQ");
+            LOG.info("No {} using default value '{}' which is suitable for activeMQ", Constants.DESTINATION, value);
         }
         topic = value;
 
@@ -100,9 +99,9 @@ public class SubscriberParameters extends ClientParameters {
         value = props.getProperty(Constants.CLIENT_ID);
         if (StringUtils.isNotBlank(value)) {
             clientId = value;
-            LOG.debug(Constants.CLIENT_ID + ": " + value);
+            LOG.debug("{}: {}", Constants.CLIENT_ID, value);
         } else {
-            LOG.debug(Constants.CLIENT_ID + " is not set.");
+            LOG.debug( "{} is not set.", Constants.CLIENT_ID);
         }
 
 
@@ -118,7 +117,7 @@ public class SubscriberParameters extends ClientParameters {
         // Get messageSelector
         value = props.getProperty(MESSAGE_SELECTOR);
         if (value != null) {
-            LOG.info("Message selector '" + messageSelector + "'");
+            LOG.info("Message selector '{}'", messageSelector);
             messageSelector = value;
         }
 

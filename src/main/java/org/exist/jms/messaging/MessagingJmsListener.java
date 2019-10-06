@@ -207,7 +207,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private Sequence getContent(final Message msg) throws IOException, XPathException, JMSException {
         // This sequence shall contain the actual conten that will be passed
         // to the callback function
-        Sequence content = null;
+        final Sequence content;
 
         // Switch based on type incoming object
         if (msg instanceof TextMessage) {
@@ -369,7 +369,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private Sequence handleObjectMessage(final ObjectMessage msg) throws JMSException, XPathException {
 
         final Object obj = msg.getObject();
-        Sequence content = null;
+        final Sequence content;
 
         if (obj instanceof BigInteger) {
             content = new IntegerValue((BigInteger) obj);
@@ -411,7 +411,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
         final ValidationReport validationReport = new ValidationReport();
         final SAXAdapter adapter = new SAXAdapter(xqueryContext);
 
-        Sequence content = null;
+        final Sequence content;
         try {
             // Reading compressed XML fragment when indicated
             try (final InputStream is = getInputStream(data, isGzipped)) {

@@ -60,7 +60,7 @@ public class ResourceReplicator {
 
             final Destination destination = (Destination) context.lookup("dynamicTopics/eXistdb");
 
-            LOG.info("Destination=" + destination);
+            LOG.info("Destination={}", destination);
 
             final Connection connection = connectionFactory.createConnection();
 
