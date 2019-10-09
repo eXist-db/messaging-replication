@@ -19,20 +19,12 @@ declare variable $m:messageProperties := map {
 "Mo" : xs:integer(1)
 };
 
-
 declare
-function m:pause()  {
-    for $i in (1 to 100000) return jms:list()
-};
-
-declare
-%test:assertEquals(0)
+%test:assertEquals("tcp://localhost:61616", "dynamicQueues/messagingTest")
 function m:message()  {
 
 (: Send message to the JMS broker :)
-let $send :=   messaging:send( <data>{util:uuid()}</data> , $m:messageProperties, $m:jmsConfiguration )
+    let $send :=   messaging:send( <data>{util:uuid()}</data> , $m:messageProperties, $m:jmsConfiguration )
 
-let $pause2 :=  m:pause()
-
-return (0)
+    return ($send//java.naming.provider.url/string(), $send//destination/string() )
 };
