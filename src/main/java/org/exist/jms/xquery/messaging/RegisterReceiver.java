@@ -42,7 +42,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS010;
 public class RegisterReceiver extends BasicFunction {
 
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
 
             new FunctionSignature(
                     new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),

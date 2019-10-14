@@ -41,7 +41,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS010;
  */
 public class RegisterReceiver extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("register", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Register function to receive JMS replication messages.", new SequenceType[]{

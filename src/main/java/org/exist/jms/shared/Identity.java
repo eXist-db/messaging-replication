@@ -33,7 +33,9 @@ import java.util.Properties;
 import java.util.UUID;
 
 /**
- * Helper class to obtain a unique identifier for this eXist-db / JMS instance
+ * Helper class to obtain a unique identifier for this eXist-db / JMS instance.
+ * This information is used to prevent replication of an incoming message
+ * when the server originally created the message.
  *
  * @author Dannes Wessels
  */
@@ -94,7 +96,7 @@ public class Identity {
             LOG.info("Read jms identity from {}", identityFile.toString());
 
             try {
-                try (InputStream is = Files.newInputStream(identityFile)) {
+                try (final InputStream is = Files.newInputStream(identityFile)) {
                     props.load(is);
                     identity = props.getProperty(IDENTITY_PROP);
                 }
@@ -114,7 +116,7 @@ public class Identity {
             props.setProperty(IDENTITY_PROP, identity);
 
             try {
-                try (OutputStream os = Files.newOutputStream(identityFile)) {
+                try (final OutputStream os = Files.newOutputStream(identityFile)) {
                     props.store(os, "");
                 }
 

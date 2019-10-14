@@ -62,7 +62,7 @@ public class Receiver {
     /**
      * The JMS listeners
      */
-    private eXistMessagingListener messageListener = null;
+    private final eXistMessagingListener messageListener;
     private Context initialContext = null;
     private ConnectionFactory connectionFactory = null;
     private Session session = null;
@@ -70,7 +70,7 @@ public class Receiver {
     private MessageConsumer messageConsumer = null;
     private Connection connection = null;
 
-    private int id = 0;
+    private final int id;
 
     /**
      * Constructor

@@ -49,7 +49,7 @@ public class MessageLogger {
 
             // Setup destination
             final Destination destination = (Destination) context.lookup(testDestination);
-            LOG.info("Destination=" + destination);
+            LOG.info("Destination={}", destination);
 
             // Setup consumer
             final MessageConsumer messageConsumer = session.createConsumer(destination);

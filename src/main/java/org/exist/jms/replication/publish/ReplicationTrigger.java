@@ -21,7 +21,6 @@
  */
 package org.exist.jms.replication.publish;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.exist.collections.Collection;
@@ -32,6 +31,7 @@ import org.exist.collections.triggers.TriggerException;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.ReplicationGuard;
+import org.exist.jms.replication.shared.ReplicationTxnManager;
 import org.exist.jms.shared.eXistMessage;
 import org.exist.storage.DBBroker;
 import org.exist.storage.txn.Txn;
@@ -62,11 +62,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
      * @return TRUE when started from the eXist-db JMS else FALSE.
      */
     private boolean isJMSOrigin(final Txn transaction) {
-
-        // Get originId.
-        @SuppressWarnings("deprecation") final String originId = transaction.getOriginId();
-
-        return StringUtils.startsWith(originId, JMS_EXTENSION_PKG);
+        return ReplicationTxnManager.isReplicationTransaction(transaction);
     }
 
     //
@@ -95,7 +91,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
         // Serialize document
         try {
-            msg.setPayload(MessageHelper.gzipSerialize(broker, document));
+            msg.setPayload(MessageHelper.gzipSerialize(broker, transaction, document));
 
         } catch (final Throwable ex) {
             LOGGER.error("Problem while serializing document (contentLength={}) to compressed message: {}",
@@ -404,9 +400,10 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
     // Misc         
     //
     @Override
-    public void configure(final DBBroker broker, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
-        super.configure(broker, parentCollection, parameters);
+    public void configure(final DBBroker broker, final Txn txn, final Collection parentCollection, final Map<String, List<?>> parameters) throws TriggerException {
+        super.configure(broker, txn, parentCollection, parameters);
 
+        // txn is not needed to read document/collection updates from db
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Configuring replication trigger for collection '{}'", parentCollection.getURI());
         }
@@ -417,7 +414,7 @@ public class ReplicationTrigger extends SAXTrigger implements DocumentTrigger, C
 
     /**
      * Send 'trigger' message with parameters set using
-     * {@link #configure(org.exist.storage.DBBroker, org.exist.collections.Collection, java.util.Map)}
+     * {@link #configure(org.exist.storage.DBBroker, org.exist.storage.txn.Txn, org.exist.collections.Collection, java.util.Map)}
      */
     private void sendMessage(final eXistMessage msg) /* throws TriggerException  */ {
         // Send Message   

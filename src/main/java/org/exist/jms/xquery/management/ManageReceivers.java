@@ -44,7 +44,7 @@ public class ManageReceivers extends BasicFunction {
     public static final String REPORT = "report";
     public static final String CLEARREPORT = "clear-report";
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName(START, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Start receiver",
                     new SequenceType[]{

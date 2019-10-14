@@ -69,7 +69,7 @@ public class PublisherParameters extends ClientParameters {
         value = props.getProperty(Constants.CONNECTION_FACTORY);
         if (StringUtils.isBlank(value)) {
             value = "ConnectionFactory";
-            LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '" + value + "'");
+            LOG.info("No " + Constants.CONNECTION_FACTORY + " set, using default value '{}'", value);
         }
         connectionFactory = value;
 
@@ -78,8 +78,7 @@ public class PublisherParameters extends ClientParameters {
         value = props.getProperty(Constants.DESTINATION);
         if (StringUtils.isBlank(value)) {
             value = "dynamicTopics/eXistdb";
-            LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '" + value
-                    + "' which is suitable for activeMQ");
+            LOG.info("No " + Constants.DESTINATION + " set (topic), using default value '{}' which is suitable for activeMQ", value);
         }
         topic = value;
 
@@ -88,7 +87,7 @@ public class PublisherParameters extends ClientParameters {
         value = props.getProperty(Constants.CLIENT_ID);
         if (StringUtils.isNotBlank(value)) {
             clientId = value;
-            LOG.debug(Constants.CLIENT_ID + ": " + value);
+            LOG.debug(Constants.CLIENT_ID + ": {}", value);
         } else {
             LOG.debug(Constants.CLIENT_ID + " is not set.");
         }

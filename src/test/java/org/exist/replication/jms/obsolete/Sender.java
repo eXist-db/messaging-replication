@@ -72,7 +72,7 @@ public class Sender {
 
             connection.close();
 
-            LOG.info("sent " + message.getJMSMessageID());
+            LOG.info("sent {}", message.getJMSMessageID());
 
         } catch (final Throwable t) {
             LOG.error(t);

@@ -37,7 +37,7 @@ import static org.exist.jms.shared.ErrorCodes.JMS010;
  */
 public class ReplicationSwitch extends BasicFunction {
 
-    public final static FunctionSignature signatures[] = {
+    public final static FunctionSignature[] signatures = {
             new FunctionSignature(
                     new QName("enable-trigger", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Globally switch on/off the replication trigger", new SequenceType[]{

@@ -207,7 +207,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private Sequence getContent(final Message msg) throws IOException, XPathException, JMSException {
         // This sequence shall contain the actual conten that will be passed
         // to the callback function
-        Sequence content = null;
+        final Sequence content;
 
         // Switch based on type incoming object
         if (msg instanceof TextMessage) {
@@ -240,7 +240,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
 
             } else {
                 // Binary data - read compressed when indicated
-                try (InputStream is = getInputStream(data, isCompressed)) {
+                try (final InputStream is = getInputStream(data, isCompressed)) {
                     content = Base64BinaryDocument.getInstance(xqueryContext, is);
                 }
             }
@@ -369,7 +369,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
     private Sequence handleObjectMessage(final ObjectMessage msg) throws JMSException, XPathException {
 
         final Object obj = msg.getObject();
-        Sequence content = null;
+        final Sequence content;
 
         if (obj instanceof BigInteger) {
             content = new IntegerValue((BigInteger) obj);
@@ -411,10 +411,10 @@ public class MessagingJmsListener extends eXistMessagingListener {
         final ValidationReport validationReport = new ValidationReport();
         final SAXAdapter adapter = new SAXAdapter(xqueryContext);
 
-        Sequence content = null;
+        final Sequence content;
         try {
             // Reading compressed XML fragment when indicated
-            try (InputStream is = getInputStream(data, isGzipped)) {
+            try (final InputStream is = getInputStream(data, isGzipped)) {
 
                 final SAXParserFactory factory = SAXParserFactory.newInstance();
                 factory.setNamespaceAware(true);
@@ -437,7 +437,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 throw new XPathException(JMS023, txt);
             }
 
-        } catch (SAXException | ParserConfigurationException | IOException ex) {
+        } catch (final SAXException | ParserConfigurationException | IOException ex) {
             report.addListenerError(ex);
             throw new XPathException(JMS003, ex.getMessage(), ex);
 
