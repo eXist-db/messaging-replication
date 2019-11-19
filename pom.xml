@@ -13,7 +13,7 @@
 
     <groupId>org.exist</groupId>
     <artifactId>messaging-replication</artifactId>
-    <version>1.0.0-RC1</version>
+    <version>1.0.0</version>
 
     <name>Messaging and Replication</name>
     <description>eXist-db messaging and document replication extension (JMS based)</description>
@@ -48,7 +48,7 @@
         <project.build.source>1.8</project.build.source>
         <project.build.target>1.8</project.build.target>
 
-        <exist.version>5.1.0</exist.version> <!-- change to 5.1.0-SNAPSHOT -->
+        <exist.version>5.1.0</exist.version> <!-- minimum version is 5.1.0 -->
         <activemq.version>5.15.10</activemq.version>
         <commonspool2.version>2.7.0</commonspool2.version>
         <hawtbuf.version>1.11</hawtbuf.version>
