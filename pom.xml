@@ -48,8 +48,8 @@
         <project.build.source>1.8</project.build.source>
         <project.build.target>1.8</project.build.target>
 
-        <exist.version>5.1.0</exist.version>
-        <activemq.version>5.15.10</activemq.version>
+        <exist.version>5.1.0</exist.version> <!-- minimum version is 5.1.0 -->
+        <activemq.version>5.15.11</activemq.version>
         <commonspool2.version>2.7.0</commonspool2.version>
         <hawtbuf.version>1.11</hawtbuf.version>
         <jmsspec.version>1.1.1</jmsspec.version>
@@ -171,7 +171,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifest>
