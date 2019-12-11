@@ -7,9 +7,7 @@
     <license>GNU Lesser General Public License, version 2.1</license>
     <copyright>true</copyright>
 
-    <!-- should be either "application" or "library" -->
     <type>application</type>
-    <!-- type>library</type -->
 
     <status>stable</status>
 
@@ -25,6 +23,15 @@
 
     <prepare>pre-install.xql</prepare>
     <finish>post-install.xql</finish>
+
+    <changelog>
+        <change version="1.0.0">
+            <ul xmlns="http://www.w3.org/1999/xhtml">
+                <li>First stable release for eXist-db - requires v5.1.0.</li>
+                <li>Revised and refactored code for stability and reliability.</li>
+            </ul>
+        </change>
+    </changelog>
 
     <permissions user="jms" group="jms" mode="0775"/>
     <note>When upgrading: please uninstall all previous versions first and restart eXist-db.</note>
