@@ -29,7 +29,11 @@ import org.exist.collections.IndexInfo;
 import org.exist.dom.persistent.DocumentImpl;
 import org.exist.jms.replication.shared.MessageHelper;
 import org.exist.jms.replication.shared.ReplicationTxnManager;
-import org.exist.jms.shared.*;
+import org.exist.jms.shared.Constants;
+import org.exist.jms.shared.Identity;
+import org.exist.jms.shared.Report;
+import org.exist.jms.shared.eXistMessage;
+import org.exist.jms.shared.eXistMessagingListener;
 import org.exist.security.Account;
 import org.exist.security.Group;
 import org.exist.security.Permission;
@@ -641,7 +645,9 @@ public class ReplicationJmsListener extends eXistMessagingListener {
         createOrCheckCollection(sourcePath);
 
         // Update meta data
-        updateCollectionMetadata(sourcePath, userName, groupName, mode, createTime);
+        try (final Collection collection = updateCollectionMetadata(sourcePath, userName, groupName, mode, createTime)) {
+            LOG.info("Updated meta data for {}", collection.getURI().toString());
+        }
     }
 
     /**

@@ -279,22 +279,22 @@ public class MessagingJmsListener extends eXistMessagingListener {
                 addStringKV(map, key, value);
 
             } else if (obj instanceof Integer) {
-                final Integer localValue = msg.getIntProperty(key);
+                final int localValue = msg.getIntProperty(key);
                 final ValueSequence vs = new ValueSequence(new IntegerValue(localValue));
                 addKV(map, key, vs);
 
             } else if (obj instanceof Double) {
-                final Double localValue = msg.getDoubleProperty(key);
+                final double localValue = msg.getDoubleProperty(key);
                 final ValueSequence vs = new ValueSequence(new DoubleValue(localValue));
                 addKV(map, key, vs);
 
             } else if (obj instanceof Boolean) {
-                final Boolean localValue = msg.getBooleanProperty(key);
+                final boolean localValue = msg.getBooleanProperty(key);
                 final ValueSequence vs = new ValueSequence(new BooleanValue(localValue));
                 addKV(map, key, vs);
 
             } else if (obj instanceof Float) {
-                final Float localValue = msg.getFloatProperty(key);
+                final float localValue = msg.getFloatProperty(key);
                 final ValueSequence vs = new ValueSequence(new FloatValue(localValue));
                 addKV(map, key, vs);
 
@@ -432,7 +432,7 @@ public class MessagingJmsListener extends eXistMessagingListener {
             if (validationReport.isValid()) {
                 content = adapter.getDocument();
             } else {
-                final String txt = String.format("Received document is not valid: %s", validationReport.toString());
+                final String txt = String.format("Received document is not valid: %s", validationReport);
                 LOG.debug(txt);
                 throw new XPathException(JMS023, txt);
             }

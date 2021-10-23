@@ -29,7 +29,6 @@ import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
-import org.exist.xquery.functions.request.RequestModule;
 import org.exist.xquery.value.*;
 
 import static org.exist.jms.shared.ErrorCodes.JMS010;
