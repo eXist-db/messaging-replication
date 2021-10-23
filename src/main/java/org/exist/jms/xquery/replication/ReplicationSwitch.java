@@ -42,7 +42,7 @@ public class ReplicationSwitch extends BasicFunction {
                     new QName("enable-trigger", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Globally switch on/off the replication trigger", new SequenceType[]{
                     new FunctionParameterSequenceType("newStatus", Type.BOOLEAN, Cardinality.EXACTLY_ONE, "Value true() enables replication."),},
-                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.ZERO, "")
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY_SEQUENCE, "")
             ),};
 
     public ReplicationSwitch(final XQueryContext context, final FunctionSignature signature) {
