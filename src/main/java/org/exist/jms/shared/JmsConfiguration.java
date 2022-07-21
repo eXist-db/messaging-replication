@@ -244,7 +244,7 @@ public class JmsConfiguration extends MessagingConfiguration {
     public boolean isDurable() {
         final String durable = getProperty(Constants.DURABLE);
 
-        return durable == null ? false : BooleanUtils.toBoolean(durable);
+        return durable != null && BooleanUtils.toBoolean(durable);
 
     }
 

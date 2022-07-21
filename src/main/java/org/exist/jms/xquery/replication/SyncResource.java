@@ -58,13 +58,13 @@ public class SyncResource extends BasicFunction {
                     new QName("sync", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Synchronize resource", new SequenceType[]{
                     new FunctionParameterSequenceType("path", Type.STRING, Cardinality.EXACTLY_ONE, "Path to resource"),},
-                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "No return value")
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY_SEQUENCE, "No return value")
             ),
             new FunctionSignature(
                     new QName("sync-metadata", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Synchronize meta data of resource", new SequenceType[]{
                     new FunctionParameterSequenceType("path", Type.STRING, Cardinality.EXACTLY_ONE, "Path to resource"),},
-                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY, "No return value")
+                    new FunctionReturnSequenceType(Type.EMPTY, Cardinality.EMPTY_SEQUENCE, "No return value")
             ),};
 
     public SyncResource(final XQueryContext context, final FunctionSignature signature) {

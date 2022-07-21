@@ -46,11 +46,11 @@ public class SendMessage extends BasicFunction {
                     new QName("send", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
                     "Send JMS message",
                     new SequenceType[]{
-                            new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.ONE, "Send message to remote server"),
+                            new FunctionParameterSequenceType("content", Type.ITEM, Cardinality.EXACTLY_ONE, "Send message to remote server"),
                             new FunctionParameterSequenceType("jmsMessageProperties", Type.MAP, Cardinality.ZERO_OR_ONE, "Application-defined property values"),
-                            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.ONE, "JMS configuration settings")
+                            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration settings")
                     },
-                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Confirmation message")
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.EXACTLY_ONE, "Confirmation message")
             ),
 
     };

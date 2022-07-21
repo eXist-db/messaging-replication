@@ -29,7 +29,6 @@ import org.exist.jms.shared.receive.ReceiversManager;
 import org.exist.jms.xquery.MessagingModule;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.AbstractMapType;
-import org.exist.xquery.functions.request.RequestModule;
 import org.exist.xquery.value.*;
 
 import static org.exist.jms.shared.ErrorCodes.JMS010;
@@ -87,9 +86,10 @@ public class RegisterReceiver extends BasicFunction {
             final JmsConfiguration config = new JmsConfiguration();
             config.loadConfiguration(configMap);
 
-            // Remove Request module from expression and xquery context
-            this.getContext().setModule(RequestModule.NAMESPACE_URI, null);
-            context.setModule(RequestModule.NAMESPACE_URI, null);
+            // TODO why was this needed and why did we want to remove it.
+//            // Remove Request module from expression and xquery context
+//            this.getContext().setModule(RequestModule.NAMESPACE_URI, null);
+//            context.setModule(RequestModule.NAMESPACE_URI, null);
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2
