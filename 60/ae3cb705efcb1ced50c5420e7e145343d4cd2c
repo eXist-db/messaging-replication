@@ -1,0 +1,19 @@
+.github/linters/google_checks.xml
+  s_c292e5b13c6905::t_e5caa6c3fe4da7 1-440
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "60ae3cb705efcb1ced50c5420e7e145343d4cd2c",
+  "prompts": {},
+  "sessions": {
+    "s_c292e5b13c6905": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "32a8b4b6-84c8-4621-82ce-96c1a9c0a2a3",
+        "model": "default"
+      },
+      "human_author": "duncdrum <d.paterson@me.com>"
+    }
+  }
+}
