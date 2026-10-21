@@ -1,0 +1,53 @@
+.github/workflows/maven.yml
+  s_c292e5b13c6905::t_fd25f43b90fc93 18-20,22-23,25-32,34-37
+src/main/java/org/exist/jms/shared/send/Sender.java
+  s_c292e5b13c6905::t_7655ae32aad0ee 22
+  s_c292e5b13c6905::t_eca4f9a8be07a6 280-289
+src/test/resources/org/exist/jms/xquery/dummy.xql
+  s_c292e5b13c6905::t_dfcf5c7d09dc64 9
+xar-assembly.xml
+  s_c292e5b13c6905::t_2d3e22b95f605c 51-64,79
+src/test/java/org/exist/jms/xquery/XQueryTest.java
+  s_c292e5b13c6905::t_fcddbf3d427c29 3,5
+src/test/resources/org/exist/jms/xquery/management.xq
+  s_c292e5b13c6905::t_5ec91be07d6708 22,33
+src/main/java/org/exist/jms/shared/eXistMessageItem.java
+  s_c292e5b13c6905::t_e8fbbfe6407c21 66-69
+  s_c292e5b13c6905::t_278cfb60fb6e87 28
+  s_c292e5b13c6905::t_b25620b031a5cb 65
+pom.xml
+  s_c292e5b13c6905::t_5a7b3fc464203c 257-265
+  s_c292e5b13c6905::t_2874c84c8467c3 10,48-50,52-54,63,67-78,86,93-94,153-160,163,165-173,249-256,266-323,406-421,423-427,434
+  s_c292e5b13c6905::t_7838697c3e0468 96-119
+  s_c292e5b13c6905::t_b547889ddbdde6 95
+src/main/java/org/exist/jms/replication/subscribe/ReplicationJmsListener.java
+  s_c292e5b13c6905::t_eea7689a3124eb 717,900
+src/main/java/org/exist/jms/xquery/management/ManageReceivers.java
+  s_c292e5b13c6905::t_7caa3b0252c8c7 52,58,64,70,76
+src/main/java/org/exist/jms/xquery/messaging/RegisterReceiver.java
+  s_c292e5b13c6905::t_eb32b0055fc2da 51,53,91-92
+src/main/java/org/exist/jms/xquery/messaging/SendMessage.java
+  s_c292e5b13c6905::t_eed344b66bea95 49-51,53
+src/main/java/org/exist/jms/xquery/replication/RegisterReceiver.java
+  s_c292e5b13c6905::t_6b1902deeda97d 48
+src/main/java/org/exist/jms/xquery/replication/ReplicationSwitch.java
+  s_c292e5b13c6905::t_f3b01a2e21d15f 45
+src/main/java/org/exist/jms/xquery/replication/SyncResource.java
+  s_c292e5b13c6905::t_890360ce84993f 61,67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "9ec5959ce1956da4d08c14a7b5341309486dd65d",
+  "prompts": {},
+  "sessions": {
+    "s_c292e5b13c6905": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "32a8b4b6-84c8-4621-82ce-96c1a9c0a2a3",
+        "model": "default"
+      },
+      "human_author": "duncdrum <d.paterson@me.com>"
+    }
+  }
+}
