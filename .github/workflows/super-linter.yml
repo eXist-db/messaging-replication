@@ -27,3 +27,6 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: develop
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Align Checkstyle with google-java-format (already enabled above).
+          # Default sun_checks (80-col / full Javadoc) fails on this codebase.
+          JAVA_FILE_NAME: google_checks.xml
