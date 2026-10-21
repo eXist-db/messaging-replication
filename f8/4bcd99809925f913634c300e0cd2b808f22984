@@ -1,0 +1,19 @@
+.github/workflows/super-linter.yml
+  s_c292e5b13c6905::t_8a8e673597fd3d 32-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "f84bcd99809925f913634c300e0cd2b808f22984",
+  "prompts": {},
+  "sessions": {
+    "s_c292e5b13c6905": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "32a8b4b6-84c8-4621-82ce-96c1a9c0a2a3",
+        "model": "default"
+      },
+      "human_author": "duncdrum <d.paterson@me.com>"
+    }
+  }
+}
