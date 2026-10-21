@@ -48,9 +48,9 @@ public class RegisterReceiver extends BasicFunction {
                     new QName("register", MessagingModule.NAMESPACE_URI, MessagingModule.PREFIX),
                     "Register function to receive JMS messages.",
                     new SequenceType[]{
-                            new FunctionParameterSequenceType("callback", Type.FUNCTION_REFERENCE, Cardinality.EXACTLY_ONE, "Function called when a JMS message is received"),
+                            new FunctionParameterSequenceType("callback", Type.FUNCTION, Cardinality.EXACTLY_ONE, "Function called when a JMS message is received"),
                             new FunctionParameterSequenceType("parameters", Type.ITEM, Cardinality.ZERO_OR_MORE, "Additional function parameters"),
-                            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
+                            new FunctionParameterSequenceType("jmsConfiguration", Type.MAP_ITEM, Cardinality.EXACTLY_ONE, "JMS configuration"),},
                     new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
             ),
 
@@ -88,8 +88,8 @@ public class RegisterReceiver extends BasicFunction {
             config.loadConfiguration(configMap);
 
             // Remove Request module from expression and xquery context
-            this.getContext().setModule(RequestModule.NAMESPACE_URI, null);
-            context.setModule(RequestModule.NAMESPACE_URI, null);
+            this.getContext().setModules(RequestModule.NAMESPACE_URI, null);
+            context.setModules(RequestModule.NAMESPACE_URI, null);
 
             // Setup listener, pass correct User object
             // get user via Broker for compatibility < existdb 2.2

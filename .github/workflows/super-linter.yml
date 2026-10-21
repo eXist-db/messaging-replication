@@ -27,3 +27,9 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: develop
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Java formatting is covered by GOOGLE_JAVA_FORMAT (enabled by default).
+          # Default JAVA/checkstyle uses sun_checks (80-col / full Javadoc) and fails
+          # on this codebase; shipping modern google_checks.xml also fails because
+          # super-linter v4 bundles an older Checkstyle without
+          # SuppressWithNearbyTextFilter (see super-linter#5503).
+          VALIDATE_JAVA: false

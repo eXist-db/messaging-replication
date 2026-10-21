@@ -49,31 +49,31 @@ public class ManageReceivers extends BasicFunction {
                     new QName(START, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Start receiver",
                     new SequenceType[]{
                             new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
-                    new SequenceType(Type.ITEM, Cardinality.EMPTY)
+                    new SequenceType(Type.ITEM, Cardinality.EMPTY_SEQUENCE)
             ),
             new FunctionSignature(
                     new QName(STOP, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Stop receiver",
                     new SequenceType[]{
                             new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
-                    new SequenceType(Type.ITEM, Cardinality.EMPTY)
+                    new SequenceType(Type.ITEM, Cardinality.EMPTY_SEQUENCE)
             ),
             new FunctionSignature(
                     new QName(CLOSE, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Close receiver",
                     new SequenceType[]{
                             new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
-                    new SequenceType(Type.ITEM, Cardinality.EMPTY)
+                    new SequenceType(Type.ITEM, Cardinality.EMPTY_SEQUENCE)
             ),
             new FunctionSignature(
                     new QName(REPORT, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Get details of receiver",
                     new SequenceType[]{
                             new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
-                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "XML fragment with receiver information")
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.EXACTLY_ONE, "XML fragment with receiver information")
             ),
             new FunctionSignature(
                     new QName(CLEARREPORT, JmsModule.NAMESPACE_URI, JmsModule.PREFIX), "Clear report",
                     new SequenceType[]{
                             new FunctionParameterSequenceType(ID, Type.INTEGER, Cardinality.EXACTLY_ONE, RECEIVER_ID),},
-                    new FunctionReturnSequenceType(Type.NODE, Cardinality.ONE, "Clear report of receiver")
+                    new FunctionReturnSequenceType(Type.NODE, Cardinality.EXACTLY_ONE, "Clear report of receiver")
             ),};
 
     public ManageReceivers(final XQueryContext context, final FunctionSignature signature) {

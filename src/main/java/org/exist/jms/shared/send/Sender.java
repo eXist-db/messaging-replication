@@ -19,6 +19,7 @@
  */
 package org.exist.jms.shared.send;
 
+import com.evolvedbinary.j8fu.function.ConsumerE;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -276,9 +277,16 @@ public class Sender {
 
                 // note: this code is not responsible to close the broker!
                 final DBBroker broker = xQueryContext.getBroker();
+                final ConsumerE<ConsumerE<Serializer, IOException>, IOException> withSerializerFn = fn -> {
+                    final Serializer serializer = broker.borrowSerializer();
+                    try {
+                        fn.accept(serializer);
+                    } finally {
+                        broker.returnSerializer(serializer);
+                    }
+                };
 
-                final Serializer serializer = broker.newSerializer();
-                try (final InputStream is = new NodeInputStream(xQueryContext.getDatabase(), serializer, node);
+                try (final InputStream is = new NodeInputStream(xQueryContext.getDatabase(), withSerializerFn, node);
 
                      // Compress data when indicated
                      final OutputStream os = getOutputStream(isCompressed, baos)) {

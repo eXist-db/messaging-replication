@@ -714,7 +714,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 permission.setMode(mode.get());
             }
             // Set Create time only
-            createTime.ifPresent(collection::setCreationTime);
+            createTime.ifPresent(collection::setCreated);
 
             broker.saveCollection(txn, collection);
 
@@ -897,7 +897,7 @@ public class ReplicationJmsListener extends eXistMessagingListener {
                 permission.setMode(mode.get());
             }
 
-            created.ifPresent(collection::setCreationTime);
+            created.ifPresent(collection::setCreated);
 
             // Make persistent
             broker.saveCollection(txn, collection);
