@@ -19,7 +19,7 @@ declare variable $m:messageProperties := map {
 "Mo" : xs:integer(1)
 };
 
-declare function local:handleMessage($content as item(), $params as item()*, $messageProperties as map(), $jmsConfig as map() )
+declare function m:handleMessage($content as item(), $params as item()*, $messageProperties as map(*), $jmsConfig as map(*) )
 {
     util:log("INFO", $content)
 };
@@ -30,7 +30,7 @@ declare
 function m:register()  {
 
     (: Define HoF callback function, with 4 parameters :)
-    let $callback := local:handleMessage#4
+    let $callback := m:handleMessage#4
 
     (: reset :)
     let $init := for $i in jms:list() return jms:close($i)

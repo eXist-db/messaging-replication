@@ -45,7 +45,7 @@ public class RegisterReceiver extends BasicFunction {
             new FunctionSignature(
                     new QName("register", ReplicationModule.NAMESPACE_URI, ReplicationModule.PREFIX),
                     "Register function to receive JMS replication messages.", new SequenceType[]{
-                    new FunctionParameterSequenceType("jmsConfiguration", Type.MAP, Cardinality.EXACTLY_ONE, "JMS configuration"),},
+                    new FunctionParameterSequenceType("jmsConfiguration", Type.MAP_ITEM, Cardinality.EXACTLY_ONE, "JMS configuration"),},
                     new FunctionReturnSequenceType(Type.STRING, Cardinality.ZERO_OR_ONE, "Receiver ID")
             ),};
 

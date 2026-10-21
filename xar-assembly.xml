@@ -48,6 +48,20 @@
         <fileSet>
             <directory>${basedir}/src/main/xar-resources</directory>
         </fileSet>
+        <!--
+            External jars are staged by maven-dependency-plugin (see pom.xml).
+            kuberam-expath-plugin 0.6.3 resolves dependencySets with an empty
+            remoteRepos list; under Maven 3.10 that rejects locally cached
+            artifacts as "present, but unavailable" (verifying from []).
+            fileSets avoid that resolver path. Jars still land under content/.
+        -->
+        <fileSet>
+            <directory>${project.build.directory}/xar-libs</directory>
+            <outputDirectory>content</outputDirectory>
+            <includes>
+                <include>*.jar</include>
+            </includes>
+        </fileSet>
     </fileSets>
 
     <!-- include the XQuery Library modules written in XQuery from this project -->
@@ -62,49 +76,13 @@
         <!--</xquerySet>-->
     </xquerySets>
 
-    <!-- include the XQuery Library Module written in Java (JAR output) from this project -->
+    <!-- Project jar resolves from the reactor (no remote repos needed). -->
     <dependencySets>
         <dependencySet>
             <groupId>${project.groupId}</groupId>
             <artifactId>${project.artifactId}</artifactId>
             <version>${project.version}</version>
         </dependencySet>
-        <dependencySet>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-client</artifactId>
-            <version>${activemq.version}</version>
-        </dependencySet>
-        <dependencySet>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-pool</artifactId>
-            <version>${activemq.version}</version>
-        </dependencySet>
-        <dependencySet>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jms-pool</artifactId>
-            <version>${activemq.version}</version>
-        </dependencySet>
-        <dependencySet>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-            <version>${commonspool2.version}</version>
-        </dependencySet>     
-        <dependencySet>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-jms_1.1_spec</artifactId>
-            <version>${jmsspec.version}</version>
-        </dependencySet>
-        <dependencySet>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-            <version>${j2eespec.version}</version>
-        </dependencySet>
-        <dependencySet>
-          <groupId>org.fusesource.hawtbuf</groupId>
-          <artifactId>hawtbuf</artifactId>
-          <version>${hawtbuf.version}</version>
-        </dependencySet>
-            
     </dependencySets>
 
 

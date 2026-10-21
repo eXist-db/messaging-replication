@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.exist-db</groupId>
         <artifactId>exist-apps-parent</artifactId>
-        <version>1.12.0</version>
+        <version>3.0.0</version>
         <relativePath/>
     </parent>
 
@@ -45,10 +45,13 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.source>1.8</project.build.source>
-        <project.build.target>1.8</project.build.target>
+        <!-- Inherited from exist-apps-parent 3.0.0 as Java 21; keep explicit for clarity. -->
+        <project.build.source>21</project.build.source>
+        <project.build.target>21</project.build.target>
 
-        <exist.version>5.3.0</exist.version> <!-- minimum version is 5.1.0 -->
+        <exist.version>7.0.0-SNAPSHOT</exist.version>
+        <!-- Align with eXist-db develop (exist-parent); JUnit 4 / XSuite are gone. -->
+        <junit.jupiter.version>6.1.3</junit.jupiter.version>
         <activemq.version>5.16.3</activemq.version>
         <commonspool2.version>2.11.1</commonspool2.version>
         <hawtbuf.version>1.11</hawtbuf.version>
@@ -57,8 +60,21 @@
 
         <!-- used in the EXPath Package Descriptor -->
         <package-name>http://exist-db.org/messaging-replication</package-name>
+        <package-abbrev>jms</package-abbrev>
 
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.jupiter.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -67,12 +83,40 @@
             <groupId>org.exist-db</groupId>
             <artifactId>exist-core</artifactId>
             <version>${exist.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.exist-db</groupId>
             <artifactId>exist-expath</artifactId>
             <version>${exist.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Provided by eXist at runtime; declared so dependency:analyze-only is satisfied. -->
+        <dependency>
+            <groupId>com.evolvedbinary.j8fu</groupId>
+            <artifactId>j8fu</artifactId>
+            <version>1.24.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.22.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.21.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.26.1</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- ActiveMQ -->
@@ -106,15 +150,27 @@
 
         <!-- Specification -->
         <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-jms_1.1_spec</artifactId>
-          <version>${jmsspec.version}</version>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <version>${jmsspec.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            <version>${j2eespec.version}</version>
         </dependency>
 
-        <!-- test dependencies -->
+        <!-- @XQSuite + XQSuiteTestEngine live in exist-core's test-jar (not the main jar). -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.exist-db</groupId>
+            <artifactId>exist-core</artifactId>
+            <version>${exist.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -123,7 +179,6 @@
             <version>2.8.4</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 
@@ -190,6 +245,81 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <!-- Required at runtime for Failsafe's JUnit Platform provider and exist's
+                         exist-xqsuite TestEngine (ServiceLoader); not referenced from our bytecode. -->
+                    <ignoredUnusedDeclaredDependencies>
+                        <ignoredUnusedDeclaredDependency>org.junit.jupiter:junit-jupiter</ignoredUnusedDeclaredDependency>
+                        <!-- Bundled into the XAR / used via JNDI+JMS at runtime, not compile imports. -->
+                        <ignoredUnusedDeclaredDependency>org.exist-db:exist-expath</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.apache.activemq:activemq-client</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.apache.activemq:activemq-pool</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.apache.activemq:activemq-jms-pool</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.apache.commons:commons-pool2</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.fusesource.hawtbuf:hawtbuf</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.apache.geronimo.specs:geronimo-j2ee-management_1.1_spec</ignoredUnusedDeclaredDependency>
+                        <ignoredUnusedDeclaredDependency>org.xmlunit:xmlunit-core</ignoredUnusedDeclaredDependency>
+                    </ignoredUnusedDeclaredDependencies>
+                </configuration>
+                <executions>
+                    <!--
+                        Stage ActiveMQ / Geronimo / pool jars for xar-assembly.xml fileSets.
+                        kuberam-expath-plugin 0.6.3's make-xar resolves dependencySets with empty
+                        remoteRepos; Maven 3.10 then fails with "present, but unavailable" / from [].
+                        Resolving here uses the normal project RepositorySystemSession.
+                    -->
+                    <execution>
+                        <id>copy-xar-libs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/xar-libs</outputDirectory>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.activemq</groupId>
+                                    <artifactId>activemq-client</artifactId>
+                                    <version>${activemq.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.activemq</groupId>
+                                    <artifactId>activemq-pool</artifactId>
+                                    <version>${activemq.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.activemq</groupId>
+                                    <artifactId>activemq-jms-pool</artifactId>
+                                    <version>${activemq.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.commons</groupId>
+                                    <artifactId>commons-pool2</artifactId>
+                                    <version>${commonspool2.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-jms_1.1_spec</artifactId>
+                                    <version>${jmsspec.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.geronimo.specs</groupId>
+                                    <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+                                    <version>${j2eespec.version}</version>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.fusesource.hawtbuf</groupId>
+                                    <artifactId>hawtbuf</artifactId>
+                                    <version>${hawtbuf.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>ro.kuberam.maven.plugins</groupId>
@@ -273,16 +403,35 @@
     </build>
 
     <repositories>
+        <!-- GitHub Packages is the authoritative source for exist-core SNAPSHOT
+             builds (deployed from develop by eXist-db/exist's ci-snapshots.yml).
+             Listed first so Maven queries it before the stale snapshot at
+             repo.exist-db.org. The id `github` matches the credentials block
+             injected by setup-java in CI. -->
         <repository>
-            <id>exist</id>
-            <url>http://repo.exist-db.org/repository/exist-db</url>
+            <id>github</id>
+            <name>GitHub Packages — eXist-db</name>
+            <url>https://maven.pkg.github.com/eXist-db/exist</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <!-- Override the eXist-db repository URLs inherited from exist-apps-parent,
+             which still declares them as http:// — blocked by Maven 3.8.1+'s default
+             HTTP-mirror policy. Snapshots here are stale (the publish pipeline only
+             pushes to GitHub Packages), so this is kept as a release-only source. -->
+        <repository>
+            <id>exist-db</id>
+            <name>eXist-db Releases</name>
+            <url>https://repo.exist-db.org/repository/exist-db/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
             <id>clojars.org</id>
-            <url>http://clojars.org/repo</url>
+            <url>https://clojars.org/repo</url>
         </pluginRepository>
     </pluginRepositories>
 </project>

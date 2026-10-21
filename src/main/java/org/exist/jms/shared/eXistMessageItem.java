@@ -25,6 +25,7 @@ import org.exist.dom.memtree.DocumentBuilderReceiver;
 import org.exist.dom.persistent.NodeHandle;
 import org.exist.numbering.NodeId;
 import org.exist.storage.DBBroker;
+import org.exist.xquery.Expression;
 import org.exist.xquery.XPathException;
 import org.exist.xquery.XQueryContext;
 import org.exist.xquery.value.AtomicValue;
@@ -59,6 +60,11 @@ public class eXistMessageItem implements Item {
     @Override
     public int getType() {
         return Type.ITEM;
+    }
+
+    @Override
+    public Expression getExpression() {
+        return null;
     }
 
     @Override

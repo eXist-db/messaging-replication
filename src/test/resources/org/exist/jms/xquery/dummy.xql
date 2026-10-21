@@ -6,6 +6,6 @@ declare namespace test="http://exist-db.org/xquery/xqsuite";
 
 declare
     %test:assertEquals(10)
-function m:testDummy() as xs:int {
+function m:testDummy() as xs:integer {
     10
 };
